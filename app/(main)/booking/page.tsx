@@ -505,7 +505,7 @@ export default function BookingPage() {
                 <CardTitle className="text-lg">Call Us</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-2">+1 (555) 123-4567</p>
+                <p className="text-gray-600 mb-2">+250 786 376 459</p>
                 <p className="text-sm text-gray-500">Monday - Friday, 9 AM - 5 PM</p>
               </CardContent>
             </Card>
@@ -518,7 +518,7 @@ export default function BookingPage() {
                 <CardTitle className="text-lg">Email Us</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-2">info@goldenlightschool.com</p>
+                <p className="text-gray-600 mb-2">goldenlight4.school@gmail.com</p>
                 <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
               </CardContent>
             </Card>

@@ -9,6 +9,24 @@ import { AdminLayout } from "@/components/admin-layout"
 import { useState, useEffect } from "react"
 
 export default function AdminDashboard() {
+  interface Application {
+    _id: string
+    parentName: string
+    childName: string
+    childAge: number
+    status: string
+    submittedAt: string
+  }
+
+  interface Booking {
+    _id: string
+    parentName: string
+    appointmentType: string
+    date: string
+    time: string
+    status: string
+  }
+
   const [dashboardStats, setDashboardStats] = useState({
     totalStudents: 0,
     pendingApplications: 0,
@@ -18,13 +36,9 @@ export default function AdminDashboard() {
     activeOrders: 23,
   })
 
-  const [recentApplications, setRecentApplications] = useState([])
-  const [recentBookings, setRecentBookings] = useState([])
+  const [recentApplications, setRecentApplications] = useState<Application[]>([])
+  const [recentBookings, setRecentBookings] = useState<Booking[]>([])
   const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    fetchDashboardData()
-  }, [])
 
   const fetchDashboardData = async () => {
     try {
@@ -39,9 +53,9 @@ export default function AdminDashboard() {
 
         setDashboardStats((prev) => ({
           ...prev,
-          totalStudents: applications.filter((app) => app.status === "approved").length,
-          pendingApplications: applications.filter((app) => app.status === "pending").length,
-          pendingBookings: bookings.filter((booking) => booking.status === "pending").length,
+          totalStudents: applications.filter((app: Application) => app.status === "approved").length,
+          pendingApplications: applications.filter((app: Application) => app.status === "pending").length,
+          pendingBookings: bookings.filter((booking: Booking) => booking.status === "pending").length,
         }))
 
         setRecentApplications(applications.slice(0, 4))
@@ -54,7 +68,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",

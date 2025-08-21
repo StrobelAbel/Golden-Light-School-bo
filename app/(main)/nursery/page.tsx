@@ -44,7 +44,7 @@ export default function NurseryPage() {
             <div className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/placeholder.svg?height=600&width=500"
+                  src="/kids.jpg?height=600&width=500"
                   alt="Nursery classroom with children and teacher"
                   width={500}
                   height={600}
@@ -215,7 +215,7 @@ export default function NurseryPage() {
 
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=500&width=600"
+                src="/Curriculum.jpg?height=500&width=600"
                 alt="Children learning activities"
                 width={600}
                 height={500}
@@ -239,7 +239,7 @@ export default function NurseryPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card className="overflow-hidden">
               <div className="relative h-48">
-                <Image src="/placeholder.svg?height=200&width=400" alt="Classroom" fill className="object-cover" />
+                <Image src="/class.jpg?height=200&width=400" alt="Classroom" fill className="object-cover" />
               </div>
               <CardHeader>
                 <CardTitle>Interactive Classrooms</CardTitle>
@@ -251,7 +251,7 @@ export default function NurseryPage() {
 
             <Card className="overflow-hidden">
               <div className="relative h-48">
-                <Image src="/placeholder.svg?height=200&width=400" alt="Playground" fill className="object-cover" />
+                <Image src="/play.jpg?height=200&width=400" alt="Playground" fill className="object-cover" />
               </div>
               <CardHeader>
                 <CardTitle>Safe Playground</CardTitle>
@@ -263,7 +263,7 @@ export default function NurseryPage() {
 
             <Card className="overflow-hidden">
               <div className="relative h-48">
-                <Image src="/placeholder.svg?height=200&width=400" alt="Library" fill className="object-cover" />
+                <Image src="/reading.jpg?height=200&width=400" alt="Library" fill className="object-cover" />
               </div>
               <CardHeader>
                 <CardTitle>Reading Corner</CardTitle>
