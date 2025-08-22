@@ -52,7 +52,7 @@ export default function GalleryPage() {
   ]
 
   return (
-    <div className="min-h-screen">
+    <div>
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-cyan-50 via-golden-50 to-purple-50 py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">

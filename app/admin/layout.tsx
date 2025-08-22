@@ -231,9 +231,14 @@ export default function AdminLayout({
       <div className="lg:ml-64">
         {/* Top bar */}
         <header className="bg-white shadow-sm border-b h-16 flex items-center justify-between px-6">
-          <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setIsSidebarOpen(true)}>
-            <Menu className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center">
+            <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setIsSidebarOpen(true)}>
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div className="hidden lg:block">
+              <h1 className="text-xl font-semibold text-gray-900">Admin Dashboard</h1>
+            </div>
+          </div>
 
           <div className="flex items-center space-x-4">
             {/* Notifications */}

@@ -20,8 +20,10 @@ export async function GET(request: NextRequest) {
       filters.$or = [{ name: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }]
     }
 
-    if (searchParams.get("isVisible") !== null) {
-      filters.isVisible = searchParams.get("isVisible") === "true"
+    // Handle visibility filter - important for public vs admin views
+    const isVisibleParam = searchParams.get("isVisible")
+    if (isVisibleParam !== null) {
+      filters.isVisible = isVisibleParam === "true"
     }
 
     const products = await db.collection("products").find(filters).sort({ createdAt: -1 }).toArray()

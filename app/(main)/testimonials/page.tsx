@@ -71,7 +71,7 @@ export default function TestimonialsPage() {
   ]
 
   return (
-    <div className="min-h-screen">
+    <div>
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-golden-50 via-cyan-50 to-purple-50 py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
