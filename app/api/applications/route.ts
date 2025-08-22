@@ -1,102 +1,66 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getDatabase } from "@/lib/mongodb"
+import clientPromise from "@/lib/mongodb"
 import type { Application } from "@/lib/models/Application"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const db = await getDatabase()
-    const applications = await db.collection<Application>("applications").find({}).sort({ submittedAt: -1 }).toArray()
+    const client = await clientPromise
+    const db = client.db("golden-light-school")
+    const { searchParams } = new URL(request.url)
 
-    return NextResponse.json({
-      success: true,
-      applications,
-    })
+    const filters: any = {}
+
+    // Apply filters
+    if (searchParams.get("status")) {
+      filters.status = searchParams.get("status")
+    }
+
+    if (searchParams.get("search")) {
+      const search = searchParams.get("search")
+      filters.$or = [
+        { parentName: { $regex: search, $options: "i" } },
+        { childName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ]
+    }
+
+    const applications = await db.collection("applications").find(filters).sort({ createdAt: -1 }).toArray()
+
+    return NextResponse.json(applications)
   } catch (error) {
     console.error("Error fetching applications:", error)
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to fetch applications",
-      },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: "Failed to fetch applications" }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const client = await clientPromise
+    const db = client.db("golden-light-school")
     const body = await request.json()
 
-    // Validate required fields
-    const requiredFields = [
-      "parentName",
-      "email",
-      "phone",
-      "childName",
-      "childAge",
-      "childDOB",
-      "preferredStartDate",
-      "emergencyContact",
-      "emergencyPhone",
-      "agreedToTerms",
-    ]
-
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: `Missing required field: ${field}`,
-          },
-          { status: 400 },
-        )
-      }
-    }
-
-    if (!body.agreedToTerms) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "You must agree to the terms and conditions",
-        },
-        { status: 400 },
-      )
-    }
-
-    const db = await getDatabase()
-
     const application: Omit<Application, "_id"> = {
-      parentName: body.parentName,
-      email: body.email,
-      phone: body.phone,
-      childName: body.childName,
-      childAge: body.childAge,
-      childDOB: body.childDOB,
-      preferredStartDate: body.preferredStartDate,
-      previousSchool: body.previousSchool || "",
-      specialNeeds: body.specialNeeds || "",
-      emergencyContact: body.emergencyContact,
-      emergencyPhone: body.emergencyPhone,
-      agreedToTerms: body.agreedToTerms,
+      ...body,
       status: "pending",
-      submittedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
 
-    const result = await db.collection<Application>("applications").insertOne(application)
+    const result = await db.collection("applications").insertOne(application)
 
-    return NextResponse.json({
-      success: true,
-      message: "Application submitted successfully",
-      applicationId: result.insertedId,
+    // Create notification for new application
+    await db.collection("notifications").insertOne({
+      type: "new_application",
+      title: "New Application Received",
+      message: `New admission application from ${application.parentName} for ${application.childName}`,
+      isRead: false,
+      createdAt: new Date(),
+      relatedId: result.insertedId.toString(),
     })
+
+    return NextResponse.json({ success: true, id: result.insertedId })
   } catch (error) {
     console.error("Error creating application:", error)
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to submit application",
-      },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: "Failed to create application" }, { status: 500 })
   }
 }

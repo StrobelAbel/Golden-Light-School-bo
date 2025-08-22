@@ -6,9 +6,8 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Golden Light School Ltd - Nurturing Young Minds Since 2021",
-  description:
-    "Quality nursery education and interactive learning aids. Affordable, tech-enhanced teaching solutions for better engagement and learning effectiveness.",
+  title: "Golden Light School Ltd",
+  description: "Nurturing young minds with affordable, interactive, and tech-enhanced education since 2021.",
     generator: 'v0.app'
 }
 

@@ -1,342 +1,310 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Users, BookOpen, ShoppingCart, Calendar, TrendingUp, DollarSign, Eye, Edit } from "lucide-react"
-import Link from "next/link"
-import { AdminLayout } from "@/components/admin-layout"
 import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Package, FileText, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle, Eye, Plus } from "lucide-react"
+import Link from "next/link"
+
+interface DashboardStats {
+  totalProducts: number
+  totalApplications: number
+  pendingApplications: number
+  approvedApplications: number
+  rejectedApplications: number
+  lowStockProducts: number
+  recentApplications: any[]
+  recentProducts: any[]
+}
 
 export default function AdminDashboard() {
-  interface Application {
-    _id: string
-    parentName: string
-    childName: string
-    childAge: number
-    status: string
-    submittedAt: string
-  }
-
-  interface Booking {
-    _id: string
-    parentName: string
-    appointmentType: string
-    date: string
-    time: string
-    status: string
-  }
-
-  const [dashboardStats, setDashboardStats] = useState({
-    totalStudents: 0,
+  const [stats, setStats] = useState<DashboardStats>({
+    totalProducts: 0,
+    totalApplications: 0,
     pendingApplications: 0,
-    totalProducts: 48,
-    pendingBookings: 0,
-    monthlyRevenue: 15420,
-    activeOrders: 23,
+    approvedApplications: 0,
+    rejectedApplications: 0,
+    lowStockProducts: 0,
+    recentApplications: [],
+    recentProducts: [],
   })
+  const [loading, setLoading] = useState(true)
 
-  const [recentApplications, setRecentApplications] = useState<Application[]>([])
-  const [recentBookings, setRecentBookings] = useState<Booking[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
 
   const fetchDashboardData = async () => {
     try {
-      const [applicationsRes, bookingsRes] = await Promise.all([fetch("/api/applications"), fetch("/api/bookings")])
+      const [productsRes, applicationsRes] = await Promise.all([fetch("/api/products"), fetch("/api/applications")])
 
-      const applicationsData = await applicationsRes.json()
-      const bookingsData = await bookingsRes.json()
+      const products = await productsRes.json()
+      const applications = await applicationsRes.json()
 
-      if (applicationsData.success && bookingsData.success) {
-        const applications = applicationsData.applications
-        const bookings = bookingsData.bookings
-
-        setDashboardStats((prev) => ({
-          ...prev,
-          totalStudents: applications.filter((app: Application) => app.status === "approved").length,
-          pendingApplications: applications.filter((app: Application) => app.status === "pending").length,
-          pendingBookings: bookings.filter((booking: Booking) => booking.status === "pending").length,
-        }))
-
-        setRecentApplications(applications.slice(0, 4))
-        setRecentBookings(bookings.slice(0, 3))
+      const dashboardStats: DashboardStats = {
+        totalProducts: products.length,
+        totalApplications: applications.length,
+        pendingApplications: applications.filter((app: any) => app.status === "pending").length,
+        approvedApplications: applications.filter((app: any) => app.status === "approved").length,
+        rejectedApplications: applications.filter((app: any) => app.status === "rejected").length,
+        lowStockProducts: products.filter((product: any) => product.stock < 10).length,
+        recentApplications: applications.slice(0, 5),
+        recentProducts: products.slice(0, 5),
       }
+
+      setStats(dashboardStats)
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    })
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "approved":
+        return "bg-green-100 text-green-800"
+      case "rejected":
+        return "bg-red-100 text-red-800"
+      case "under_review":
+        return "bg-yellow-100 text-yellow-800"
+      default:
+        return "bg-blue-100 text-blue-800"
+    }
   }
 
-  const recentOrders = [
-    { id: 1, customer: "John Smith", product: "Interactive Learning Tablet", amount: 89.99, status: "shipped" },
-    { id: 2, customer: "Amy Johnson", product: "Bluetooth Sound System", amount: 149.99, status: "processing" },
-    { id: 3, customer: "Tom Wilson", product: "Math Learning Kit", amount: 59.99, status: "delivered" },
-  ]
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "approved":
+        return <CheckCircle className="h-4 w-4" />
+      case "rejected":
+        return <XCircle className="h-4 w-4" />
+      case "under_review":
+        return <Clock className="h-4 w-4" />
+      default:
+        return <AlertCircle className="h-4 w-4" />
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-600"></div>
+      </div>
+    )
+  }
 
   return (
-    <AdminLayout>
-      <div className="space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">Welcome back! Here's what's happening at Golden Light School.</p>
-        </div>
+    <div className="space-y-6">
+      {/* Welcome Header */}
+      <div className="bg-gradient-to-r from-golden-500 to-cyan-500 rounded-lg p-6 text-white">
+        <h1 className="text-3xl font-bold mb-2">Welcome to Golden Light School Admin</h1>
+        <p className="text-golden-100">Manage your school's products, applications, and more from this dashboard.</p>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-              <Users className="h-4 w-4 text-cyan-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-cyan-600">{dashboardStats.totalStudents}</div>
-              <p className="text-xs text-muted-foreground">+12 from last month</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Applications</CardTitle>
-              <BookOpen className="h-4 w-4 text-golden-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-golden-600">{dashboardStats.pendingApplications}</div>
-              <p className="text-xs text-muted-foreground">Requires review</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Products</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{dashboardStats.totalProducts}</div>
-              <p className="text-xs text-muted-foreground">Learning aids available</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Bookings</CardTitle>
-              <Calendar className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{dashboardStats.pendingBookings}</div>
-              <p className="text-xs text-muted-foreground">This week</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">${dashboardStats.monthlyRevenue.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">+8% from last month</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Orders</CardTitle>
-              <TrendingUp className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{dashboardStats.activeOrders}</div>
-              <p className="text-xs text-muted-foreground">Processing & shipped</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Recent Applications */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-cyan-600" />
-                Recent Applications
-              </CardTitle>
-              <CardDescription>Latest admission applications requiring attention</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentApplications.map((application) => (
-                  <div key={application._id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex-1">
-                      <p className="font-medium">{application.parentName}</p>
-                      <p className="text-sm text-gray-600">
-                        Child: {application.childName}, Age {application.childAge}
-                      </p>
-                      <p className="text-xs text-gray-500">{formatDate(application.submittedAt)}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={
-                          application.status === "approved"
-                            ? "default"
-                            : application.status === "pending"
-                              ? "secondary"
-                              : "outline"
-                        }
-                        className={
-                          application.status === "approved"
-                            ? "bg-green-100 text-green-800"
-                            : application.status === "pending"
-                              ? "bg-golden-100 text-golden-800"
-                              : "bg-gray-100 text-gray-800"
-                        }
-                      >
-                        {application.status}
-                      </Badge>
-                      <Button size="sm" variant="ghost">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-sm font-medium">Total Products</p>
+                <p className="text-3xl font-bold">{stats.totalProducts}</p>
+                <p className="text-blue-100 text-xs mt-1">
+                  {stats.lowStockProducts > 0 && `${stats.lowStockProducts} low stock`}
+                </p>
               </div>
-              <div className="mt-4">
-                <Button asChild variant="outline" className="w-full bg-transparent">
-                  <Link href="/admin/applications">View All Applications</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Bookings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-purple-600" />
-                Recent Bookings
-              </CardTitle>
-              <CardDescription>Upcoming appointments and visits</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentBookings.map((booking) => (
-                  <div key={booking._id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex-1">
-                      <p className="font-medium">{booking.parentName}</p>
-                      <p className="text-sm text-gray-600">
-                        {booking.appointmentType.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatDate(booking.date)} at {booking.time}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={booking.status === "confirmed" ? "default" : "secondary"}
-                        className={
-                          booking.status === "confirmed"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-golden-100 text-golden-800"
-                        }
-                      >
-                        {booking.status}
-                      </Badge>
-                      <Button size="sm" variant="ghost">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4">
-                <Button asChild variant="outline" className="w-full bg-transparent">
-                  <Link href="/admin/bookings">View All Bookings</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Recent Orders */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5 text-green-600" />
-              Recent Orders
-            </CardTitle>
-            <CardDescription>Latest product orders from customers</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentOrders.map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium">{order.customer}</p>
-                    <p className="text-sm text-gray-600">{order.product}</p>
-                    <p className="text-sm font-semibold text-green-600">${order.amount}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={
-                        order.status === "delivered" ? "default" : order.status === "shipped" ? "secondary" : "outline"
-                      }
-                      className={
-                        order.status === "delivered"
-                          ? "bg-green-100 text-green-800"
-                          : order.status === "shipped"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-golden-100 text-golden-800"
-                      }
-                    >
-                      {order.status}
-                    </Badge>
-                    <Button size="sm" variant="ghost">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4">
-              <Button asChild variant="outline" className="w-full bg-transparent">
-                <Link href="/admin/orders">View All Orders</Link>
-              </Button>
+              <Package className="h-12 w-12 text-blue-200" />
             </div>
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common administrative tasks</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button asChild className="bg-cyan-600 hover:bg-cyan-700">
-                <Link href="/admin/products/new">Add New Product</Link>
-              </Button>
-              <Button asChild variant="outline" className="bg-transparent">
-                <Link href="/admin/applications">Review Applications</Link>
-              </Button>
-              <Button asChild variant="outline" className="bg-transparent">
-                <Link href="/admin/bookings">Manage Bookings</Link>
-              </Button>
-              <Button asChild variant="outline" className="bg-transparent">
-                <Link href="/admin/school-info">Update School Info</Link>
-              </Button>
+        <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm font-medium">Total Applications</p>
+                <p className="text-3xl font-bold">{stats.totalApplications}</p>
+                <p className="text-green-100 text-xs mt-1">All time submissions</p>
+              </div>
+              <FileText className="h-12 w-12 text-green-200" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-yellow-500 to-orange-500 text-white border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-yellow-100 text-sm font-medium">Pending Applications</p>
+                <p className="text-3xl font-bold">{stats.pendingApplications}</p>
+                <p className="text-yellow-100 text-xs mt-1">Awaiting review</p>
+              </div>
+              <Clock className="h-12 w-12 text-yellow-200" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-100 text-sm font-medium">Approved Applications</p>
+                <p className="text-3xl font-bold">{stats.approvedApplications}</p>
+                <p className="text-purple-100 text-xs mt-1">Successfully enrolled</p>
+              </div>
+              <CheckCircle className="h-12 w-12 text-purple-200" />
             </div>
           </CardContent>
         </Card>
       </div>
-    </AdminLayout>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <TrendingUp className="mr-2 h-5 w-5" />
+            Quick Actions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link href="/admin/products">
+              <Button className="w-full h-20 bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700 flex flex-col items-center justify-center space-y-2">
+                <Plus className="h-6 w-6" />
+                <span>Add New Product</span>
+              </Button>
+            </Link>
+            <Link href="/admin/applications">
+              <Button className="w-full h-20 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 flex flex-col items-center justify-center space-y-2">
+                <Eye className="h-6 w-6" />
+                <span>Review Applications</span>
+              </Button>
+            </Link>
+            <Link href="/admin/products">
+              <Button className="w-full h-20 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 flex flex-col items-center justify-center space-y-2">
+                <Package className="h-6 w-6" />
+                <span>Manage Inventory</span>
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Applications */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center">
+              <FileText className="mr-2 h-5 w-5" />
+              Recent Applications
+            </CardTitle>
+            <Link href="/admin/applications">
+              <Button variant="outline" size="sm">
+                View All
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats.recentApplications.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No applications yet</p>
+              ) : (
+                stats.recentApplications.map((application) => (
+                  <div key={application._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{application.parentName}</p>
+                      <p className="text-sm text-gray-600">Child: {application.childName}</p>
+                      <p className="text-xs text-gray-500">{new Date(application.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <Badge className={getStatusColor(application.status)}>
+                      {getStatusIcon(application.status)}
+                      <span className="ml-1">{application.status.replace("_", " ")}</span>
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Products */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center">
+              <Package className="mr-2 h-5 w-5" />
+              Recent Products
+            </CardTitle>
+            <Link href="/admin/products">
+              <Button variant="outline" size="sm">
+                View All
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats.recentProducts.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No products yet</p>
+              ) : (
+                stats.recentProducts.map((product) => (
+                  <div key={product._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{product.name}</p>
+                      <p className="text-sm text-gray-600">{product.category}</p>
+                      <p className="text-xs text-gray-500">Stock: {product.stock}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-golden-600">${product.price}</p>
+                      {product.stock < 10 && (
+                        <Badge variant="destructive" className="text-xs">
+                          Low Stock
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* System Status */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <AlertCircle className="mr-2 h-5 w-5" />
+            System Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div>
+                <p className="font-medium text-green-900">Database</p>
+                <p className="text-sm text-green-700">Connected</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div>
+                <p className="font-medium text-green-900">API Services</p>
+                <p className="text-sm text-green-700">Operational</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div>
+                <p className="font-medium text-green-900">Notifications</p>
+                <p className="text-sm text-green-700">Active</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

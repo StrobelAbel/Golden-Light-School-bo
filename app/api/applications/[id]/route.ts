@@ -1,149 +1,45 @@
 import { type NextRequest, NextResponse } from "next/server"
+import clientPromise from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
-import { getDatabase } from "@/lib/mongodb"
-import type { Application } from "@/lib/models/Application"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = params
+    const client = await clientPromise
+    const db = client.db("golden-light-school")
 
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid application ID",
-        },
-        { status: 400 },
-      )
-    }
-
-    const db = await getDatabase()
-    const application = await db.collection<Application>("applications").findOne({ _id: new ObjectId(id) })
+    const application = await db.collection("applications").findOne({ _id: new ObjectId(params.id) })
 
     if (!application) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Application not found",
-        },
-        { status: 404 },
-      )
+      return NextResponse.json({ error: "Application not found" }, { status: 404 })
     }
 
-    return NextResponse.json({
-      success: true,
-      application,
-    })
+    return NextResponse.json(application)
   } catch (error) {
     console.error("Error fetching application:", error)
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to fetch application",
-      },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: "Failed to fetch application" }, { status: 500 })
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = params
+    const client = await clientPromise
+    const db = client.db("golden-light-school")
     const body = await request.json()
 
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid application ID",
-        },
-        { status: 400 },
-      )
+    const updateData = {
+      ...body,
+      updatedAt: new Date(),
     }
 
-    const db = await getDatabase()
-
-    const updateData: Partial<Application> = {}
-
-    if (body.status) {
-      updateData.status = body.status
-      updateData.reviewedAt = new Date()
-      updateData.reviewedBy = body.reviewedBy || "Admin"
-    }
-
-    if (body.notes) {
-      updateData.notes = body.notes
-    }
-
-    const result = await db
-      .collection<Application>("applications")
-      .updateOne({ _id: new ObjectId(id) }, { $set: updateData })
+    const result = await db.collection("applications").updateOne({ _id: new ObjectId(params.id) }, { $set: updateData })
 
     if (result.matchedCount === 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Application not found",
-        },
-        { status: 404 },
-      )
+      return NextResponse.json({ error: "Application not found" }, { status: 404 })
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Application updated successfully",
-    })
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error updating application:", error)
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to update application",
-      },
-      { status: 500 },
-    )
-  }
-}
-
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const { id } = params
-
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid application ID",
-        },
-        { status: 400 },
-      )
-    }
-
-    const db = await getDatabase()
-    const result = await db.collection<Application>("applications").deleteOne({ _id: new ObjectId(id) })
-
-    if (result.deletedCount === 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Application not found",
-        },
-        { status: 404 },
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Application deleted successfully",
-    })
-  } catch (error) {
-    console.error("Error deleting application:", error)
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to delete application",
-      },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: "Failed to update application" }, { status: 500 })
   }
 }

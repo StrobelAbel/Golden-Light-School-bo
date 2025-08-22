@@ -1,29 +1,30 @@
-import type { ObjectId } from "mongodb"
-
 export interface Application {
-  _id?: ObjectId
+  _id?: string
+  // Parent Information
   parentName: string
   email: string
   phone: string
+  address: string
+
+  // Child Information
   childName: string
-  childAge: string
-  childDOB: string
-  preferredStartDate: string
-  previousSchool?: string
-  specialNeeds?: string
-  emergencyContact: string
-  emergencyPhone: string
-  agreedToTerms: boolean
-  status: "pending" | "approved" | "rejected" | "review"
-  submittedAt: Date
-  reviewedAt?: Date
-  reviewedBy?: string
-  notes?: string
+  childAge: number
+  childGender: "Male" | "Female"
+  dateOfBirth: Date
+
+  // Application Details
+  preferredStartDate: Date
+  additionalInfo?: string
+  status: "pending" | "approved" | "rejected" | "under_review"
+
+  // Timestamps
+  createdAt: Date
+  updatedAt: Date
 }
 
-export const ApplicationStatus = {
-  PENDING: "pending",
-  APPROVED: "approved",
-  REJECTED: "rejected",
-  REVIEW: "review",
-} as const
+export interface ApplicationFilters {
+  status?: string
+  search?: string
+  dateFrom?: Date
+  dateTo?: Date
+}

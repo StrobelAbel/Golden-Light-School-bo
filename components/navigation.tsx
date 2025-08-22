@@ -14,12 +14,11 @@ export function Navigation() {
     { href: "/", label: "Home" },
     { href: "/nursery", label: "Nursery School" },
     { href: "/products", label: "Learning Aids" },
-    { href: "/booking", label: "Book Visit" },
     { href: "/gallery", label: "Gallery" },
     { href: "/about", label: "About Us" },
     { href: "/testimonials", label: "Testimonials" },
-    // { href: "/blog", label: "Blog" },
-    // { href: "/contact", label: "Contact" },
+    { href: "/blog", label: "Blog" },
+    { href: "/contact", label: "Contact" },
   ]
 
   return (
