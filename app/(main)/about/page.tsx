@@ -79,7 +79,7 @@ export default function AboutPage() {
             <div className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/placeholder.svg?height=600&width=500&text=School+Building"
+                  src="/Ourstory.jpg?height=600&width=500&text=School+Building"
                   alt="Golden Light School building"
                   width={500}
                   height={600}

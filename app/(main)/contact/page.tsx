@@ -103,7 +103,7 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm">
-                  Main: +1 (555) 123-4567
+                  Main: +250 786 376 459
                   <br />
                   Admissions: +1 (555) 123-4568
                   <br />
@@ -121,7 +121,7 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm">
-                  info@goldenlightschool.com
+                  goldenlight4.school@gmail.com
                   <br />
                   admissions@goldenlightschool.com
                   <br />

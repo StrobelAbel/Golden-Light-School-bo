@@ -314,7 +314,7 @@ export default function AdmissionPage() {
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => handleInputChange("phone", e.target.value)}
-                        placeholder="+1 (555) 123-4567"
+                        placeholder="+250 786 376 459"
                         required
                       />
                     </div>

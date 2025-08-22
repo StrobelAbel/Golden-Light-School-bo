@@ -65,7 +65,7 @@ export default function HomePage() {
             <div className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/placeholder.svg?height=600&width=500"
+                  src="/School.jpg?height=600&width=500"
                   alt="Golden Light School nursery classroom"
                   width={500}
                   height={600}
@@ -159,7 +159,7 @@ export default function HomePage() {
             {/* Nursery School */}
             <Card className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative h-48">
-                <Image src="/placeholder.svg?height=200&width=400" alt="Nursery School" fill className="object-cover" />
+                <Image src="/nursery.jpg?height=200&width=400" alt="Nursery School" fill className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 <div className="absolute bottom-4 left-4">
                   <Badge className="bg-white text-gray-900">Nursery School</Badge>
@@ -199,7 +199,7 @@ export default function HomePage() {
             <Card className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative h-48">
                 <Image
-                  src="/placeholder.svg?height=200&width=400"
+                  src="/smart.jpg?height=200&width=400"
                   alt="Learning Products"
                   fill
                   className="object-cover"
