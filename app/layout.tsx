@@ -8,7 +8,9 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Golden Light School Ltd",
   description: "Nurturing young minds with affordable, interactive, and tech-enhanced education since 2021.",
-    generator: 'v0.app'
+    icons: {
+    icon: "/favicon.svg"
+  },
 }
 
 export default function RootLayout({

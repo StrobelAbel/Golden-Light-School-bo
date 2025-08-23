@@ -32,7 +32,7 @@ async function addSampleApplications() {
     const sampleApplications = [
       {
         // Parent Information
-        parentName: "Sarah Johnson",
+        parentName: "Mukamana Esperance",
         email: "sarah.johnson@email.com",
         phone: "+1 (555) 123-4567",
         address: "123 Oak Street, Springfield, IL 62701",
@@ -53,7 +53,7 @@ async function addSampleApplications() {
         updatedAt: new Date("2024-01-15T10:30:00Z"),
       },
       {
-        parentName: "Michael Chen",
+        parentName: "Uwimana Grace",
         email: "michael.chen@email.com",
         phone: "+1 (555) 234-5678",
         address: "456 Pine Avenue, Springfield, IL 62702",
@@ -72,12 +72,12 @@ async function addSampleApplications() {
         updatedAt: new Date("2024-01-12T09:15:00Z"),
       },
       {
-        parentName: "Lisa Williams",
+        parentName: "Byiringiro Emmanuel",
         email: "lisa.williams@email.com",
         phone: "+1 (555) 345-6789",
         address: "789 Maple Drive, Springfield, IL 62703",
 
-        childName: "Sophia Williams",
+        childName: "Nkusi Sophia",
         childAge: 5,
         childGender: "Female",
         dateOfBirth: new Date("2019-11-08"),
@@ -91,12 +91,12 @@ async function addSampleApplications() {
         updatedAt: new Date("2024-01-10T11:30:00Z"),
       },
       {
-        parentName: "David Rodriguez",
+        parentName: "Manirumva David",
         email: "david.rodriguez@email.com",
         phone: "+1 (555) 456-7890",
         address: "321 Elm Street, Springfield, IL 62704",
 
-        childName: "Carlos Rodriguez",
+        childName: "Habiyaremye Baptiste",
         childAge: 3,
         childGender: "Male",
         dateOfBirth: new Date("2021-05-12"),
@@ -110,7 +110,7 @@ async function addSampleApplications() {
         updatedAt: new Date("2024-01-05T13:15:00Z"),
       },
       {
-        parentName: "Amanda Thompson",
+        parentName: "Nkurunziza Nepo",
         email: "amanda.thompson@email.com",
         phone: "+1 (555) 567-8901",
         address: "654 Birch Lane, Springfield, IL 62705",
@@ -128,7 +128,7 @@ async function addSampleApplications() {
         updatedAt: new Date("2024-01-04T15:20:00Z"),
       },
       {
-        parentName: "Jennifer Park",
+        parentName: "Karenzi Yannick",
         email: "jennifer.park@email.com",
         phone: "+1 (555) 678-9012",
         address: "987 Cedar Court, Springfield, IL 62706",

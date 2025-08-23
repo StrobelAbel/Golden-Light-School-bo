@@ -34,13 +34,13 @@ export default function AboutPage() {
 
   const team = [
     {
-      name: "Sarah Johnson",
+      name: "UWIZEYIMANA Alphonsine",
       role: "Head Teacher & Founder",
       image: "/placeholder.svg?height=300&width=300&text=Sarah+Johnson",
       bio: "With over 15 years in early childhood education, Sarah founded Golden Light School to provide quality, affordable education.",
     },
     {
-      name: "Michael Chen",
+      name: "Uwimana Grace",
       role: "Educational Technology Specialist",
       image: "/placeholder.svg?height=300&width=300&text=Michael+Chen",
       bio: "Michael brings expertise in educational technology, helping integrate smart learning aids into our curriculum.",

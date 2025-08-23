@@ -39,7 +39,7 @@ export default function HomePage() {
                   size="lg"
                   className="border-cyan-300 text-cyan-700 hover:bg-cyan-50 bg-transparent"
                 >
-                  <Link href="/booking">
+                  <Link href="/contact">
                     <Calendar className="mr-2 h-5 w-5" />
                     Book a Visit
                   </Link>
@@ -261,7 +261,7 @@ export default function HomePage() {
                     <Star key={i} className="h-4 w-4 fill-golden-400 text-golden-400" />
                   ))}
                 </div>
-                <CardTitle className="text-lg">Sarah Johnson</CardTitle>
+                <CardTitle className="text-lg">Habiyaremye Gad</CardTitle>
                 <CardDescription>Parent of Emma, Age 4</CardDescription>
               </CardHeader>
               <CardContent>
@@ -279,7 +279,7 @@ export default function HomePage() {
                     <Star key={i} className="h-4 w-4 fill-golden-400 text-golden-400" />
                   ))}
                 </div>
-                <CardTitle className="text-lg">Michael Chen</CardTitle>
+                <CardTitle className="text-lg">Gatera jack</CardTitle>
                 <CardDescription>Educator & Parent</CardDescription>
               </CardHeader>
               <CardContent>
@@ -297,7 +297,7 @@ export default function HomePage() {
                     <Star key={i} className="h-4 w-4 fill-golden-400 text-golden-400" />
                   ))}
                 </div>
-                <CardTitle className="text-lg">Lisa Williams</CardTitle>
+                <CardTitle className="text-lg">Uwizeye Jeremie</CardTitle>
                 <CardDescription>Parent of twins</CardDescription>
               </CardHeader>
               <CardContent>
@@ -332,7 +332,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" variant="secondary">
-              <Link href="/booking">Book a Visit</Link>
+              <Link href="/contact">Book a Visit</Link>
             </Button>
             <Button
               asChild

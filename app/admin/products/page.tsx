@@ -216,7 +216,7 @@ export default function AdminProductsPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="price">Price ($)</Label>
+                  <Label htmlFor="price">Price (Frw)</Label>
                   <Input
                     id="price"
                     type="number"
@@ -342,7 +342,7 @@ export default function AdminProductsPage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-start">
                   <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
-                  <span className="text-lg font-bold text-golden-600">${product.price}</span>
+                  <span className="text-lg font-bold text-golden-600">{product.price} Frw</span>
                 </div>
                 <p className="text-gray-600 text-sm line-clamp-2">{product.description}</p>
                 <div className="flex justify-between items-center text-sm text-gray-500">

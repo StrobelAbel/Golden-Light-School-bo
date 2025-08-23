@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Phone } from "lucide-react"
+import { Menu, Phone, User, Lock } from "lucide-react"
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -51,9 +51,9 @@ export function Navigation() {
             size="sm"
             className="border-cyan-200 text-cyan-700 hover:bg-cyan-50 bg-transparent"
           >
-            <Link href="/contact">
-              <Phone className="mr-2 h-4 w-4" />
-              Contact
+            <Link href="/admin/login">
+              <Lock className="mr-2 h-4 w-4" />
+              Admin Login
             </Link>
           </Button>
           <Button asChild size="sm" className="bg-golden-500 hover:bg-golden-600 text-white">

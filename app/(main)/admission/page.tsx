@@ -509,7 +509,7 @@ export default function AdmissionPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm">Schedule a tour</p>
-                <p className="font-semibold">123 Education Street</p>
+                <p className="font-semibold">Musanze</p>
               </CardContent>
             </Card>
           </div>

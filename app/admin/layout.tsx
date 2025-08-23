@@ -16,7 +16,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LayoutDashboard, Package, FileText, Bell, LogOut, Menu, X, User, Settings, Shield } from "lucide-react"
+import {
+  LayoutDashboard,
+  Package,
+  FileText,
+  ShoppingCart,
+  BarChart3,
+  Bell,
+  LogOut,
+  Menu,
+  X,
+  User,
+  Settings,
+  Shield,
+} from "lucide-react"
 
 interface Notification {
   _id: string
@@ -118,6 +131,8 @@ export default function AdminLayout({
     switch (type) {
       case "new_application":
         return "📝"
+      case "new_order":
+        return "🛒"
       case "new_product_request":
         return "📦"
       case "low_stock":
@@ -157,7 +172,9 @@ export default function AdminLayout({
   const navItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/products", label: "Products", icon: Package },
+    { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
     { href: "/admin/applications", label: "Applications", icon: FileText },
+    { href: "/admin/reports", label: "Reports", icon: BarChart3 },
   ]
 
   return (
@@ -230,7 +247,9 @@ export default function AdminLayout({
       {/* Main content */}
       <div className="lg:ml-64">
         {/* Top bar */}
-        <header className="bg-white shadow-sm border-b h-16 flex items-center justify-between px-6">
+        <header
+          className="fixed top-0 left-0 right-0 lg:left-64 z-30 bg-white shadow-sm border-b h-16 flex items-center justify-between px-6"
+        >
           <div className="flex items-center">
             <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setIsSidebarOpen(true)}>
               <Menu className="h-5 w-5" />
@@ -270,27 +289,25 @@ export default function AdminLayout({
                     </div>
                   ) : (
                     notifications.map((notification) => (
-                      <Card
+                      <Link
                         key={notification._id}
-                        className={`cursor-pointer transition-colors ${
-                          !notification.isRead ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"
+                        href={
+                          notification.type === "new_order" && notification.relatedId
+                            ? `/admin/orders/${notification.relatedId}`
+                            : "#"
+                        }
+                        className={`block p-3 rounded-lg transition hover:bg-gray-100 ${
+                          notification.isRead ? "opacity-70" : "font-semibold"
                         }`}
-                        onClick={() => !notification.isRead && markNotificationAsRead(notification._id)}
+                        onClick={() => markNotificationAsRead(notification._id)}
                       >
-                        <CardContent className="p-3">
-                          <div className="flex items-start space-x-3">
-                            <div className="text-lg">{getNotificationIcon(notification.type)}</div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <p className="text-sm font-medium text-gray-900 truncate">{notification.title}</p>
-                                <span className="text-xs text-gray-500">{getTimeAgo(notification.createdAt)}</span>
-                              </div>
-                              <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
-                              {!notification.isRead && <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                        <div className="flex items-center space-x-2">
+                          <span>{getNotificationIcon(notification.type)}</span>
+                          <span className="flex-1">{notification.title}</span>
+                          <span className="text-xs text-gray-400">{getTimeAgo(notification.createdAt)}</span>
+                        </div>
+                        <div className="text-sm text-gray-600">{notification.message}</div>
+                      </Link>
                     ))
                   )}
                 </div>
@@ -337,7 +354,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page content */}
-        <main className="p-6">{children}</main>
+        <main className="p-6 pt-20">{children}</main>
       </div>
     </div>
   )

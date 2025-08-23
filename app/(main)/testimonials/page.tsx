@@ -9,7 +9,7 @@ export default function TestimonialsPage() {
   const testimonials = [
     {
       id: 1,
-      name: "Sarah Johnson",
+      name: "Mukamana Esperance",
       role: "Parent of Emma (Age 4)",
       image: "/placeholder.svg?height=100&width=100&text=Sarah",
       rating: 5,
@@ -18,7 +18,7 @@ export default function TestimonialsPage() {
     },
     {
       id: 2,
-      name: "Michael Chen",
+      name: "Uwimana Grace",
       role: "Parent & Educator",
       image: "/placeholder.svg?height=100&width=100&text=Michael",
       rating: 5,
@@ -27,7 +27,7 @@ export default function TestimonialsPage() {
     },
     {
       id: 3,
-      name: "Lisa Williams",
+      name: "Byiringiro Emmanuel",
       role: "Parent of twins Alex & Maya",
       image: "/placeholder.svg?height=100&width=100&text=Lisa",
       rating: 5,
@@ -36,7 +36,7 @@ export default function TestimonialsPage() {
     },
     {
       id: 4,
-      name: "David Rodriguez",
+      name: "Nkusi Evode",
       role: "Parent of Carlos (Age 3)",
       image: "/placeholder.svg?height=100&width=100&text=David",
       rating: 5,
@@ -45,7 +45,7 @@ export default function TestimonialsPage() {
     },
     {
       id: 5,
-      name: "Amanda Thompson",
+      name: "Gasana jean de Dieu",
       role: "Parent of Sophie (Age 5)",
       image: "/placeholder.svg?height=100&width=100&text=Amanda",
       rating: 5,
@@ -54,7 +54,7 @@ export default function TestimonialsPage() {
     },
     {
       id: 6,
-      name: "James Park",
+      name: "Iradukunda joseph",
       role: "Parent of Oliver (Age 4)",
       image: "/placeholder.svg?height=100&width=100&text=James",
       rating: 5,

@@ -85,11 +85,13 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm">
-                  123 Education Street
+                  Ruvumu
                   <br />
-                  Learning City, LC 12345
+                  Cyabagarura
                   <br />
-                  United States
+                  Musanze
+                  <br />
+                  Rwanda
                 </p>
               </CardContent>
             </Card>
@@ -252,12 +254,16 @@ export default function ContactPage() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Find Us</h2>
             <p className="text-gray-600">Located in the heart of the education district</p>
           </div>
-          <div className="bg-gray-200 rounded-lg h-96 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">Interactive map would be embedded here</p>
-              <p className="text-sm text-gray-500 mt-2">123 Education Street, Learning City, LC 12345</p>
-            </div>
+          <div className="rounded-lg overflow-hidden flex items-center justify-center h-96 bg-gray-200">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3110.6871861307804!2d29.6490906736489!3d-1.566707035994133!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dc59e0a0693977%3A0xb9bdb3c36f6303e1!2sRuvumu%20Nursery%20School!5e1!3m2!1sen!2srw!4v1755987680984!5m2!1sen!2srw"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </div>
         </div>
       </section>
