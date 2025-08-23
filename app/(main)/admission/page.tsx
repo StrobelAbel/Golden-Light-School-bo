@@ -314,7 +314,7 @@ export default function AdmissionPage() {
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => handleInputChange("phone", e.target.value)}
-                        placeholder="+250 786 376 459"
+                        placeholder="+1 (555) 123-4568"
                         required
                       />
                     </div>
@@ -487,7 +487,7 @@ export default function AdmissionPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm">Admissions Office</p>
-                <p className="font-semibold">+1 (555) 123-4568</p>
+                <p className="font-semibold">+250 786 376 459</p>
               </CardContent>
             </Card>
 
@@ -498,7 +498,7 @@ export default function AdmissionPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm">Admissions Team</p>
-                <p className="font-semibold">admissions@goldenlightschool.com</p>
+                <p className="font-semibold">goldenlight4.school@gmail.com</p>
               </CardContent>
             </Card>
 
