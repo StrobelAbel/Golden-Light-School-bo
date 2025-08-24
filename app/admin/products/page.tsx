@@ -103,10 +103,15 @@ export default function AdminProductsPage() {
       const response = await fetch(`/api/products/${product._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...product, isVisible: !product.isVisible }),
+        body: JSON.stringify({ isVisible: !product.isVisible }),
       })
       if (response.ok) {
-        fetchProducts()
+        // Update local state for instant feedback
+        setProducts((prev) =>
+          prev.map((p) =>
+            p._id === product._id ? { ...p, isVisible: !product.isVisible } : p
+          )
+        )
       }
     } catch (error) {
       console.error("Error updating product visibility:", error)
@@ -186,7 +191,7 @@ export default function AdminProductsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="category">Category222</Label>
                   <Select
                     value={formData.category}
                     onValueChange={(value) => setFormData({ ...formData, category: value })}
