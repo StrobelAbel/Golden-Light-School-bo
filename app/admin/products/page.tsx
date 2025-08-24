@@ -191,7 +191,7 @@ export default function AdminProductsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="category">Category222</Label>
+                  <Label htmlFor="category">Category</Label>
                   <Select
                     value={formData.category}
                     onValueChange={(value) => setFormData({ ...formData, category: value })}
