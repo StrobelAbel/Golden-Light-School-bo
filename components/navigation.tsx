@@ -47,9 +47,8 @@ export function Navigation() {
         <div className="hidden md:flex items-center space-x-4">
           <Button
             asChild
-            variant="outline"
             size="sm"
-            className="border-cyan-200 text-cyan-700 hover:bg-cyan-50 bg-transparent"
+            className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold"
           >
             <Link href="/admin/login">
               <Lock className="mr-2 h-4 w-4" />
@@ -83,12 +82,11 @@ export function Navigation() {
               <div className="pt-4 space-y-2">
                 <Button
                   asChild
-                  variant="outline"
-                  className="w-full border-cyan-200 text-cyan-700 hover:bg-cyan-50 bg-transparent"
+                  className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold"
                 >
-                  <Link href="/contact" onClick={() => setIsOpen(false)}>
-                    <Phone className="mr-2 h-4 w-4" />
-                    Contact Us
+                  <Link href="/admin/login" onClick={() => setIsOpen(false)}>
+                    <Lock className="mr-2 h-4 w-4" />
+                    Admin Login
                   </Link>
                 </Button>
                 <Button asChild className="w-full bg-golden-500 hover:bg-golden-600">
