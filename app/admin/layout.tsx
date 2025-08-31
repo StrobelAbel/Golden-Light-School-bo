@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -63,41 +63,98 @@ export default function AdminLayout({
   const router = useRouter()
   const pathname = usePathname()
 
-  useEffect(() => {
-    const token = localStorage.getItem("adminToken")
-    const userStr = localStorage.getItem("adminUser")
-
-    if (!token && pathname !== "/admin/login") {
-      router.push("/admin/login")
-    } else if (token) {
-      setIsAuthenticated(true)
-      if (userStr) {
-        setAdminUser(JSON.parse(userStr))
-      }
-      fetchNotifications()
-    }
-    setIsLoading(false)
-  }, [pathname, router])
-
-  const fetchNotifications = async () => {
+  // Memoize the fetchNotifications function to prevent recreation on every render
+  const fetchNotifications = useCallback(async () => {
     try {
-      const response = await fetch("/api/notifications")
+      const token = localStorage.getItem("adminToken")
+      if (!token) return // Don't fetch if no token
+      
+      const response = await fetch("/api/notifications", {
+        headers: {
+          'Authorization': `Bearer ${token}`, // Add auth header if needed
+        }
+      })
+      
+      if (!response.ok) {
+        console.error("Failed to fetch notifications:", response.status)
+        return
+      }
+      
       const data = await response.json()
       setNotifications(data)
       setUnreadCount(data.filter((n: Notification) => !n.isRead).length)
     } catch (error) {
       console.error("Error fetching notifications:", error)
     }
-  }
+  }, []) // Empty dependency array since we're getting token inside the function
+
+  // Separate authentication check from notification fetching
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem("adminToken")
+      const userStr = localStorage.getItem("adminUser")
+
+      // If on login page, just stop loading
+      if (pathname === "/admin/login") {
+        setIsLoading(false)
+        return
+      }
+
+      // Check authentication
+      if (!token) {
+        setIsAuthenticated(false)
+        setIsLoading(false)
+        router.push("/admin/login")
+        return
+      }
+
+      // Set authenticated state
+      setIsAuthenticated(true)
+      if (userStr) {
+        try {
+          setAdminUser(JSON.parse(userStr))
+        } catch (error) {
+          console.error("Error parsing admin user:", error)
+          // Clear corrupted data
+          localStorage.removeItem("adminUser")
+        }
+      }
+      setIsLoading(false)
+    }
+
+    checkAuth()
+  }, [pathname, router])
+
+  // Separate effect for notification polling - only runs when authenticated
+  useEffect(() => {
+    if (!isAuthenticated || pathname === "/admin/login") return
+
+    // Initial fetch
+    fetchNotifications()
+
+    // Set up polling interval
+    const interval = setInterval(fetchNotifications, 30000) // Increased to 30 seconds to reduce server load
+
+    return () => clearInterval(interval)
+  }, [isAuthenticated, pathname, fetchNotifications])
 
   const markNotificationAsRead = async (id: string) => {
     try {
-      await fetch("/api/notifications", {
+      const token = localStorage.getItem("adminToken")
+      if (!token) return
+
+      const response = await fetch("/api/notifications", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`, // Add auth header if needed
+        },
         body: JSON.stringify({ id, isRead: true }),
       })
-      fetchNotifications()
+
+      if (response.ok) {
+        fetchNotifications()
+      }
     } catch (error) {
       console.error("Error marking notification as read:", error)
     }
@@ -105,27 +162,43 @@ export default function AdminLayout({
 
   const markAllAsRead = async () => {
     try {
+      const token = localStorage.getItem("adminToken")
+      if (!token) return
+
       const unreadNotifications = notifications.filter((n) => !n.isRead)
-      await Promise.all(
-        unreadNotifications.map((n) =>
-          fetch("/api/notifications", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: n._id, isRead: true }),
-          }),
-        ),
+      
+      const promises = unreadNotifications.map((n) =>
+        fetch("/api/notifications", {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`, // Add auth header if needed
+          },
+          body: JSON.stringify({ id: n._id, isRead: true }),
+        }),
       )
+
+      await Promise.all(promises)
       fetchNotifications()
     } catch (error) {
       console.error("Error marking all notifications as read:", error)
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
+    // Clear all auth data
     localStorage.removeItem("adminToken")
     localStorage.removeItem("adminUser")
+    
+    // Reset state
+    setIsAuthenticated(false)
+    setAdminUser(null)
+    setNotifications([])
+    setUnreadCount(0)
+    
+    // Redirect
     router.push("/admin/login")
-  }
+  }, [router])
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -143,16 +216,21 @@ export default function AdminLayout({
   }
 
   const getTimeAgo = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    try {
+      const date = new Date(dateString)
+      const now = new Date()
+      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
 
-    if (diffInMinutes < 1) return "Just now"
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`
-    return `${Math.floor(diffInMinutes / 1440)}d ago`
+      if (diffInMinutes < 1) return "Just now"
+      if (diffInMinutes < 60) return `${diffInMinutes}m ago`
+      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`
+      return `${Math.floor(diffInMinutes / 1440)}d ago`
+    } catch (error) {
+      return "Unknown"
+    }
   }
 
+  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-golden-50 to-cyan-50">
@@ -161,10 +239,12 @@ export default function AdminLayout({
     )
   }
 
+  // Login page - render children directly
   if (pathname === "/admin/login") {
-    return children
+    return <>{children}</>
   }
 
+  // Not authenticated - render nothing (redirect is handled in useEffect)
   if (!isAuthenticated) {
     return null
   }
@@ -175,6 +255,8 @@ export default function AdminLayout({
     { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
     { href: "/admin/applications", label: "Applications", icon: FileText },
     { href: "/admin/reports", label: "Reports", icon: BarChart3 },
+    // { href: "/admin/account", label: "Account Settings", icon: Settings },
+    // { href: "/admin/profile", label: "Profile Settings", icon: User },
   ]
 
   return (
@@ -247,9 +329,7 @@ export default function AdminLayout({
       {/* Main content */}
       <div className="lg:ml-64">
         {/* Top bar */}
-        <header
-          className="fixed top-0 left-0 right-0 lg:left-64 z-30 bg-white shadow-sm border-b h-16 flex items-center justify-between px-6"
-        >
+        <header className="fixed top-0 left-0 right-0 lg:left-64 z-30 bg-white shadow-sm border-b h-16 flex items-center justify-between px-6">
           <div className="flex items-center">
             <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setIsSidebarOpen(true)}>
               <Menu className="h-5 w-5" />
@@ -335,13 +415,17 @@ export default function AdminLayout({
                     </span>
                   </div>
                 </div>
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  Profile Settings
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/profile">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile Settings
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Account Settings
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/account">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Account Settings
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">

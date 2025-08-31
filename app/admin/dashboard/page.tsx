@@ -29,10 +29,12 @@ interface DashboardStats {
   rejectedApplications: number
   completedOrders: number
   lowStockProducts: number
+  outOfStockProducts: number
   recentApplications: any[]
   recentProducts: any[]
   recentOrders: any[]
   lowStockItems: any[]
+  outOfStockItems: any[]
 }
 
 export default function AdminDashboard() {
@@ -46,10 +48,12 @@ export default function AdminDashboard() {
     rejectedApplications: 0,
     completedOrders: 0,
     lowStockProducts: 0,
+    outOfStockProducts: 0,
     recentApplications: [],
     recentProducts: [],
     recentOrders: [],
     lowStockItems: [],
+    outOfStockItems: [],
   })
   const [loading, setLoading] = useState(true)
 
@@ -69,7 +73,9 @@ export default function AdminDashboard() {
       const applications = await applicationsRes.json()
       const orders = await ordersRes.json()
 
-      const lowStockItems = products.filter((product: any) => product.stock < 5)
+      // Separate low stock (1-4) from out of stock (0)
+      const lowStockItems = products.filter((product: any) => product.stock > 0 && product.stock < 5)
+      const outOfStockItems = products.filter((product: any) => product.stock === 0)
 
       const dashboardStats: DashboardStats = {
         totalProducts: products.length,
@@ -81,10 +87,12 @@ export default function AdminDashboard() {
         rejectedApplications: applications.filter((app: any) => app.status === "rejected").length,
         completedOrders: orders.filter((order: any) => order.status === "completed").length,
         lowStockProducts: lowStockItems.length,
+        outOfStockProducts: outOfStockItems.length,
         recentApplications: applications.slice(0, 5),
         recentProducts: products.slice(0, 5),
         recentOrders: orders.slice(0, 5),
         lowStockItems: lowStockItems.slice(0, 5),
+        outOfStockItems: outOfStockItems.slice(0, 5),
       }
 
       setStats(dashboardStats)
@@ -125,6 +133,31 @@ export default function AdminDashboard() {
     }
   }
 
+  const getStockBadge = (stock: number) => {
+    if (stock === 0) {
+      return (
+        <Badge variant="destructive" className="bg-red-600">
+          Out of Stock
+        </Badge>
+      )
+    } else if (stock < 5) {
+      return (
+        <Badge variant="destructive" className="bg-orange-500">
+          {stock} left
+        </Badge>
+      )
+    }
+    return (
+      <Badge variant="default" className="bg-green-500">
+        {stock} in stock
+      </Badge>
+    )
+  }
+
+  const getStockDisplay = (stock: number) => {
+    return stock === 0 ? "Empty" : `${stock} left`
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -132,6 +165,10 @@ export default function AdminDashboard() {
       </div>
     )
   }
+
+  // Combine low stock and out of stock items for display
+  const criticalStockItems = [...stats.outOfStockItems, ...stats.lowStockItems].slice(0, 5)
+  const totalCriticalStock = stats.lowStockProducts + stats.outOfStockProducts
 
   return (
     <div className="space-y-6">
@@ -152,7 +189,13 @@ export default function AdminDashboard() {
                 <p className="text-blue-100 text-sm font-medium">Total Products</p>
                 <p className="text-3xl font-bold">{stats.totalProducts}</p>
                 <p className="text-blue-100 text-xs mt-1">
-                  {stats.lowStockProducts > 0 && `${stats.lowStockProducts} low stock`}
+                  {totalCriticalStock > 0 && (
+                    <>
+                      {stats.outOfStockProducts > 0 && `${stats.outOfStockProducts} empty`}
+                      {stats.outOfStockProducts > 0 && stats.lowStockProducts > 0 && ", "}
+                      {stats.lowStockProducts > 0 && `${stats.lowStockProducts} low stock`}
+                    </>
+                  )}
                 </p>
               </div>
               <Package className="h-12 w-12 text-blue-200" />
@@ -199,13 +242,24 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white border-0">
+        <Card className={`bg-gradient-to-br text-white border-0 ${
+          stats.outOfStockProducts > 0 
+            ? 'from-red-600 to-red-700' 
+            : 'from-red-500 to-red-600'
+        }`}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-red-100 text-sm font-medium">Low Stock</p>
-                <p className="text-3xl font-bold">{stats.lowStockProducts}</p>
-                <p className="text-red-100 text-xs mt-1">Items need restocking</p>
+                <p className="text-red-100 text-sm font-medium">
+                  {stats.outOfStockProducts > 0 ? 'Critical Stock' : 'Low Stock'}
+                </p>
+                <p className="text-3xl font-bold">{totalCriticalStock}</p>
+                <p className="text-red-100 text-xs mt-1">
+                  {stats.outOfStockProducts > 0 
+                    ? `${stats.outOfStockProducts} empty, ${stats.lowStockProducts} low`
+                    : 'Items need restocking'
+                  }
+                </p>
               </div>
               <AlertTriangle className="h-12 w-12 text-red-200" />
             </div>
@@ -281,7 +335,7 @@ export default function AdminDashboard() {
                       <p className="text-xs text-gray-500">{new Date(order.orderDate).toLocaleDateString()}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-green-600">{order.totalAmount.toFixed(2)} Frw</p>
+                      <p className="font-bold text-green-600">{order.totalAmount} Frw</p>
                       <Badge className={getStatusColor(order.status)}>
                         {getStatusIcon(order.status)}
                         <span className="ml-1">{order.status.replace("_", " ")}</span>
@@ -294,12 +348,14 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Low Stock Alert */}
+        {/* Stock Alert - Enhanced */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center">
-              <AlertTriangle className="mr-2 h-5 w-5 text-red-600" />
-              Low Stock Alert
+              <AlertTriangle className={`mr-2 h-5 w-5 ${
+                stats.outOfStockProducts > 0 ? 'text-red-700' : 'text-red-600'
+              }`} />
+              {stats.outOfStockProducts > 0 ? 'Critical Stock Alert' : 'Low Stock Alert'}
             </CardTitle>
             <Link href="/admin/products">
               <Button variant="outline" size="sm">
@@ -309,23 +365,25 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {stats.lowStockItems.length === 0 ? (
+              {criticalStockItems.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">All products are well stocked</p>
               ) : (
-                stats.lowStockItems.map((product) => (
+                criticalStockItems.map((product) => (
                   <div
                     key={product._id}
-                    className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200"
+                    className={`flex items-center justify-between p-3 rounded-lg border ${
+                      product.stock === 0
+                        ? 'bg-red-100 border-red-300'
+                        : 'bg-orange-50 border-orange-200'
+                    }`}
                   >
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{product.name}</p>
                       <p className="text-sm text-gray-600">{product.category}</p>
                     </div>
                     <div className="text-right">
-                      <Badge variant="destructive" className="mb-1">
-                        {product.stock} left
-                      </Badge>
-                      <p className="text-sm font-bold text-green-600">{product.price} Frw</p>
+                      {getStockBadge(product.stock)}
+                      <p className="text-sm font-bold text-green-600 mt-1">{product.price} Frw</p>
                     </div>
                   </div>
                 ))

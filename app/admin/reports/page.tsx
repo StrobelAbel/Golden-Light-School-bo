@@ -72,7 +72,7 @@ export default function AdminReportsPage() {
     const csvContent = [
       headers.join(","),
       ...salesData.map((item) =>
-        [`"${item.productName}"`, item.totalQuantitySold, item.totalRevenue.toFixed(2), item.orderCount].join(","),
+        [`"${item.productName}"`, item.totalQuantitySold, item.totalRevenue, item.orderCount].join(","),
       ),
     ].join("\n")
 
@@ -133,7 +133,7 @@ export default function AdminReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-100 text-sm font-medium">Total Revenue</p>
-                <p className="text-3xl font-bold">{totalRevenue.toFixed(2)} Frw</p>
+                <p className="text-3xl font-bold">{totalRevenue} Frw</p>
               </div>
               <DollarSign className="h-12 w-12 text-green-200" />
             </div>
@@ -180,7 +180,7 @@ export default function AdminReportsPage() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="productName" angle={-45} textAnchor="end" height={100} fontSize={12} />
                     <YAxis />
-                    <Tooltip formatter={(value) => [`$${Number(value).toFixed(2)}`, "Revenue"]} />
+                    <Tooltip formatter={(value) => [`Frw ${Number(value)}`, "Revenue"]} />
                     <Bar dataKey="totalRevenue" fill="#10B981" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -238,7 +238,7 @@ export default function AdminReportsPage() {
                       <tr key={item.productId} className="border-b hover:bg-gray-50">
                         <td className="p-4 font-medium text-gray-900">{item.productName}</td>
                         <td className="p-4 text-gray-600">{item.totalQuantitySold}</td>
-                        <td className="p-4 font-bold text-green-600">{item.totalRevenue.toFixed(2)} Frw</td>
+                        <td className="p-4 font-bold text-green-600">{item.totalRevenue} Frw</td>
                         <td className="p-4 text-gray-600">{item.orderCount}</td>
                         <td className="p-4 text-gray-600">{(item.totalRevenue / item.orderCount).toFixed(2)} Frw</td>
                       </tr>

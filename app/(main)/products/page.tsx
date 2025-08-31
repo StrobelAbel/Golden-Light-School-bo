@@ -60,6 +60,9 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchProducts()
+    // Poll for products every 10 seconds
+    const interval = setInterval(fetchProducts, 10000)
+    return () => clearInterval(interval)
   }, [])
 
   const fetchProducts = async () => {
@@ -340,7 +343,7 @@ export default function ProductsPage() {
                   <CardContent className="pt-0">
                     <p className="text-gray-600 text-sm line-clamp-3 mb-4">{product.description}</p>
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-2xl font-bold text-green-600">{product.price.toFixed(2)}Frw</span>
+                      <span className="text-2xl font-bold text-green-600">{product.price} Frw</span>
                       <span className="text-sm text-gray-500">Stock: {product.stock}</span>
                     </div>
                     <Button
@@ -383,7 +386,7 @@ export default function ProductsPage() {
                 Your order for {orderForm.quantity} x {orderForm.productName} has been placed successfully.
               </p>
               <p className="text-sm text-gray-500 mb-6">
-                Total: {(orderForm.quantity * orderForm.productPrice).toFixed(2)} Frw
+                Total: {(orderForm.quantity * orderForm.productPrice)} Frw
               </p>
               <p className="text-sm text-gray-600 mb-6">
                 We'll contact you when your order is ready for pickup at the school.
@@ -404,7 +407,7 @@ export default function ProductsPage() {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="font-medium">{selectedProduct.name}</h4>
-                    <span className="font-bold text-green-600">{selectedProduct.price.toFixed(2)} Frw</span>
+                    <span className="font-bold text-green-600">{selectedProduct.price} Frw</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <Label>Quantity:</Label>
@@ -432,7 +435,7 @@ export default function ProductsPage() {
                   </div>
                   <div className="mt-2 text-right">
                     <span className="text-lg font-bold">
-                      Total: {(orderForm.quantity * orderForm.productPrice).toFixed(2)}Frw
+                      Total: {(orderForm.quantity * orderForm.productPrice)} Frw
                     </span>
                   </div>
                 </div>

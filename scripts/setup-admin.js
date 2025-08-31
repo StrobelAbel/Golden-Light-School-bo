@@ -1,5 +1,6 @@
 const { MongoClient } = require("mongodb")
 const bcrypt = require("bcryptjs")
+const { fi } = require("date-fns/locale/fi")
 
 async function setupAdmin() {
   const uri =
@@ -46,9 +47,15 @@ async function setupAdmin() {
     // Create admin user
     const adminUser = {
       username: "admin",
+      firstName: "Admin",
+      lastName: "User",
       email: "admin@goldenlightschool.com",
       password: hashedPassword,
+      phoneNumber: "+1 (555) 000-0000",
+      address: "123 Admin St, Springfield, IL 62701",
       role: "super_admin",
+      department: "Administration",
+      position: "Administrator",
       permissions: ["manage_products", "manage_applications", "manage_bookings", "view_dashboard", "manage_users"],
       createdAt: new Date(),
       updatedAt: new Date(),

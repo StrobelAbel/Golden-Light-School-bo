@@ -11,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Search, Edit, Trash2, Eye, EyeOff, Package } from "lucide-react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Plus, Search, Edit, Trash2, Eye, EyeOff, Package, AlertTriangle, Archive } from "lucide-react"
 import Image from "next/image"
 
 interface Product {
@@ -32,8 +33,11 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [stockFilter, setStockFilter] = useState("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -62,8 +66,7 @@ export default function AdminProductsPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
     try {
       const url = editingProduct ? `/api/products/${editingProduct._id}` : "/api/products"
       const method = editingProduct ? "PUT" : "POST"
@@ -85,17 +88,30 @@ export default function AdminProductsPage() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      try {
-        const response = await fetch(`/api/products/${id}`, { method: "DELETE" })
-        if (response.ok) {
-          fetchProducts()
-        }
-      } catch (error) {
-        console.error("Error deleting product:", error)
+  const handleDeleteClick = (product: Product) => {
+    setProductToDelete(product)
+    setDeleteConfirmOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!productToDelete) return
+    
+    try {
+      const response = await fetch(`/api/products/${productToDelete._id}`, { method: "DELETE" })
+      if (response.ok) {
+        fetchProducts()
       }
+    } catch (error) {
+      console.error("Error deleting product:", error)
+    } finally {
+      setDeleteConfirmOpen(false)
+      setProductToDelete(null)
     }
+  }
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirmOpen(false)
+    setProductToDelete(null)
   }
 
   const toggleVisibility = async (product: Product) => {
@@ -106,7 +122,6 @@ export default function AdminProductsPage() {
         body: JSON.stringify({ isVisible: !product.isVisible }),
       })
       if (response.ok) {
-        // Update local state for instant feedback
         setProducts((prev) =>
           prev.map((p) =>
             p._id === product._id ? { ...p, isVisible: !product.isVisible } : p
@@ -144,13 +159,69 @@ export default function AdminProductsPage() {
     setIsAddDialogOpen(true)
   }
 
+  // Enhanced filtering logic
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory
-    return matchesSearch && matchesCategory
+    
+    let matchesStock = true
+    switch (stockFilter) {
+      case "out_of_stock":
+        matchesStock = product.stock === 0
+        break
+      case "low_stock":
+        matchesStock = product.stock > 0 && product.stock < 5
+        break
+      case "in_stock":
+        matchesStock = product.stock >= 5
+        break
+      case "critical":
+        matchesStock = product.stock < 5
+        break
+      default:
+        matchesStock = true
+    }
+    
+    return matchesSearch && matchesCategory && matchesStock
   })
+
+  // Helper functions for stock display
+  const getStockBadge = (stock: number) => {
+    if (stock === 0) {
+      return (
+        <Badge variant="destructive" className="bg-red-600">
+          <Archive className="w-3 h-3 mr-1" />
+          Out of Stock
+        </Badge>
+      )
+    } else if (stock < 5) {
+      return (
+        <Badge variant="destructive" className="bg-orange-500">
+          <AlertTriangle className="w-3 h-3 mr-1" />
+          Low Stock
+        </Badge>
+      )
+    }
+    return null
+  }
+
+  const getStockText = (stock: number) => {
+    if (stock === 0) return "Empty"
+    return `${stock} available`
+  }
+
+  const getStockColor = (stock: number) => {
+    if (stock === 0) return "text-red-600 font-semibold"
+    if (stock < 5) return "text-orange-600 font-semibold" 
+    return "text-gray-500"
+  }
+
+  // Calculate stats for display
+  const outOfStockCount = products.filter(p => p.stock === 0).length
+  const lowStockCount = products.filter(p => p.stock > 0 && p.stock < 5).length
+  const inStockCount = products.filter(p => p.stock >= 5).length
 
   if (loading) {
     return (
@@ -162,11 +233,43 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Custom Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              Delete Product
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{productToDelete?.name}"? This action cannot be undone and will permanently remove the product from your inventory.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleDeleteCancel}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Product
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Header with Stats */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
           <p className="text-gray-600">Manage your learning aids and educational products</p>
+          <div className="flex gap-4 mt-2 text-sm">
+            <span className="text-green-600">{inStockCount} in stock</span>
+            <span className="text-orange-600">{lowStockCount} low stock</span>
+            <span className="text-red-600">{outOfStockCount} empty</span>
+          </div>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -179,7 +282,7 @@ export default function AdminProductsPage() {
             <DialogHeader>
               <DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Product Name</Label>
@@ -236,6 +339,7 @@ export default function AdminProductsPage() {
                   <Input
                     id="stock"
                     type="number"
+                    min="0"
                     value={formData.stock}
                     onChange={(e) => setFormData({ ...formData, stock: Number.parseInt(e.target.value) })}
                     required
@@ -274,32 +378,33 @@ export default function AdminProductsPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-gradient-to-r from-golden-500 to-golden-600">
+                <Button 
+                  onClick={handleSubmit} 
+                  className="bg-gradient-to-r from-golden-500 to-golden-600"
+                >
                   {editingProduct ? "Update Product" : "Add Product"}
                 </Button>
               </div>
-            </form>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Filters */}
+      {/* Enhanced Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-48">
+              <SelectTrigger>
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -311,6 +416,18 @@ export default function AdminProductsPage() {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={stockFilter} onValueChange={setStockFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Stock Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Stock Levels</SelectItem>
+                <SelectItem value="in_stock">In Stock (5+)</SelectItem>
+                <SelectItem value="low_stock">Low Stock (1-4)</SelectItem>
+                <SelectItem value="out_of_stock">Out of Stock (0)</SelectItem>
+                <SelectItem value="critical">Critical (Low + Empty)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -318,7 +435,10 @@ export default function AdminProductsPage() {
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
-          <Card key={product._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+          <Card key={product._id} className={`overflow-hidden hover:shadow-lg transition-shadow ${
+            product.stock === 0 ? 'ring-2 ring-red-200' : 
+            product.stock < 5 ? 'ring-2 ring-orange-200' : ''
+          }`}>
             <div className="relative h-48 bg-gray-100">
               {product.image ? (
                 <Image
@@ -336,12 +456,20 @@ export default function AdminProductsPage() {
                   <Package className="h-12 w-12 text-gray-400" />
                 </div>
               )}
-              <div className="absolute top-2 right-2 flex gap-2">
+              <div className="absolute top-2 right-2 flex flex-col gap-2">
                 <Badge variant={product.isVisible ? "default" : "secondary"}>
                   {product.isVisible ? "Visible" : "Hidden"}
                 </Badge>
-                {product.stock < 10 && <Badge variant="destructive">Low Stock</Badge>}
+                {getStockBadge(product.stock)}
               </div>
+              {product.stock === 0 && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <div className="text-white text-center">
+                    <Archive className="h-8 w-8 mx-auto mb-2" />
+                    <p className="font-semibold">Out of Stock</p>
+                  </div>
+                </div>
+              )}
             </div>
             <CardContent className="p-4">
               <div className="space-y-2">
@@ -350,9 +478,11 @@ export default function AdminProductsPage() {
                   <span className="text-lg font-bold text-golden-600">{product.price} Frw</span>
                 </div>
                 <p className="text-gray-600 text-sm line-clamp-2">{product.description}</p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>Category: {product.category}</span>
-                  <span>Stock: {product.stock}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-500">Category: {product.category}</span>
+                  <span className={getStockColor(product.stock)}>
+                    Stock: {getStockText(product.stock)}
+                  </span>
                 </div>
               </div>
               <div className="flex justify-between items-center mt-4 pt-4 border-t">
@@ -366,8 +496,8 @@ export default function AdminProductsPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleDelete(product._id)}
-                    className="text-red-600 hover:text-red-700"
+                    onClick={() => handleDeleteClick(product)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -384,11 +514,11 @@ export default function AdminProductsPage() {
             <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
             <p className="text-gray-600 mb-4">
-              {searchTerm || selectedCategory !== "all"
+              {searchTerm || selectedCategory !== "all" || stockFilter !== "all"
                 ? "Try adjusting your search or filter criteria"
                 : "Get started by adding your first product"}
             </p>
-            {!searchTerm && selectedCategory === "all" && (
+            {!searchTerm && selectedCategory === "all" && stockFilter === "all" && (
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
                 className="bg-gradient-to-r from-golden-500 to-golden-600"

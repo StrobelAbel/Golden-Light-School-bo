@@ -248,11 +248,11 @@ export default function AdminOrdersPage() {
                     <td className="p-4">
                       <div>
                         <p className="font-medium text-gray-900">{order.productName}</p>
-                        <p className="text-sm text-gray-600">{order.productPrice.toFixed(2)} Frw each</p>
+                        <p className="text-sm text-gray-600">{order.productPrice} Frw each</p>
                       </div>
                     </td>
                     <td className="p-4">
-                      <p className="font-bold text-green-600">{order.totalAmount.toFixed(2)} Frw</p>
+                      <p className="font-bold text-green-600">{order.totalAmount} Frw</p>
                     </td>
                     <td className="p-4">
                       <Badge className={getStatusColor(order.status)}>
@@ -331,7 +331,7 @@ export default function AdminOrdersPage() {
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-600">Total Amount</Label>
-                    <p className="text-gray-900 font-bold text-lg">{selectedOrder.totalAmount.toFixed(2)} Frw</p>
+                    <p className="text-gray-900 font-bold text-lg">{selectedOrder.totalAmount} Frw</p>
                   </div>
                 </CardContent>
               </Card>
@@ -373,13 +373,13 @@ export default function AdminOrdersPage() {
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="font-medium text-lg">{selectedOrder.productName}</h4>
                       <span className="text-lg font-bold text-green-600">
-                        {selectedOrder.productPrice.toFixed(2)} Frw each
+                        {selectedOrder.productPrice} Frw each
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Quantity: {selectedOrder.quantity}</span>
                       <span className="text-xl font-bold text-gray-900">
-                        Total: {selectedOrder.totalAmount.toFixed(2)}Frw
+                        Total: {selectedOrder.totalAmount}Frw
                       </span>
                     </div>
                   </div>
