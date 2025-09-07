@@ -277,9 +277,10 @@ export default function AdminApplicationsPage() {
                     </td>
                     <td className="p-4">
                       <div className="space-y-1">
+                        <p className="text-sm text-gray-600">Name: {application.childName}</p>
                         <p className="text-sm text-gray-600">Age: {application.childAge}</p>
                         <p className="text-sm text-gray-600">Gender: {application.childGender}</p>
-                        <p className="text-sm text-gray-600">Year: {application.childYear}</p>
+                        <p className="text-sm text-gray-600">Level: {application.childYear}</p>
                       </div>
                     </td>
                     <td className="p-4">
