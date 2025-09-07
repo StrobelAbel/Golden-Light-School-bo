@@ -11,6 +11,7 @@ export const metadata: Metadata = {
     icons: {
     icon: "/favicon.svg"
   },
+    generator: 'v0.app'
 }
 
 export default function RootLayout({

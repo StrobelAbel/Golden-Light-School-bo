@@ -9,19 +9,28 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Search, Eye, FileText, User, Phone, Mail } from "lucide-react"
+import { Search, Eye, FileText, User, Phone, MapPin  } from "lucide-react"
 
 interface Application {
   _id: string
-  parentName: string
-  email: string
-  phone: string
-  address: string
+  parentName?: string
+  fatherName?: string
+  fatherPhone?: number
+  fatherId?: string
+  motherName?: string
+  motherPhone?: number
+  motherId?: string
+  province?: string
+  district?: string
+  sector?: string
+  cell?: string
+  village?: string
   childName: string
   childAge: number
   childGender: string
+  childYear: string
   dateOfBirth: string
-  preferredStartDate: string
+  // preferredStartDate: string
   additionalInfo?: string
   status: "pending" | "approved" | "rejected" | "under_review"
   createdAt: string
@@ -100,9 +109,14 @@ export default function AdminApplicationsPage() {
 
   const filteredApplications = applications.filter((application) => {
     const matchesSearch =
-      application.parentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      application.parentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       application.childName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      application.email.toLowerCase().includes(searchTerm.toLowerCase())
+      application.fatherName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      application.motherName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      application.fatherPhone?.toString().includes(searchTerm) ||
+      application.motherPhone?.toString().includes(searchTerm) ||
+      application.cell?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      application.village?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = selectedStatus === "all" || application.status === selectedStatus
     return matchesSearch && matchesStatus
   })
@@ -198,7 +212,7 @@ export default function AdminApplicationsPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search by parent name, child name, or email..."
+                  placeholder="Search by parent name, child name, or phone number..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -231,8 +245,8 @@ export default function AdminApplicationsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-4 font-medium text-gray-600">Parent & Child</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Contact</th>
+                  <th className="text-left p-4 font-medium text-gray-600">Parents</th>
+                  <th className="text-left p-4 font-medium text-gray-600">Contacts</th>
                   <th className="text-left p-4 font-medium text-gray-600">Child Details</th>
                   <th className="text-left p-4 font-medium text-gray-600">Status</th>
                   <th className="text-left p-4 font-medium text-gray-600">Applied Date</th>
@@ -244,19 +258,20 @@ export default function AdminApplicationsPage() {
                   <tr key={application._id} className="border-b hover:bg-gray-50">
                     <td className="p-4">
                       <div>
-                        <p className="font-medium text-gray-900">{application.parentName}</p>
-                        <p className="text-sm text-gray-600">Child: {application.childName}</p>
+                        <p className="text-sm text-gray-600">Father: {application.fatherName}</p>
+                        <br />
+                        <p className="text-sm text-gray-600">Mother: {application.motherName}</p>
                       </div>
                     </td>
                     <td className="p-4">
                       <div className="space-y-1">
                         <div className="flex items-center text-sm text-gray-600">
-                          <Mail className="h-3 w-3 mr-1" />
-                          {application.email}
-                        </div>
+                          <Phone size={20} color="currentColor" className="h-3 w-3 mr-1" />
+                          {application.fatherPhone}
+                        </div><br />
                         <div className="flex items-center text-sm text-gray-600">
                           <Phone className="h-3 w-3 mr-1" />
-                          {application.phone}
+                          {application.motherPhone}
                         </div>
                       </div>
                     </td>
@@ -264,9 +279,7 @@ export default function AdminApplicationsPage() {
                       <div className="space-y-1">
                         <p className="text-sm text-gray-600">Age: {application.childAge}</p>
                         <p className="text-sm text-gray-600">Gender: {application.childGender}</p>
-                        <p className="text-sm text-gray-600">
-                          Start: {new Date(application.preferredStartDate).toLocaleDateString()}
-                        </p>
+                        <p className="text-sm text-gray-600">Year: {application.childYear}</p>
                       </div>
                     </td>
                     <td className="p-4">
@@ -318,33 +331,59 @@ export default function AdminApplicationsPage() {
           </DialogHeader>
           {selectedApplication && (
             <div className="space-y-6">
-              {/* Parent Information */}
+              {/* Father Information */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <User className="mr-2 h-5 w-5" />
-                    Parent Information
+                    Father Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Full Name</Label>
-                    <p className="text-gray-900">{selectedApplication.parentName}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">Email</Label>
-                    <p className="text-gray-900">{selectedApplication.email}</p>
+                    <Label className="text-sm font-medium text-gray-600">Father's Name</Label>
+                    <p className="text-gray-900">{selectedApplication.fatherName}</p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-600">Phone</Label>
-                    <p className="text-gray-900">{selectedApplication.phone}</p>
+                    <p className="text-gray-900">{selectedApplication.fatherPhone}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Address</Label>
-                    <p className="text-gray-900">{selectedApplication.address}</p>
+                    <Label className="text-sm font-medium text-gray-600">ID Number</Label>
+                    <p className="text-gray-900">{selectedApplication.fatherId}</p>
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Mother Information */}
+              {selectedApplication.motherName && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <User className="mr-2 h-5 w-5" />
+                      Mother Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Mother's Name</Label>
+                      <p className="text-gray-900">{selectedApplication.motherName}</p>
+                    </div>
+                    {selectedApplication.motherPhone && (
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Phone</Label>
+                        <p className="text-gray-900">{selectedApplication.motherPhone}</p>
+                      </div>
+                    )}
+                    {selectedApplication.motherId && (
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">ID Number</Label>
+                        <p className="text-gray-900">{selectedApplication.motherId}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Child Information */}
               <Card>
@@ -372,11 +411,53 @@ export default function AdminApplicationsPage() {
                     <p className="text-gray-900">{new Date(selectedApplication.dateOfBirth).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Preferred Start Date</Label>
+                    <Label className="text-sm font-medium text-gray-600">Year</Label>
                     <p className="text-gray-900">
-                      {new Date(selectedApplication.preferredStartDate).toLocaleDateString()}
+                      {selectedApplication.childYear}
                     </p>
                   </div>
+                </CardContent>
+              </Card>
+              
+              {/* Location Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <User className="mr-2 h-5 w-5" />
+                    Location Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedApplication.province && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Province</Label>
+                      <p className="text-gray-900">{selectedApplication.province}</p>
+                    </div>
+                  )}
+                  {selectedApplication.district && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">District</Label>
+                      <p className="text-gray-900">{selectedApplication.district}</p>
+                    </div>
+                  )}
+                  {selectedApplication.sector && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Sector</Label>
+                      <p className="text-gray-900">{selectedApplication.sector}</p>
+                    </div>
+                  )}
+                  {selectedApplication.cell && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Cell</Label>
+                      <p className="text-gray-900">{selectedApplication.cell}</p>
+                    </div>
+                  )}
+                  {selectedApplication.village && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Village</Label>
+                      <p className="text-gray-900">{selectedApplication.village}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

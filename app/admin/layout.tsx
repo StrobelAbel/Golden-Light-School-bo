@@ -7,7 +7,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
   DropdownMenu,
@@ -22,6 +21,7 @@ import {
   FileText,
   ShoppingCart,
   BarChart3,
+  GraduationCap,
   Bell,
   LogOut,
   Menu,
@@ -68,18 +68,18 @@ export default function AdminLayout({
     try {
       const token = localStorage.getItem("adminToken")
       if (!token) return // Don't fetch if no token
-      
+
       const response = await fetch("/api/notifications", {
         headers: {
-          'Authorization': `Bearer ${token}`, // Add auth header if needed
-        }
+          Authorization: `Bearer ${token}`, // Add auth header if needed
+        },
       })
-      
+
       if (!response.ok) {
         console.error("Failed to fetch notifications:", response.status)
         return
       }
-      
+
       const data = await response.json()
       setNotifications(data)
       setUnreadCount(data.filter((n: Notification) => !n.isRead).length)
@@ -145,9 +145,9 @@ export default function AdminLayout({
 
       const response = await fetch("/api/notifications", {
         method: "PUT",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          'Authorization': `Bearer ${token}`, // Add auth header if needed
+          Authorization: `Bearer ${token}`, // Add auth header if needed
         },
         body: JSON.stringify({ id, isRead: true }),
       })
@@ -166,13 +166,13 @@ export default function AdminLayout({
       if (!token) return
 
       const unreadNotifications = notifications.filter((n) => !n.isRead)
-      
+
       const promises = unreadNotifications.map((n) =>
         fetch("/api/notifications", {
           method: "PUT",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
-            'Authorization': `Bearer ${token}`, // Add auth header if needed
+            Authorization: `Bearer ${token}`, // Add auth header if needed
           },
           body: JSON.stringify({ id: n._id, isRead: true }),
         }),
@@ -189,13 +189,13 @@ export default function AdminLayout({
     // Clear all auth data
     localStorage.removeItem("adminToken")
     localStorage.removeItem("adminUser")
-    
+
     // Reset state
     setIsAuthenticated(false)
     setAdminUser(null)
     setNotifications([])
     setUnreadCount(0)
-    
+
     // Redirect
     router.push("/admin/login")
   }, [router])
@@ -253,10 +253,9 @@ export default function AdminLayout({
     { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/products", label: "Products", icon: Package },
     { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
+    { href: "/admin/admissions", label: "Admissions", icon: GraduationCap },
     { href: "/admin/applications", label: "Applications", icon: FileText },
     { href: "/admin/reports", label: "Reports", icon: BarChart3 },
-    // { href: "/admin/account", label: "Account Settings", icon: Settings },
-    // { href: "/admin/profile", label: "Profile Settings", icon: User },
   ]
 
   return (

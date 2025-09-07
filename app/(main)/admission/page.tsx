@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,33 +9,123 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Users, BookOpen, Heart, Calendar, User, Phone, Mail, MapPin, Send } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Separator } from "@/components/ui/separator"
+import { CheckCircle, Users, Heart, Calendar, User, Phone, Mail, MapPin, Send, Clock, AlertCircle } from "lucide-react"
+
+interface AdmissionProgram {
+  _id: string
+  name: string
+  description: string
+  ageRange: { min: number; max: number }
+  capacity: number
+  currentEnrollment: number
+  fees: {
+    applicationFee: number
+    tuitionFee: number
+    registrationFee: number
+    otherFees: { name: string; amount: number }[]
+  }
+  requirements: string[]
+  documents: string[]
+  status: string
+  admissionStatus: string
+  deadlines: {
+    applicationStart?: string
+    applicationEnd?: string
+    interviewStart?: string
+    interviewEnd?: string
+    resultAnnouncement?: string
+  }
+  customFields: {
+    id: string
+    label: string
+    type: string
+    required: boolean
+    options?: string[]
+    placeholder?: string
+  }[]
+}
+
+interface AdmissionSettings {
+  globalStatus: "open" | "closed" | "scheduled"
+  welcomeMessage: string
+  closedMessage: string
+  scheduledMessage: string
+  contactInfo: {
+    phone: string
+    email: string
+    address: string
+  }
+  faqItems: {
+    question: string
+    answer: string
+  }[]
+}
 
 export default function AdmissionPage() {
+  const [programs, setPrograms] = useState<AdmissionProgram[]>([])
+  const [settings, setSettings] = useState<AdmissionSettings | null>(null)
+  const [selectedProgram, setSelectedProgram] = useState<AdmissionProgram | null>(null)
+  const [isApplicationDialogOpen, setIsApplicationDialogOpen] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
-  const [formData, setFormData] = useState({
-    // Parent Information
-    parentName: "",
-    email: "",
-    phone: "",
-    address: "",
+  const [loading, setLoading] = useState(true)
 
-    // Child Information
+  const [formData, setFormData] = useState({
+    programId: "",
+    fatherName: "",
+    fatherId: "",
+    fatherPhone: "",
+    motherName: "",
+    motherId: "",
+    motherPhone: "",
+    province: "",
+    district: "",
+    sector: "",
+    cell: "",
+    village: "",
     childName: "",
     childAge: "",
     childGender: "",
+    childYear: "",
     dateOfBirth: "",
-
-    // Application Details
-    preferredStartDate: "",
+    // preferredStartDate: "",
     additionalInfo: "",
+    customFields: {} as Record<string, any>,
   })
+
+  useEffect(() => {
+    fetchAdmissionData()
+    // Poll every 5 seconds for real-time updates
+    const interval = setInterval(fetchAdmissionData, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const fetchAdmissionData = async () => {
+    try {
+      const response = await fetch("/api/public/admission-programs")
+      const data = await response.json()
+      setPrograms(data.programs || [])
+      setSettings(data.settings)
+    } catch (error) {
+      console.error("Error fetching admission data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    if (error) setError("") // Clear error when user starts typing
+    if (error) setError("")
+  }
+
+  const handleCustomFieldChange = (fieldId: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      customFields: { ...prev.customFields, [fieldId]: value },
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,15 +136,24 @@ export default function AdmissionPage() {
     try {
       // Validate required fields
       const requiredFields = [
-        "parentName",
-        "email",
-        "phone",
-        "address",
+        "programId",
+        "fatherName",
+        "fatherId",
+        "fatherPhone",
+        "motherName",
+        "motherId",
+        "motherPhone",
+        "province",
+        "district",
+        "sector",
+        "cell",
+        "village",
         "childName",
         "childAge",
+        "childYear",
         "childGender",
         "dateOfBirth",
-        "preferredStartDate",
+        // "preferredStartDate",
       ]
       const missingFields = requiredFields.filter((field) => !formData[field as keyof typeof formData])
 
@@ -65,20 +163,15 @@ export default function AdmissionPage() {
         return
       }
 
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(formData.email)) {
-        setError("Please enter a valid email address")
-        setIsSubmitting(false)
-        return
-      }
-
-      // Validate age
-      const age = Number.parseInt(formData.childAge)
-      if (isNaN(age) || age < 2 || age > 6) {
-        setError("Child age must be between 2 and 6 years")
-        setIsSubmitting(false)
-        return
+      // Validate custom fields
+      if (selectedProgram) {
+        for (const field of selectedProgram.customFields) {
+          if (field.required && !formData.customFields[field.id]) {
+            setError(`Please fill in the required field: ${field.label}`)
+            setIsSubmitting(false)
+            return
+          }
+        }
       }
 
       // Submit the application
@@ -91,7 +184,7 @@ export default function AdmissionPage() {
           ...formData,
           childAge: Number.parseInt(formData.childAge),
           dateOfBirth: new Date(formData.dateOfBirth),
-          preferredStartDate: new Date(formData.preferredStartDate),
+          // preferredStartDate: new Date(formData.preferredStartDate),
         }),
       })
 
@@ -108,6 +201,82 @@ export default function AdmissionPage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const openApplicationDialog = (program: AdmissionProgram) => {
+    setSelectedProgram(program)
+    setFormData((prev) => ({ ...prev, programId: program._id }))
+    setIsApplicationDialogOpen(true)
+  }
+
+  const renderCustomField = (field: any) => {
+    const value = formData.customFields[field.id] || ""
+
+    switch (field.type) {
+      case "text":
+        return (
+          <Input
+            value={value}
+            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
+            placeholder={field.placeholder}
+            required={field.required}
+          />
+        )
+      case "textarea":
+        return (
+          <Textarea
+            value={value}
+            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
+            placeholder={field.placeholder}
+            required={field.required}
+            rows={3}
+          />
+        )
+      case "select":
+        return (
+          <Select value={value} onValueChange={(val) => handleCustomFieldChange(field.id, val)}>
+            <SelectTrigger>
+              <SelectValue placeholder={field.placeholder || "Select an option"} />
+            </SelectTrigger>
+            <SelectContent>
+              {field.options?.map((option: string) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )
+      case "date":
+        return (
+          <Input
+            type="date"
+            value={value}
+            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
+            required={field.required}
+          />
+        )
+      case "number":
+        return (
+          <Input
+            type="number"
+            value={value}
+            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
+            placeholder={field.placeholder}
+            required={field.required}
+          />
+        )
+      default:
+        return null
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-600"></div>
+      </div>
+    )
   }
 
   if (isSubmitted) {
@@ -139,13 +308,6 @@ export default function AdmissionPage() {
               </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-blue-800 text-sm">
-                <strong>Application Reference:</strong> We've sent a confirmation email to{" "}
-                <strong>{formData.email}</strong> with your application details.
-              </p>
-            </div>
-
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="bg-golden-500 hover:bg-golden-600">
                 <a href="/">Return to Home</a>
@@ -160,361 +322,486 @@ export default function AdmissionPage() {
     )
   }
 
+  // Show closed/scheduled message if admissions are not open
+  if (!settings || settings.globalStatus !== "open" || programs.length === 0) {
+    const message =
+      settings?.globalStatus === "closed"
+        ? settings.closedMessage
+        : settings?.globalStatus === "scheduled"
+          ? settings.scheduledMessage
+          : "Admissions are currently not available."
+
+    return (
+      <div className="bg-gray-50">
+        <section className="py-20 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="h-12 w-12 text-yellow-600" />
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-6">Admissions Status</h1>
+            <p className="text-xl text-gray-600 mb-8">{message}</p>
+
+            {settings && (
+              <div className="grid md:grid-cols-3 gap-8 mt-12">
+                <Card className="text-center">
+                  <CardHeader>
+                    <Phone className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                    <CardTitle className="text-lg">Call Us</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 text-sm">Admissions Office</p>
+                    <p className="font-semibold">{settings.contactInfo.phone}</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="text-center">
+                  <CardHeader>
+                    <Mail className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                    <CardTitle className="text-lg">Email Us</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 text-sm">Admissions Team</p>
+                    <p className="font-semibold">{settings.contactInfo.email}</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="text-center">
+                  <CardHeader>
+                    <MapPin className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                    <CardTitle className="text-lg">Visit Us</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 text-sm">Schedule a tour</p>
+                    <p className="font-semibold">{settings.contactInfo.address}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-gray-50">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <Badge className="bg-blue-100 text-blue-800 mb-4">Admissions Open</Badge>
+          <Badge className="bg-green-100 text-green-800 mb-4">Admissions Open</Badge>
           <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
             Join Our
             <span className="text-blue-600"> Learning Family</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Give your child the best start in their educational journey with our nurturing, tech-enhanced learning
-            environment
+            {settings?.welcomeMessage ||
+              "Give your child the best start in their educational journey with our nurturing, tech-enhanced learning environment"}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
-              <a href="#application-form">
-                <Send className="mr-2 h-5 w-5" />
-                Apply Now
-              </a>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 bg-transparent"
-            >
-              <a href="/contact">
-                <Phone className="mr-2 h-5 w-5" />
-                Schedule Visit
-              </a>
-            </Button>
-          </div>
         </div>
       </section>
 
-      {/* Why Choose Us */}
+      {/* Programs Section */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Why Choose Golden Light School?</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Available Programs</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We provide a unique blend of traditional nurturing and modern educational technology
+              Choose the perfect program for your child's educational journey
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center border-2 hover:border-blue-200 transition-colors">
-              <CardHeader>
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-8 w-8 text-blue-600" />
-                </div>
-                <CardTitle className="text-xl">Small Class Sizes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
-                  Maximum 12 students per class ensures individual attention and personalized learning for every child.
-                </p>
-              </CardContent>
-            </Card>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {programs.map((program) => (
+              <Card key={program._id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between items-start mb-2">
+                    <CardTitle className="text-xl">{program.name}</CardTitle>
+                    <Badge className="bg-green-100 text-green-800">{program.admissionStatus}</Badge>
+                  </div>
+                  <p className="text-gray-600">{program.description}</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-2 text-blue-500" />
+                      <span>
+                        Ages {program.ageRange.min}-{program.ageRange.max}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2 text-green-500" />
+                      <span>{program.capacity - program.currentEnrollment} spot(s) left</span>
+                    </div>
+                  </div>
 
-            <Card className="text-center border-2 hover:border-indigo-200 transition-colors">
-              <CardHeader>
-                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="h-8 w-8 text-indigo-600" />
-                </div>
-                <CardTitle className="text-xl">Interactive Learning</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
-                  Smart toys, educational tablets, and hands-on activities make learning engaging and fun for young
-                  minds.
-                </p>
-              </CardContent>
-            </Card>
+                  <Separator />
 
-            <Card className="text-center border-2 hover:border-purple-200 transition-colors">
-              <CardHeader>
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Heart className="h-8 w-8 text-purple-600" />
-                </div>
-                <CardTitle className="text-xl">Affordable Excellence</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
-                  Quality education shouldn't break the bank. We offer competitive rates without compromising on care or
-                  curriculum.
-                </p>
-              </CardContent>
-            </Card>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Application Fee:</span>
+                      <span className="font-semibold">{program.fees.applicationFee} Frw</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Tuition Fee:</span>
+                      <span className="font-semibold">{program.fees.tuitionFee} Frw</span>
+                    </div>
+                  </div>
+
+                  {program.deadlines.applicationEnd && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                      <div className="flex items-center">
+                        <Clock className="h-4 w-4 mr-2 text-yellow-600" />
+                        <span className="text-sm text-yellow-800">
+                          Application deadline: {new Date(program.deadlines.applicationEnd).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <Button
+                    className="w-full"
+                    onClick={() => openApplicationDialog(program)}
+                    disabled={program.currentEnrollment >= program.capacity}
+                  >
+                    {program.currentEnrollment >= program.capacity ? "Program Full" : "Apply Now"}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Application Form */}
-      <section id="application-form" className="py-20 px-4 bg-gray-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Application Form</h2>
-            <p className="text-xl text-gray-600">
-              Please fill out this form to apply for admission to Golden Light School
-            </p>
+      {/* FAQ Section */}
+      {settings?.faqItems && settings.faqItems.length > 0 && (
+        <section className="py-20 px-4 bg-gray-50">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            </div>
+            <div className="space-y-6">
+              {settings.faqItems.map((faq, index) => (
+                <Card key={index}>
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-gray-900 mb-2">{faq.question}</h3>
+                    <p className="text-gray-600">{faq.answer}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
+        </section>
+      )}
 
-          <Card className="shadow-xl">
-            <CardHeader>
-              <CardTitle className="text-2xl flex items-center">
-                <User className="mr-3 h-6 w-6" />
-                Admission Application
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Parent Information */}
-                <div className="space-y-6">
-                  <div className="border-b pb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                      <User className="mr-2 h-5 w-5" />
-                      Parent/Guardian Information
-                    </h3>
-                  </div>
+      {/* Application Dialog */}
+      <Dialog open={isApplicationDialogOpen} onOpenChange={setIsApplicationDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Apply for {selectedProgram?.name}</DialogTitle>
+          </DialogHeader>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="parentName">Full Name *</Label>
-                      <Input
-                        id="parentName"
-                        value={formData.parentName}
-                        onChange={(e) => handleInputChange("parentName", e.target.value)}
-                        placeholder="Enter your full name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email Address *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
-                        placeholder="your.email@example.com"
-                        required
-                      />
-                    </div>
-                  </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Father Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <User className="mr-2 h-5 w-5" />
+                Parent/Guardian Information
+              </h3>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="phone">Phone Number *</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange("phone", e.target.value)}
-                        placeholder="+1 (555) 123-4568"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="address">Home Address *</Label>
-                      <Input
-                        id="address"
-                        value={formData.address}
-                        onChange={(e) => handleInputChange("address", e.target.value)}
-                        placeholder="123 Main Street, City, State"
-                        required
-                      />
-                    </div>
-                  </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="fatherName">Father's Name *</Label>
+                  <Input
+                    id="fatherName"
+                    value={formData.fatherName}
+                    onChange={(e) => handleInputChange("fatherName", e.target.value)}
+                    required
+                  />
                 </div>
-
-                {/* Child Information */}
-                <div className="space-y-6">
-                  <div className="border-b pb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                      <Heart className="mr-2 h-5 w-5" />
-                      Child Information
-                    </h3>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="childName">Child's Full Name *</Label>
-                      <Input
-                        id="childName"
-                        value={formData.childName}
-                        onChange={(e) => handleInputChange("childName", e.target.value)}
-                        placeholder="Enter child's full name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="childAge">Child's Age *</Label>
-                      <Select value={formData.childAge} onValueChange={(value) => handleInputChange("childAge", value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select age" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="2">2 years old</SelectItem>
-                          <SelectItem value="3">3 years old</SelectItem>
-                          <SelectItem value="4">4 years old</SelectItem>
-                          <SelectItem value="5">5 years old</SelectItem>
-                          <SelectItem value="6">6 years old</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="childGender">Gender *</Label>
-                      <Select
-                        value={formData.childGender}
-                        onValueChange={(value) => handleInputChange("childGender", value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select gender" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Male">Male</SelectItem>
-                          <SelectItem value="Female">Female</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="dateOfBirth">Date of Birth *</Label>
-                      <Input
-                        id="dateOfBirth"
-                        type="date"
-                        value={formData.dateOfBirth}
-                        onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
+                <div>
+                  <Label htmlFor="fatherId">ID Number *</Label>
+                  <Input
+                    id="fatherId"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d{16}"
+                    maxLength={16}
+                    value={formData.fatherId}
+                    onChange={(e) => handleInputChange("fatherId", e.target.value)}
+                    required
+                  />
                 </div>
-
-                {/* Application Details */}
-                <div className="space-y-6">
-                  <div className="border-b pb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                      <Calendar className="mr-2 h-5 w-5" />
-                      Application Details
-                    </h3>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="preferredStartDate">Preferred Start Date *</Label>
-                    <Input
-                      id="preferredStartDate"
-                      type="date"
-                      value={formData.preferredStartDate}
-                      onChange={(e) => handleInputChange("preferredStartDate", e.target.value)}
-                      min={new Date().toISOString().split("T")[0]} // Prevent past dates
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
-                    <Textarea
-                      id="additionalInfo"
-                      value={formData.additionalInfo}
-                      onChange={(e) => handleInputChange("additionalInfo", e.target.value)}
-                      rows={4}
-                      placeholder="Any special needs, allergies, or additional information you'd like us to know about your child..."
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="fatherPhone">Phone Number *</Label>
+                  <Input
+                    id="fatherPhone"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="\+?\d{10,15}"
+                    value={formData.fatherPhone}
+                    onChange={(e) => handleInputChange("fatherPhone", e.target.value)}
+                    required
+                  />
                 </div>
+              </div>
+            </div>
 
-                {/* Error Display */}
-                {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <p className="text-red-800 text-sm">{error}</p>
+            {/* Mother Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <User className="mr-2 h-5 w-5" />
+                Mother/Guardian Information
+              </h3>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="motherName">Mother's Name *</Label>
+                  <Input
+                    id="motherName"
+                    value={formData.motherName}
+                    onChange={(e) => handleInputChange("motherName", e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="motherId">ID Number *</Label>
+                  <Input
+                    id="motherId"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d{16}"
+                    maxLength={16}
+                    value={formData.motherId}
+                    onChange={(e) => handleInputChange("motherId", e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="motherphone">Phone Number *</Label>
+                  <Input
+                    id="motherPhone"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="\+?\d{10,15}"
+                    value={formData.motherPhone}
+                    onChange={(e) => handleInputChange("motherPhone", e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+            {/* Address Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <MapPin className="mr-2 h-5 w-5" />
+                Address Information
+              </h3>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="province">Province *</Label>
+                  <Input
+                    id="province"
+                    value={formData.province}
+                    onChange={(e) => handleInputChange("province", e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="district">District *</Label>
+                  <Input
+                    id="district"
+                    value={formData.district}
+                    onChange={(e) => handleInputChange("district", e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="sector">Sector *</Label>
+                  <Input
+                    id="sector"
+                    value={formData.sector}
+                    onChange={(e) => handleInputChange("sector", e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="cell">Cell *</Label>
+                  <Input
+                    id="cell"
+                    value={formData.cell}
+                    onChange={(e) => handleInputChange("cell", e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="village">Village *</Label>
+                  <Input
+                    id="village"
+                    value={formData.village}
+                    onChange={(e) => handleInputChange("village", e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Child Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <Heart className="mr-2 h-5 w-5" />
+                Child Information
+              </h3>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="childName">Child's Full Name *</Label>
+                  <Input
+                    id="childName"
+                    value={formData.childName}
+                    onChange={(e) => handleInputChange("childName", e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="childAge">Child's Age *</Label>
+                  <Select value={formData.childAge} onValueChange={(value) => handleInputChange("childAge", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select age" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from(
+                        { length: selectedProgram?.ageRange.max! - selectedProgram?.ageRange.min! + 1 },
+                        (_, i) => {
+                          const age = selectedProgram?.ageRange.min! + i
+                          return (
+                            <SelectItem key={age} value={age.toString()}>
+                              {age} years old
+                            </SelectItem>
+                          )
+                        },
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="childGender">Gender *</Label>
+                  <Select
+                    value={formData.childGender}
+                    onValueChange={(value) => handleInputChange("childGender", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                  <Input
+                    id="dateOfBirth"
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="childYear">Year *</Label>
+                  <Select
+                    value={formData.childYear}
+                    onValueChange={(value) => handleInputChange("childYear", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Baby">Baby</SelectItem>
+                      <SelectItem value="Middle">Middle</SelectItem>
+                      <SelectItem value="Top">Top</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div><br />
+
+            {/* Custom Fields */}
+            {selectedProgram?.customFields && selectedProgram.customFields.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Additional Information</h3>
+                {selectedProgram.customFields.map((field) => (
+                  <div key={field.id}>
+                    <Label htmlFor={field.id}>
+                      {field.label} {field.required && "*"}
+                    </Label>
+                    {renderCustomField(field)}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Application Details */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <Calendar className="mr-2 h-5 w-5" />
+                Application Details
+              </h3>
+              <div>
+                <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
+                <Textarea
+                  id="additionalInfo"
+                  value={formData.additionalInfo}
+                  onChange={(e) => handleInputChange("additionalInfo", e.target.value)}
+                  rows={4}
+                  placeholder="Any special needs, allergies, or additional information..."
+                />
+              </div>
+            </div>
+
+            {/* Requirements Display */}
+            {selectedProgram?.requirements && selectedProgram.requirements.length > 0 && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">Program Requirements:</h4>
+                <ul className="list-disc list-inside space-y-1 text-blue-800 text-sm">
+                  {selectedProgram.requirements.map((req, index) => (
+                    <li key={index}>{req}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Error Display */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-red-800 text-sm">{error}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsApplicationDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Submitting...
+                  </div>
+                ) : (
+                  <div className="flex items-center">
+                    <Send className="mr-2 h-4 w-4" />
+                    Submit Application
                   </div>
                 )}
-
-                {/* Submit Button */}
-                <div className="pt-6">
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                        Submitting Application...
-                      </div>
-                    ) : (
-                      <div className="flex items-center">
-                        <Send className="mr-2 h-5 w-5" />
-                        Submit Application
-                      </div>
-                    )}
-                  </Button>
-                </div>
-
-                <div className="text-center text-sm text-gray-500">
-                  <p>
-                    By submitting this form, you agree to our terms and conditions. We'll contact you within 2-3
-                    business days.
-                  </p>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Contact Information */}
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Questions About Admission?</h2>
-            <p className="text-xl text-gray-600">We're here to help you through the application process</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center">
-              <CardHeader>
-                <Phone className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <CardTitle className="text-lg">Call Us</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-sm">Admissions Office</p>
-                <p className="font-semibold">+250 786 376 459</p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardHeader>
-                <Mail className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                <CardTitle className="text-lg">Email Us</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-sm">Admissions Team</p>
-                <p className="font-semibold">goldenlight4.school@gmail.com</p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardHeader>
-                <MapPin className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <CardTitle className="text-lg">Visit Us</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-sm">Schedule a tour</p>
-                <p className="font-semibold">Musanze</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

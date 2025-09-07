@@ -13,7 +13,7 @@ export interface Application {
   dateOfBirth: Date
 
   // Application Details
-  preferredStartDate: Date
+  // preferredStartDate: Date
   additionalInfo?: string
   status: "pending" | "approved" | "rejected" | "under_review"
 
