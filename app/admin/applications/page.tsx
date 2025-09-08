@@ -107,7 +107,7 @@ export default function AdminApplicationsPage() {
     }
   }
 
-  const filteredApplications = applications.filter((application) => {
+  const filteredApplications = applications?.filter((application) => {
     const matchesSearch =
       application.parentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       application.childName.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -22,6 +22,7 @@ import {
   ShoppingCart,
   BarChart3,
   GraduationCap,
+  Users,
   Bell,
   LogOut,
   Menu,
@@ -254,6 +255,7 @@ export default function AdminLayout({
     { href: "/admin/products", label: "Products", icon: Package },
     { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
     { href: "/admin/admissions", label: "Admissions", icon: GraduationCap },
+    { href: "/admin/students", label: "Students", icon: Users },
     { href: "/admin/applications", label: "Applications", icon: FileText },
     { href: "/admin/reports", label: "Reports", icon: BarChart3 },
   ]
