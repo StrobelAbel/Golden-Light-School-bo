@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Search, Eye, FileText, User, Phone, MapPin  } from "lucide-react"
+import { Search, Eye, FileText, User, Phone, MapPin } from "lucide-react"
 
 interface Application {
   _id: string
@@ -39,6 +39,7 @@ interface Application {
 
 export default function AdminApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([])
+  const [selectedApplications, setSelectedApplications] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState("all")
@@ -70,14 +71,47 @@ export default function AdminApplicationsPage() {
         body: JSON.stringify({ status, notes }),
       })
 
+      const result = await response.json()
+
       if (response.ok) {
-        fetchApplications()
+        // Update local applications state
+        setApplications(prevApps =>
+          prevApps.map(app =>
+            app._id === id
+              ? { ...app, status: status as any, updatedAt: new Date().toISOString() }
+              : app
+          )
+        )
+
         setIsViewDialogOpen(false)
         setSelectedApplication(null)
         setStatusNotes("")
+
+        // Optionally refetch to ensure data consistency
+        fetchApplications()
+      } else {
+        throw new Error(result.error || "Failed to update application status")
       }
     } catch (error) {
       console.error("Error updating application:", error)
+      // Add error handling UI here
+      alert("Error updating application status. Please try again.")
+    }
+  }
+
+  const handleSelectApplication = (id: string) => {
+    setSelectedApplications(prev =>
+      prev.includes(id)
+        ? prev.filter(appId => appId !== id)
+        : [...prev, id]
+    )
+  }
+
+  const handleSelectAllApplications = () => {
+    if (selectedApplications.length === filteredApplications.length && filteredApplications.length > 0) {
+      setSelectedApplications([])
+    } else {
+      setSelectedApplications(filteredApplications.map(app => app._id))
     }
   }
 
@@ -235,6 +269,59 @@ export default function AdminApplicationsPage() {
         </CardContent>
       </Card>
 
+      {/* Bulk Actions */}
+      {selectedApplications.length > 0 && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <span className="text-sm text-gray-600">
+                {selectedApplications.length} application{selectedApplications.length !== 1 ? 's' : ''} selected
+              </span>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    selectedApplications.forEach(id => updateApplicationStatus(id, 'under_review', 'Bulk updated to under review'))
+                    setSelectedApplications([])
+                  }}
+                  className="bg-yellow-50 border-yellow-200 text-yellow-800 hover:bg-yellow-100"
+                >
+                  Mark Under Review
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    selectedApplications.forEach(id => updateApplicationStatus(id, 'approved', 'Bulk approved'))
+                    setSelectedApplications([])
+                  }}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Bulk Approve
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    selectedApplications.forEach(id => updateApplicationStatus(id, 'rejected', 'Bulk rejected'))
+                    setSelectedApplications([])
+                  }}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Bulk Reject
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setSelectedApplications([])}
+                >
+                  Clear Selection
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Applications Table */}
       <Card>
         <CardHeader>
@@ -245,6 +332,14 @@ export default function AdminApplicationsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b">
+                  <th className="text-left p-4 font-medium text-gray-600">
+                    <input
+                      type="checkbox"
+                      checked={selectedApplications.length === filteredApplications.length && filteredApplications.length > 0}
+                      onChange={handleSelectAllApplications}
+                      className="rounded border-gray-300"
+                    />
+                  </th>
                   <th className="text-left p-4 font-medium text-gray-600">Parents</th>
                   <th className="text-left p-4 font-medium text-gray-600">Contacts</th>
                   <th className="text-left p-4 font-medium text-gray-600">Child Details</th>
@@ -256,6 +351,14 @@ export default function AdminApplicationsPage() {
               <tbody>
                 {filteredApplications.map((application) => (
                   <tr key={application._id} className="border-b hover:bg-gray-50">
+                    <td className="p-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedApplications.includes(application._id)}
+                        onChange={() => handleSelectApplication(application._id)}
+                        className="rounded border-gray-300"
+                      />
+                    </td>
                     <td className="p-4">
                       <div>
                         <p className="text-sm text-gray-600">Father: {application.fatherName}</p>
@@ -412,14 +515,14 @@ export default function AdminApplicationsPage() {
                     <p className="text-gray-900">{new Date(selectedApplication.dateOfBirth).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Year</Label>
+                    <Label className="text-sm font-medium text-gray-600">Level</Label>
                     <p className="text-gray-900">
                       {selectedApplication.childYear}
                     </p>
                   </div>
                 </CardContent>
               </Card>
-              
+
               {/* Location Information */}
               <Card>
                 <CardHeader>

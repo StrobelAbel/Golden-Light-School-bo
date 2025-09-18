@@ -1,5 +1,10 @@
 "use client"
 
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-[200px]">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  </div>
+)
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,6 +24,7 @@ import {
   Calendar,
   DollarSign,
   FileText,
+  AlertTriangle,
   Settings,
   Eye,
   Clock,
@@ -26,6 +32,16 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface AdmissionProgram {
   _id: string
@@ -84,15 +100,35 @@ interface AdmissionSettings {
   }[]
 }
 
+interface Application {
+  _id: string
+  status: "pending" | "under_review" | "approved" | "rejected"
+  updatedAt: string
+  // Add other application properties as needed
+}
+
 export default function AdminAdmissionsPage() {
+  const [selectedApplications, setSelectedApplications] = useState<string[]>([])
   const [programs, setPrograms] = useState<AdmissionProgram[]>([])
   const [settings, setSettings] = useState<AdmissionSettings | null>(null)
+  const [applications, setApplications] = useState<Application[]>([])
+  const [filteredApplications, setFilteredApplications] = useState<Application[]>([])
   const [loading, setLoading] = useState(true)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false)
   const [selectedProgram, setSelectedProgram] = useState<AdmissionProgram | null>(null)
   const [activeTab, setActiveTab] = useState("programs")
+  const [successMessage, setSuccessMessage] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [programToDelete, setProgramToDelete] = useState<AdmissionProgram | null>(null)
+
+  const [bulkActionDialog, setBulkActionDialog] = useState<{
+    open: boolean;
+    action: string;
+    count: number;
+  } | null>(null)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -122,45 +158,177 @@ export default function AdminAdmissionsPage() {
   useEffect(() => {
     fetchPrograms()
     fetchSettings()
+    fetchApplications()
   }, [])
+
+  useEffect(() => {
+    // Filter applications based on some criteria (you can modify this logic)
+    setFilteredApplications(applications)
+  }, [applications])
+
+  // Add this useEffect for real-time deadline checking
+  useEffect(() => {
+    const checkDeadlinesInterval = setInterval(() => {
+      if (programs.length > 0) {
+        const updatedPrograms = programs.map(program => {
+          const deadlineStatus = checkProgramDeadlines(program)
+          if (deadlineStatus.status !== 'open' && program.admissionStatus === 'open') {
+            // Auto-close program if deadline passed
+            return { ...program, admissionStatus: 'closed' as const }
+          }
+          return program
+        })
+
+        if (JSON.stringify(updatedPrograms) !== JSON.stringify(programs)) {
+          setPrograms(updatedPrograms)
+        }
+      }
+    }, 60000) // Check every minute
+
+    return () => clearInterval(checkDeadlinesInterval)
+  }, [programs])
 
   const fetchPrograms = async () => {
     try {
+      setLoading(true)
       const response = await fetch("/api/admin/admission-programs?includeInactive=true")
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
       const data = await response.json()
       setPrograms(data)
+      setErrorMessage("")
     } catch (error) {
       console.error("Error fetching programs:", error)
-    }
-  }
-
-  const fetchSettings = async () => {
-    try {
-      const response = await fetch("/api/admin/admission-settings")
-      const data = await response.json()
-      setSettings(data)
-    } catch (error) {
-      console.error("Error fetching settings:", error)
+      setErrorMessage("Failed to fetch programs. Please refresh the page.")
     } finally {
       setLoading(false)
     }
   }
 
-  const handleCreateProgram = async () => {
+  const handleDeleteClick = (program: AdmissionProgram) => {
+    setProgramToDelete(program)
+    setDeleteConfirmOpen(true)
+  }
+
+  const handleDeleteCancel = () => {
+    setProgramToDelete(null)
+    setDeleteConfirmOpen(false)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (programToDelete) {
+      await handleDeleteProgram(programToDelete._id)
+      setProgramToDelete(null)
+      setDeleteConfirmOpen(false)
+    }
+  }
+
+  const fetchApplications = async () => {
     try {
+      const response = await fetch("/api/admin/applications")
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      setApplications(data)
+      setErrorMessage("")
+    } catch (error) {
+      console.error("Error fetching applications:", error)
+      setErrorMessage("Failed to fetch applications.")
+    }
+  }
+
+  // Add this helper function at the top of both files
+  const checkProgramDeadlines = (program: AdmissionProgram) => {
+    const now = new Date()
+
+    // Check if application period has started
+    if (program.deadlines.applicationStart) {
+      const startDate = new Date(program.deadlines.applicationStart)
+      if (now < startDate) {
+        return { status: 'scheduled', message: `Applications open on ${startDate.toLocaleDateString()}` }
+      }
+    }
+
+    // Check if application deadline has passed
+    if (program.deadlines.applicationEnd) {
+      const endDate = new Date(program.deadlines.applicationEnd)
+      if (now > endDate) {
+        return { status: 'closed', message: `Application deadline passed on ${endDate.toLocaleDateString()}` }
+      }
+    }
+
+    // Check capacity
+    if (program.currentEnrollment >= program.capacity) {
+      return { status: 'full', message: 'Program is full' }
+    }
+
+    return { status: 'open', message: 'Applications are open' }
+  }
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch("/api/admin/admission-settings")
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      setSettings(data)
+      setErrorMessage("")
+    } catch (error) {
+      console.error("Error fetching settings:", error)
+      setErrorMessage("Failed to fetch settings.")
+    }
+  }
+
+  const handleCreateProgram = async () => {
+    // Validate required fields
+    if (!formData.name.trim() || !formData.description.trim()) {
+      setErrorMessage("Program name and description are required.")
+      return
+    }
+
+    if (formData.ageRange.min >= formData.ageRange.max) {
+      setErrorMessage("Minimum age must be less than maximum age.")
+      return
+    }
+
+    if (formData.capacity <= 0) {
+      setErrorMessage("Capacity must be greater than 0.")
+      return
+    }
+
+    try {
+      setLoading(true)
+      setErrorMessage("")
+
       const response = await fetch("/api/admin/admission-programs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
 
-      if (response.ok) {
-        fetchPrograms()
+      const result = await response.json()
+
+      if (response.ok && result.success !== false) {
+        await fetchPrograms()
         setIsCreateDialogOpen(false)
         resetForm()
+        setSuccessMessage("Program created successfully!")
+        setTimeout(() => setSuccessMessage(""), 3000)
+      } else {
+        throw new Error(result.error || "Failed to create program")
       }
     } catch (error) {
       console.error("Error creating program:", error)
+      if (error instanceof Error) {
+        setErrorMessage(error.message)
+      } else {
+        setErrorMessage("Error creating program. Please try again.")
+      }
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -186,20 +354,25 @@ export default function AdminAdmissionsPage() {
   }
 
   const handleDeleteProgram = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this program?")) return
-
     try {
       const response = await fetch(`/api/admin/admission-programs/${id}`, {
         method: "DELETE",
       })
 
       if (response.ok) {
-        fetchPrograms()
+        await fetchPrograms()
+        setSuccessMessage("Program deleted successfully!")
+        setTimeout(() => setSuccessMessage(""), 3000)
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to delete program")
       }
     } catch (error) {
       console.error("Error deleting program:", error)
+      setErrorMessage(error instanceof Error ? error.message : "Failed to delete program.")
     }
   }
+
 
   const handleUpdateSettings = async (newSettings: AdmissionSettings) => {
     try {
@@ -313,9 +486,91 @@ export default function AdminAdmissionsPage() {
     )
   }
 
+  const confirmBulkAction = (action: string) => {
+    setBulkActionDialog({
+      open: true,
+      action,
+      count: selectedApplications.length
+    })
+  }
+
+  const executeBulkAction = async () => {
+    if (bulkActionDialog) {
+      await handleBulkStatusUpdate(bulkActionDialog.action)
+      setBulkActionDialog(null)
+    }
+  }
+
+  const handleBulkStatusUpdate = async (status: string) => {
+    if (selectedApplications.length === 0) return
+
+    try {
+      const updatePromises = selectedApplications.map(id =>
+        fetch(`/api/applications/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status, notes: `Bulk updated to ${status}` }),
+        })
+      )
+
+      await Promise.all(updatePromises)
+
+      // Update local state
+      setApplications((prevApps: Application[]) =>
+        prevApps.map((app: Application) =>
+          selectedApplications.includes(app._id)
+            ? { ...app, status: status as any, updatedAt: new Date().toISOString() }
+            : app
+        )
+      )
+
+      setSelectedApplications([])
+      fetchApplications() // Refresh to ensure consistency
+    } catch (error) {
+      console.error("Error bulk updating applications:", error)
+      alert("Error updating applications. Please try again.")
+    }
+  }
+
+  const handleSelectApplication = (id: string) => {
+    setSelectedApplications(prev =>
+      prev.includes(id)
+        ? prev.filter(appId => appId !== id)
+        : [...prev, id]
+    )
+  }
+
+  const handleSelectAllApplications = () => {
+    if (selectedApplications.length === filteredApplications.length) {
+      setSelectedApplications([])
+    } else {
+      setSelectedApplications(filteredApplications.map(app => app._id))
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
+
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center">
+            <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+            <p className="text-green-800">{successMessage}</p>
+          </div>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+            <p className="text-red-800">{errorMessage}</p>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Admission Management</h1>
@@ -368,10 +623,13 @@ export default function AdminAdmissionsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg">{program.name}</CardTitle>
-                    <div className="flex gap-1">
+                    <div className="flex gap-2 mb-2">
                       <Badge className={getStatusColor(program.status)}>
                         {getStatusIcon(program.status)}
                         <span className="ml-1">{program.status}</span>
+                      </Badge>
+                      <Badge className={getStatusColor(checkProgramDeadlines(program).status)} variant="outline">
+                        {checkProgramDeadlines(program).status}
                       </Badge>
                     </div>
                   </div>
@@ -461,14 +719,41 @@ export default function AdminAdmissionsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDeleteProgram(program._id)}
+                      onClick={() => handleDeleteClick(program)}
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
                       Delete
                     </Button>
+
                   </div>
                 </CardContent>
+                <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-red-500" />
+                        Delete Program
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{programToDelete?.name}"?
+                        This action cannot be undone and will permanently remove the program.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel onClick={handleDeleteCancel}>
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteConfirm}
+                        className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Program
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </Card>
             ))}
           </div>
@@ -489,6 +774,50 @@ export default function AdminAdmissionsPage() {
         </TabsContent>
 
         <TabsContent value="applications">
+          {/* Bulk Actions */}
+          {selectedApplications.length > 0 && (
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <span className="text-sm text-gray-600">
+                    {selectedApplications.length} application{selectedApplications.length !== 1 ? 's' : ''} selected
+                  </span>
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleBulkStatusUpdate('under_review')}
+                      className="bg-yellow-50 border-yellow-200 text-yellow-800 hover:bg-yellow-100"
+                    >
+                      Mark Under Review
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => confirmBulkAction('approved')}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Bulk Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => handleBulkStatusUpdate('rejected')}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Bulk Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setSelectedApplications([])}
+                    >
+                      Clear Selection
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardContent className="text-center py-12">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -549,6 +878,26 @@ export default function AdminAdmissionsPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Bulk Action Confirmation Dialog */}
+      <Dialog open={bulkActionDialog?.open || false} onOpenChange={(open) => !open && setBulkActionDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Bulk Action</DialogTitle>
+          </DialogHeader>
+          <p>
+            Are you sure you want to {bulkActionDialog?.action} {bulkActionDialog?.count} application{bulkActionDialog?.count !== 1 ? 's' : ''}?
+          </p>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setBulkActionDialog(null)}>
+              Cancel
+            </Button>
+            <Button onClick={executeBulkAction}>
+              Confirm
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Create/Edit Program Dialog */}
       <Dialog
@@ -729,8 +1078,9 @@ export default function AdminAdmissionsPage() {
                   <Label htmlFor="applicationStart">Application Start Date</Label>
                   <Input
                     id="applicationStart"
-                    type="date"
-                    value={formData.deadlines.applicationStart}
+                    type="datetime-local"
+                    value={formData.deadlines.applicationStart ?
+                      new Date(formData.deadlines.applicationStart).toISOString().slice(0, 16) : ''}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
@@ -743,8 +1093,9 @@ export default function AdminAdmissionsPage() {
                   <Label htmlFor="applicationEnd">Application End Date</Label>
                   <Input
                     id="applicationEnd"
-                    type="date"
-                    value={formData.deadlines.applicationEnd}
+                    type="datetime-local"
+                    value={formData.deadlines.applicationEnd ?
+                      new Date(formData.deadlines.applicationEnd).toISOString().slice(0, 16) : ''}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
@@ -770,16 +1121,19 @@ export default function AdminAdmissionsPage() {
                     }}
                     placeholder="Enter requirement..."
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const newReqs = formData.requirements.filter((_, i) => i !== index)
-                      setFormData({ ...formData, requirements: newReqs })
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {formData.requirements.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const newReqs = formData.requirements.filter((_, i) => i !== index)
+                        setFormData({ ...formData, requirements: newReqs.length === 0 ? [""] : newReqs })
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               ))}
               <Button

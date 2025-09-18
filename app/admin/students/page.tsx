@@ -74,6 +74,37 @@ export default function StudentsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false)
   const [editFormData, setEditFormData] = useState<Partial<Student>>({})
+  const [addFormData, setAddFormData] = useState<Partial<Student>>({
+    studentId: "",
+    firstName: "",
+    lastName: "",
+    dateOfBirth: new Date(),
+    gender: "Male",
+    childAge: 0,
+    fatherName: "",
+    fatherId: "",
+    fatherPhone: "",
+    motherName: "",
+    motherId: "",
+    motherPhone: "",
+    province: "",
+    district: "",
+    sector: "",
+    cell: "",
+    village: "",
+    address: "",
+    level: "",
+    academicYear: "2025-2026",
+    admissionDate: new Date(),
+    previousSchool: "",
+    status: "active",
+    paymentStatus: "not_paid",
+    amountPaid: 0,
+    amountDue: 0,
+    totalFees: 0,
+    paymentHistory: [],
+    notes: "",
+  })
   const [paymentFormData, setPaymentFormData] = useState({
     amount: "",
     paymentMethod: "cash",
@@ -149,6 +180,117 @@ export default function StudentsPage() {
       toast({
         title: "Error",
         description: "Failed to update student status",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleAddStudent = async () => {
+    try {
+      // Generate student ID if not provided
+      const studentId = addFormData.studentId || `STU${Date.now()}`
+
+      const response = await fetch("/api/admin/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...addFormData,
+          studentId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+      })
+
+      if (response.ok) {
+        fetchStudents()
+        setIsAddDialogOpen(false)
+        setAddFormData({
+          studentId: "",
+          firstName: "",
+          lastName: "",
+          dateOfBirth: new Date(),
+          gender: "Male",
+          childAge: 0,
+          fatherName: "",
+          fatherId: "",
+          fatherPhone: "",
+          motherName: "",
+          motherId: "",
+          motherPhone: "",
+          province: "",
+          district: "",
+          sector: "",
+          cell: "",
+          village: "",
+          address: "",
+          level: "",
+          academicYear: "2025-2026",
+          admissionDate: new Date(),
+          previousSchool: "",
+          status: "active",
+          paymentStatus: "not_paid",
+          amountPaid: 0,
+          amountDue: 0,
+          totalFees: 0,
+          paymentHistory: [],
+          notes: "",
+        })
+        toast({
+          title: "Success",
+          description: "Student added successfully",
+        })
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.message || "Failed to add student",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error adding student:", error)
+      toast({
+        title: "Error",
+        description: "Failed to add student",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleEditStudent = async () => {
+    if (!selectedStudent || !editFormData._id) return
+
+    try {
+      const response = await fetch(`/api/admin/students/${editFormData._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...editFormData,
+          updatedAt: new Date(),
+        }),
+      })
+
+      if (response.ok) {
+        fetchStudents()
+        setIsEditDialogOpen(false)
+        setEditFormData({})
+        toast({
+          title: "Success",
+          description: "Student updated successfully",
+        })
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update student",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error updating student:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update student",
         variant: "destructive",
       })
     }
@@ -283,7 +425,520 @@ export default function StudentsPage() {
               <DialogHeader>
                 <DialogTitle>Add New Student</DialogTitle>
               </DialogHeader>
-              {/* Add Student Form - Implementation similar to edit form */}
+              <div className="space-y-6">
+                <Tabs defaultValue="basic" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                    <TabsTrigger value="academic">Academic</TabsTrigger>
+                    <TabsTrigger value="financial">Financial</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="basic" className="space-y-6">
+                    {/* Student Information */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <User className="mr-2 h-5 w-5 text-blue-600" />
+                          Student Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="studentId">Student ID</Label>
+                          <Input
+                            id="studentId"
+                            value={addFormData.studentId || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, studentId: e.target.value }))
+                            }
+                            placeholder="Leave empty for auto-generation"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="firstName">First Name *</Label>
+                          <Input
+                            id="firstName"
+                            value={addFormData.firstName || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, firstName: e.target.value }))
+                            }
+                            placeholder="Enter first name"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="lastName">Last Name *</Label>
+                          <Input
+                            id="lastName"
+                            value={addFormData.lastName || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, lastName: e.target.value }))
+                            }
+                            placeholder="Enter last name"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                          <Input
+                            id="dateOfBirth"
+                            type="date"
+                            value={
+                              addFormData.dateOfBirth
+                                ? new Date(addFormData.dateOfBirth).toISOString().split("T")[0]
+                                : ""
+                            }
+                            onChange={(e) => {
+                              const dob = new Date(e.target.value)
+
+                              // Function to calculate age
+                              const calculateAge = (dateOfBirth: Date) => {
+                                const today = new Date()
+                                let age = today.getFullYear() - dateOfBirth.getFullYear()
+                                const m = today.getMonth() - dateOfBirth.getMonth()
+                                if (m < 0 || (m === 0 && today.getDate() < dateOfBirth.getDate())) {
+                                  age--
+                                }
+                                return age
+                              }
+
+                              setAddFormData((prev) => ({
+                                ...prev,
+                                dateOfBirth: dob,
+                                childAge: calculateAge(dob),
+                              }))
+                            }}
+                            required
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="gender">Gender *</Label>
+                          <Select
+                            value={addFormData.gender || "Male"}
+                            onValueChange={(value) =>
+                              setAddFormData((prev) => ({
+                                ...prev,
+                                gender: value as "Male" | "Female",
+                              }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Male">Male</SelectItem>
+                              <SelectItem value="Female">Female</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="childAge">Age *</Label>
+                          <Input
+                            id="childAge"
+                            type="number"
+                            value={addFormData.childAge || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({
+                                ...prev,
+                                childAge: Number.parseInt(e.target.value) || 0,
+                              }))
+                            }
+                            placeholder="Enter age"
+                            required
+                          />
+                        </div>
+
+                      </CardContent>
+                    </Card>
+
+                    {/* Father Information */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <User className="mr-2 h-5 w-5 text-green-600" />
+                          Father Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="fatherName">Father Name</Label>
+                          <Input
+                            id="fatherName"
+                            value={addFormData.fatherName || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, fatherName: e.target.value }))
+                            }
+                            placeholder="Enter father name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="fatherId">Father ID</Label>
+                          <Input
+                            id="fatherId"
+                            value={addFormData.fatherId || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, fatherId: e.target.value }))
+                            }
+                            placeholder="Enter father ID"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="fatherPhone">Father Phone</Label>
+                          <Input
+                            id="fatherPhone"
+                            value={addFormData.fatherPhone || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, fatherPhone: e.target.value }))
+                            }
+                            placeholder="Enter father phone"
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Mother Information */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <User className="mr-2 h-5 w-5 text-pink-600" />
+                          Mother Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="motherName">Mother Name</Label>
+                          <Input
+                            id="motherName"
+                            value={addFormData.motherName || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, motherName: e.target.value }))
+                            }
+                            placeholder="Enter mother name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="motherId">Mother ID</Label>
+                          <Input
+                            id="motherId"
+                            value={addFormData.motherId || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, motherId: e.target.value }))
+                            }
+                            placeholder="Enter mother ID"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="motherPhone">Mother Phone</Label>
+                          <Input
+                            id="motherPhone"
+                            value={addFormData.motherPhone || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, motherPhone: e.target.value }))
+                            }
+                            placeholder="Enter mother phone"
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Location Information */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <MapPin className="mr-2 h-5 w-5 text-blue-600" />
+                          Location Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="province">Province</Label>
+                          <Input
+                            id="province"
+                            value={addFormData.province || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, province: e.target.value }))
+                            }
+                            placeholder="Enter province"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="district">District</Label>
+                          <Input
+                            id="district"
+                            value={addFormData.district || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, district: e.target.value }))
+                            }
+                            placeholder="Enter district"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="sector">Sector</Label>
+                          <Input
+                            id="sector"
+                            value={addFormData.sector || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, sector: e.target.value }))
+                            }
+                            placeholder="Enter sector"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cell">Cell</Label>
+                          <Input
+                            id="cell"
+                            value={addFormData.cell || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, cell: e.target.value }))
+                            }
+                            placeholder="Enter cell"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="village">Village</Label>
+                          <Input
+                            id="village"
+                            value={addFormData.village || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, village: e.target.value }))
+                            }
+                            placeholder="Enter village"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="address">Additional Address Info</Label>
+                          <Textarea
+                            id="address"
+                            value={addFormData.address || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, address: e.target.value }))
+                            }
+                            placeholder="Enter additional address information"
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="academic" className="space-y-6">
+                    {/* Academic Information */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <GraduationCap className="mr-2 h-5 w-5 text-indigo-600" />
+                          Academic Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="level">Level *</Label>
+                          <Select
+                            value={addFormData.class || ""}
+                            onValueChange={(value) =>
+                              setAddFormData((prev) => ({ ...prev, class: value }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {classes.map((cls) => (
+                                <SelectItem key={cls} value={cls}>
+                                  {cls}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="academicYear">Academic Year *</Label>
+                          <Select
+                            value={addFormData.academicYear || "2025-2026"}
+                            onValueChange={(value) =>
+                              setAddFormData((prev) => ({ ...prev, academicYear: value }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {academicYears.map((year) => (
+                                <SelectItem key={year} value={year}>
+                                  {year}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="admissionDate">Admission Date *</Label>
+                          <Input
+                            id="admissionDate"
+                            type="date"
+                            value={
+                              addFormData.admissionDate
+                                ? new Date(addFormData.admissionDate).toISOString().split("T")[0]
+                                : ""
+                            }
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({
+                                ...prev,
+                                admissionDate: new Date(e.target.value),
+                              }))
+                            }
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="status">Status *</Label>
+                          <Select
+                            value={addFormData.status || "active"}
+                            onValueChange={(value) =>
+                              setAddFormData((prev) => ({ ...prev, status: value as any }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {statuses.map((status) => (
+                                <SelectItem key={status} value={status}>
+                                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                          <Label htmlFor="previousSchool">Previous School</Label>
+                          <Input
+                            id="previousSchool"
+                            value={addFormData.previousSchool || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, previousSchool: e.target.value }))
+                            }
+                            placeholder="Enter previous school (if any)"
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Notes */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <StickyNote className="mr-2 h-5 w-5 text-yellow-600" />
+                          Additional Notes
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <Label htmlFor="notes">Notes</Label>
+                          <Textarea
+                            id="notes"
+                            value={addFormData.notes || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({ ...prev, notes: e.target.value }))
+                            }
+                            placeholder="Enter any additional notes about the student"
+                            rows={4}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="financial" className="space-y-6">
+                    {/* Financial Information */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <DollarSign className="mr-2 h-5 w-5 text-green-600" />
+                          Financial Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="totalFees">Total Fees (Frw) *</Label>
+                          <Input
+                            id="totalFees"
+                            type="number"
+                            value={addFormData.totalFees || ""}
+                            onChange={(e) =>
+                              setAddFormData((prev) => ({
+                                ...prev,
+                                totalFees: Number.parseFloat(e.target.value) || 0,
+                                amountDue: Number.parseFloat(e.target.value) || 0,
+                              }))
+                            }
+                            placeholder="Enter total fees"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="amountPaid">Amount Paid (Frw)</Label>
+                          <Input
+                            id="amountPaid"
+                            type="number"
+                            value={addFormData.amountPaid || ""}
+                            onChange={(e) => {
+                              const paid = Number.parseFloat(e.target.value) || 0
+                              const total = addFormData.totalFees || 0
+                              setAddFormData((prev) => ({
+                                ...prev,
+                                amountPaid: paid,
+                                amountDue: total - paid,
+                                paymentStatus: paid === 0 ? "not_paid" : paid === total ? "paid" : "half_paid",
+                              }))
+                            }}
+                            placeholder="Enter amount paid"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="paymentStatus">Payment Status</Label>
+                          <Select
+                            value={addFormData.paymentStatus || "not_paid"}
+                            onValueChange={(value) =>
+                              setAddFormData((prev) => ({ ...prev, paymentStatus: value as any }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {paymentStatuses.map((status) => (
+                                <SelectItem key={status} value={status}>
+                                  {status.replace("_", " ").charAt(0).toUpperCase() + status.replace("_", " ").slice(1)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Amount Due (Frw)</Label>
+                          <Input
+                            value={addFormData.amountDue || 0}
+                            disabled
+                            className="bg-muted"
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+
+                {/* Form Actions */}
+                <div className="flex justify-end space-x-2 pt-4 border-t">
+                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddStudent}>
+                    Add Student
+                  </Button>
+                </div>
+              </div>
             </DialogContent>
           </Dialog>
         </div>
@@ -491,14 +1146,14 @@ export default function StudentsPage() {
                       <TableCell>
                         <div>
                           {/* <div className="font-medium">{student.class}</div> */}
-                          <div className="text-sm text-muted-foreground">{student.level}</div>
+                          <div className="text-sm text-muted-foreground">{student.class}</div>
                         </div>
                       </TableCell>
 
                       {/* Age / Gender */}
                       <TableCell>
                         <div>
-                          <div className="font-medium">{student.childAge}</div>
+                          {/* <div className="font-medium">{student.childAge}</div> */}
                           <div className="text-sm text-muted-foreground">{student.gender}</div>
                         </div>
                       </TableCell>
@@ -791,7 +1446,7 @@ export default function StudentsPage() {
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Level</Label>
-                      <p className="text-gray-900 font-medium">{selectedStudent.level}</p>
+                      <p className="text-gray-900 font-medium">{selectedStudent.class}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Academic Year</Label>
@@ -1109,6 +1764,508 @@ export default function StudentsPage() {
                   Cancel
                 </Button>
                 <Button onClick={handleAddPayment}>Add Payment</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Student Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Student</DialogTitle>
+          </DialogHeader>
+          {selectedStudent && (
+            <div className="space-y-6">
+              <Tabs defaultValue="basic" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                  <TabsTrigger value="academic">Academic</TabsTrigger>
+                  <TabsTrigger value="financial">Financial</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="basic" className="space-y-6">
+                  {/* Student Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <User className="mr-2 h-5 w-5 text-blue-600" />
+                        Student Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-studentId">Student ID</Label>
+                        <Input
+                          id="edit-studentId"
+                          value={editFormData.studentId || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, studentId: e.target.value }))
+                          }
+                          placeholder="Enter student ID"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-firstName">First Name *</Label>
+                        <Input
+                          id="edit-firstName"
+                          value={editFormData.firstName || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, firstName: e.target.value }))
+                          }
+                          placeholder="Enter first name"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-lastName">Last Name *</Label>
+                        <Input
+                          id="edit-lastName"
+                          value={editFormData.lastName || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, lastName: e.target.value }))
+                          }
+                          placeholder="Enter last name"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-dateOfBirth">Date of Birth *</Label>
+                        <Input
+                          id="edit-dateOfBirth"
+                          type="date"
+                          value={
+                            editFormData.dateOfBirth
+                              ? new Date(editFormData.dateOfBirth).toISOString().split("T")[0]
+                              : ""
+                          }
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({
+                              ...prev,
+                              dateOfBirth: new Date(e.target.value),
+                            }))
+                          }
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-gender">Gender *</Label>
+                        <Select
+                          value={editFormData.gender || "Male"}
+                          onValueChange={(value) =>
+                            setEditFormData((prev) => ({ ...prev, gender: value as "Male" | "Female" }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-childAge">Age *</Label>
+                        <Input
+                          id="edit-childAge"
+                          type="number"
+                          value={editFormData.childAge || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, childAge: Number.parseInt(e.target.value) || 0 }))
+                          }
+                          placeholder="Enter age"
+                          required
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Father Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <User className="mr-2 h-5 w-5 text-green-600" />
+                        Father Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-fatherName">Father Name</Label>
+                        <Input
+                          id="edit-fatherName"
+                          value={editFormData.fatherName || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, fatherName: e.target.value }))
+                          }
+                          placeholder="Enter father name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-fatherId">Father ID</Label>
+                        <Input
+                          id="edit-fatherId"
+                          value={editFormData.fatherId || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, fatherId: e.target.value }))
+                          }
+                          placeholder="Enter father ID"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-fatherPhone">Father Phone</Label>
+                        <Input
+                          id="edit-fatherPhone"
+                          value={editFormData.fatherPhone || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, fatherPhone: e.target.value }))
+                          }
+                          placeholder="Enter father phone"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Mother Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <User className="mr-2 h-5 w-5 text-pink-600" />
+                        Mother Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-motherName">Mother Name</Label>
+                        <Input
+                          id="edit-motherName"
+                          value={editFormData.motherName || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, motherName: e.target.value }))
+                          }
+                          placeholder="Enter mother name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-motherId">Mother ID</Label>
+                        <Input
+                          id="edit-motherId"
+                          value={editFormData.motherId || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, motherId: e.target.value }))
+                          }
+                          placeholder="Enter mother ID"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-motherPhone">Mother Phone</Label>
+                        <Input
+                          id="edit-motherPhone"
+                          value={editFormData.motherPhone || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, motherPhone: e.target.value }))
+                          }
+                          placeholder="Enter mother phone"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Location Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <MapPin className="mr-2 h-5 w-5 text-blue-600" />
+                        Location Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-province">Province</Label>
+                        <Input
+                          id="edit-province"
+                          value={editFormData.province || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, province: e.target.value }))
+                          }
+                          placeholder="Enter province"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-district">District</Label>
+                        <Input
+                          id="edit-district"
+                          value={editFormData.district || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, district: e.target.value }))
+                          }
+                          placeholder="Enter district"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-sector">Sector</Label>
+                        <Input
+                          id="edit-sector"
+                          value={editFormData.sector || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, sector: e.target.value }))
+                          }
+                          placeholder="Enter sector"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-cell">Cell</Label>
+                        <Input
+                          id="edit-cell"
+                          value={editFormData.cell || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, cell: e.target.value }))
+                          }
+                          placeholder="Enter cell"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-village">Village</Label>
+                        <Input
+                          id="edit-village"
+                          value={editFormData.village || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, village: e.target.value }))
+                          }
+                          placeholder="Enter village"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-address">Additional Address Info</Label>
+                        <Textarea
+                          id="edit-address"
+                          value={editFormData.address || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, address: e.target.value }))
+                          }
+                          placeholder="Enter additional address information"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="academic" className="space-y-6">
+                  {/* Academic Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <GraduationCap className="mr-2 h-5 w-5 text-indigo-600" />
+                        Academic Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-level">Level *</Label>
+                        <Select
+                          value={editFormData.class || ""}
+                          onValueChange={(value) =>
+                            setEditFormData((prev) => ({ ...prev, class: value }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {classes.map((cls) => (
+                              <SelectItem key={cls} value={cls}>
+                                {cls}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-academicYear">Academic Year *</Label>
+                        <Select
+                          value={editFormData.academicYear || "2025-2026"}
+                          onValueChange={(value) =>
+                            setEditFormData((prev) => ({ ...prev, academicYear: value }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {academicYears.map((year) => (
+                              <SelectItem key={year} value={year}>
+                                {year}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-admissionDate">Admission Date *</Label>
+                        <Input
+                          id="edit-admissionDate"
+                          type="date"
+                          value={
+                            editFormData.admissionDate
+                              ? new Date(editFormData.admissionDate).toISOString().split("T")[0]
+                              : ""
+                          }
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({
+                              ...prev,
+                              admissionDate: new Date(e.target.value),
+                            }))
+                          }
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-status">Status *</Label>
+                        <Select
+                          value={editFormData.status || "active"}
+                          onValueChange={(value) =>
+                            setEditFormData((prev) => ({ ...prev, status: value as any }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {statuses.map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="edit-previousSchool">Previous School</Label>
+                        <Input
+                          id="edit-previousSchool"
+                          value={editFormData.previousSchool || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, previousSchool: e.target.value }))
+                          }
+                          placeholder="Enter previous school (if any)"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Notes */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <StickyNote className="mr-2 h-5 w-5 text-yellow-600" />
+                        Additional Notes
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-notes">Notes</Label>
+                        <Textarea
+                          id="edit-notes"
+                          value={editFormData.notes || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({ ...prev, notes: e.target.value }))
+                          }
+                          placeholder="Enter any additional notes about the student"
+                          rows={4}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="financial" className="space-y-6">
+                  {/* Financial Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <DollarSign className="mr-2 h-5 w-5 text-green-600" />
+                        Financial Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-totalFees">Total Fees (Frw) *</Label>
+                        <Input
+                          id="edit-totalFees"
+                          type="number"
+                          value={editFormData.totalFees || ""}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({
+                              ...prev,
+                              totalFees: Number.parseFloat(e.target.value) || 0,
+                              amountDue: Number.parseFloat(e.target.value) || 0,
+                            }))
+                          }
+                          placeholder="Enter total fees"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-amountPaid">Amount Paid (Frw)</Label>
+                        <Input
+                          id="edit-amountPaid"
+                          type="number"
+                          value={editFormData.amountPaid || ""}
+                          onChange={(e) => {
+                            const paid = Number.parseFloat(e.target.value) || 0
+                            const total = editFormData.totalFees || 0
+                            setEditFormData((prev) => ({
+                              ...prev,
+                              amountPaid: paid,
+                              amountDue: total - paid,
+                              paymentStatus: paid === 0 ? "not_paid" : paid === total ? "paid" : "half_paid",
+                            }))
+                          }}
+                          placeholder="Enter amount paid"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-paymentStatus">Payment Status</Label>
+                        <Select
+                          value={editFormData.paymentStatus || "not_paid"}
+                          onValueChange={(value) =>
+                            setEditFormData((prev) => ({ ...prev, paymentStatus: value as any }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {paymentStatuses.map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {status.replace("_", " ").charAt(0).toUpperCase() + status.replace("_", " ").slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Amount Due (Frw)</Label>
+                        <Input
+                          value={editFormData.amountDue || 0}
+                          disabled
+                          className="bg-muted"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+
+              {/* Form Actions */}
+              <div className="flex justify-end space-x-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleEditStudent}>
+                  Update Student
+                </Button>
               </div>
             </div>
           )}
