@@ -1,6 +1,7 @@
 import type React from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import WhatsAppWidget from "@/components/whatsapp-widget"
 
 export default function MainLayout({
   children,
@@ -12,6 +13,7 @@ export default function MainLayout({
       <Navigation />
       <main className="flex-1">{children}</main>
       <Footer />
+      <WhatsAppWidget />
     </div>
   )
 }

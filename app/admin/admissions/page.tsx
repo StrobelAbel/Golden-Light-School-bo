@@ -183,7 +183,7 @@ export default function AdminAdmissionsPage() {
           setPrograms(updatedPrograms)
         }
       }
-    }, 60000) // Check every minute
+    }, 5000) // Check every minute
 
     return () => clearInterval(checkDeadlinesInterval)
   }, [programs])

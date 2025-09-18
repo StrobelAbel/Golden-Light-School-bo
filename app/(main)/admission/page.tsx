@@ -77,7 +77,6 @@ export default function AdmissionPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
-  const [programsLoading, setProgramsLoading] = useState(true)
   const [loading, setLoading] = useState(true)
 
   const [formData, setFormData] = useState({
@@ -98,7 +97,6 @@ export default function AdmissionPage() {
     childGender: "",
     childYear: "",
     dateOfBirth: "",
-    // preferredStartDate: "",
     additionalInfo: "",
     customFields: {} as Record<string, any>,
   })
@@ -110,31 +108,8 @@ export default function AdmissionPage() {
     return () => clearInterval(interval)
   }, [])
 
-  // Add this useEffect for real-time deadline checking
-  useEffect(() => {
-    const checkDeadlinesInterval = setInterval(() => {
-      if (programs.length > 0) {
-        const updatedPrograms = programs.map(program => {
-          const deadlineStatus = checkProgramDeadlines(program)
-          if (deadlineStatus.status !== 'open' && program.admissionStatus === 'open') {
-            // Auto-close program if deadline passed
-            return { ...program, admissionStatus: 'closed' as const }
-          }
-          return program
-        })
-
-        if (JSON.stringify(updatedPrograms) !== JSON.stringify(programs)) {
-          setPrograms(updatedPrograms)
-        }
-      }
-    }, 60000) // Check every minute
-
-    return () => clearInterval(checkDeadlinesInterval)
-  }, [programs])
-
   const fetchAdmissionData = async () => {
     try {
-      setProgramsLoading(true)
       const response = await fetch("/api/public/admission-programs")
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -144,14 +119,11 @@ export default function AdmissionPage() {
       setSettings(data.settings)
     } catch (error) {
       console.error("Error fetching admission data:", error)
-      // You might want to show an error state here
     } finally {
-      setProgramsLoading(false)
       setLoading(false)
     }
   }
 
-  // Add this helper function at the top of both files
   const checkProgramDeadlines = (program: AdmissionProgram) => {
     const now = new Date()
 
@@ -159,7 +131,7 @@ export default function AdmissionPage() {
     if (program.deadlines.applicationStart) {
       const startDate = new Date(program.deadlines.applicationStart)
       if (now < startDate) {
-        return { status: 'scheduled', message: `Applications open on ${startDate.toLocaleDateString()}` }
+        return { status: "scheduled", message: `Applications open on ${startDate.toLocaleDateString()}` }
       }
     }
 
@@ -167,16 +139,16 @@ export default function AdmissionPage() {
     if (program.deadlines.applicationEnd) {
       const endDate = new Date(program.deadlines.applicationEnd)
       if (now > endDate) {
-        return { status: 'closed', message: `Application deadline passed on ${endDate.toLocaleDateString()}` }
+        return { status: "closed", message: `Application deadline passed on ${endDate.toLocaleDateString()}` }
       }
     }
 
     // Check capacity
     if (program.currentEnrollment >= program.capacity) {
-      return { status: 'full', message: 'Program is full' }
+      return { status: "full", message: "Program is full" }
     }
 
-    return { status: 'open', message: 'Applications are open' }
+    return { status: "open", message: "Applications are open" }
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -193,22 +165,8 @@ export default function AdmissionPage() {
 
   const formatPhoneNumber = (value: string) => {
     // Remove all non-digit characters
-    const cleaned = value.replace(/\D/g, '')
-    // Format as needed (adjust pattern as per your requirements)
+    const cleaned = value.replace(/\D/g, "")
     return cleaned
-  }
-
-  const getGlobalStatusMessage = (settings: AdmissionSettings | null) => {
-    if (!settings) return "Admissions are currently not available."
-
-    switch (settings.globalStatus) {
-      case 'closed':
-        return settings.closedMessage || "Admissions are currently closed. Please check back later or contact us for more information."
-      case 'scheduled':
-        return settings.scheduledMessage || "Admissions are scheduled to open soon. Please check back later for updates."
-      default:
-        return "Admissions are currently not available."
-    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -300,7 +258,7 @@ export default function AdmissionPage() {
           ...formData,
           childAge: Number.parseInt(formData.childAge),
           dateOfBirth: new Date(formData.dateOfBirth),
-          programId: selectedProgram?._id, // Ensure program ID is included
+          programId: selectedProgram?._id,
         }),
       })
 
@@ -308,12 +266,12 @@ export default function AdmissionPage() {
 
       if (response.ok && result.success !== false) {
         // Update local program state to reflect the new enrollment
-        setPrograms(prevPrograms =>
-          prevPrograms.map(program =>
+        setPrograms((prevPrograms) =>
+          prevPrograms.map((program) =>
             program._id === selectedProgram?._id
               ? { ...program, currentEnrollment: program.currentEnrollment + 1 }
-              : program
-          )
+              : program,
+          ),
         )
         setIsSubmitted(true)
       } else {
@@ -472,23 +430,35 @@ export default function AdmissionPage() {
     )
   }
 
-  // Enhanced global status checking
+  // Show closed/scheduled message if admissions are not open
   if (!settings || settings.globalStatus !== "open") {
-    const message = getGlobalStatusMessage(settings)
+    const message =
+      settings?.globalStatus === "closed"
+        ? settings.closedMessage
+        : settings?.globalStatus === "scheduled"
+          ? settings.scheduledMessage
+          : "Admissions are currently not available."
+
     const isScheduled = settings?.globalStatus === "scheduled"
 
     return (
       <div className="bg-gray-50">
         <section className="py-20 px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${isScheduled ? 'bg-blue-100' : 'bg-yellow-100'
-              }`}>
-              <AlertCircle className={`h-12 w-12 ${isScheduled ? 'text-blue-600' : 'text-yellow-600'
-                }`} />
+            <div
+              className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
+                isScheduled ? "bg-blue-100" : "bg-yellow-100"
+              }`}
+            >
+              <AlertCircle className={`h-12 w-12 ${isScheduled ? "text-blue-600" : "text-yellow-600"}`} />
             </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-6">
-              Admissions {settings?.globalStatus === 'closed' ? 'Closed' :
-                settings?.globalStatus === 'scheduled' ? 'Scheduled' : 'Unavailable'}
+              Admissions{" "}
+              {settings?.globalStatus === "closed"
+                ? "Closed"
+                : settings?.globalStatus === "scheduled"
+                  ? "Scheduled"
+                  : "Unavailable"}
             </h1>
             <p className="text-xl text-gray-600 mb-8">{message}</p>
 
@@ -561,111 +531,141 @@ export default function AdmissionPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {programs.map((program) => {
-              const deadlineStatus = checkProgramDeadlines(program)
-              const isApplicationDisabled =
-                deadlineStatus.status !== "open" || settings?.globalStatus !== "open"
+          {programs.length === 0 ? (
+            <div className="text-center py-12">
+              <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">No Programs Available</h3>
+              <p className="text-gray-500">Please check back later or contact us for more information.</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {programs.map((program) => {
+                const deadlineStatus = checkProgramDeadlines(program)
+                const isApplicationDisabled = deadlineStatus.status !== "open"
+                const spotsLeft = program.capacity - program.currentEnrollment
 
-              return (
-                <Card key={program._id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start mb-2">
-                      <CardTitle className="text-xl">{program.name}</CardTitle>
-                      <Badge className="bg-green-100 text-green-800">
-                        {program.admissionStatus}
-                      </Badge>
-                    </div>
-                    <p className="text-gray-600">{program.description}</p>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center">
-                        <Users className="h-4 w-4 mr-2 text-blue-500" />
-                        <span>
-                          Ages {program.ageRange.min}-{program.ageRange.max}
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-2 text-green-500" />
-                        <span>
-                          {program.capacity - program.currentEnrollment} spot(s) left
-                        </span>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Application Fee:</span>
-                        <span className="font-semibold">
-                          {program.fees.applicationFee} Frw
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Tuition Fee:</span>
-                        <span className="font-semibold">
-                          {program.fees.tuitionFee} Frw
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-
-                  {/* ✅ Updated deadline block */}
-                  {(program.deadlines.applicationEnd || deadlineStatus.status !== "open") && (
-                    <div
-                      className={`border rounded-lg p-3 mx-6 mb-4 ${deadlineStatus.status === "open"
-                        ? "bg-green-50 border-green-200"
-                        : deadlineStatus.status === "scheduled"
-                          ? "bg-blue-50 border-blue-200"
-                          : "bg-red-50 border-red-200"
-                        }`}
-                    >
-                      <div className="flex items-center">
-                        <Clock
-                          className={`h-4 w-4 mr-2 ${deadlineStatus.status === "open"
-                            ? "text-green-600"
-                            : deadlineStatus.status === "scheduled"
-                              ? "text-blue-600"
-                              : "text-red-600"
-                            }`}
-                        />
-                        <span
-                          className={`text-sm ${deadlineStatus.status === "open"
-                            ? "text-green-800"
-                            : deadlineStatus.status === "scheduled"
-                              ? "text-blue-800"
-                              : "text-red-800"
-                            }`}
+                return (
+                  <Card key={program._id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex justify-between items-start mb-2">
+                        <CardTitle className="text-xl">{program.name}</CardTitle>
+                        <Badge
+                          className={`${
+                            deadlineStatus.status === "open"
+                              ? "bg-green-100 text-green-800"
+                              : deadlineStatus.status === "full"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-yellow-100 text-yellow-800"
+                          }`}
                         >
-                          {deadlineStatus.message}
-                        </span>
+                          {deadlineStatus.status === "open"
+                            ? "Open"
+                            : deadlineStatus.status === "full"
+                              ? "Full"
+                              : deadlineStatus.status === "closed"
+                                ? "Closed"
+                                : "Scheduled"}
+                        </Badge>
                       </div>
-                    </div>
-                  )}
+                      <p className="text-gray-600">{program.description}</p>
+                    </CardHeader>
 
-                  {/* ✅ Updated button */}
-                  <CardContent className="px-6 pb-6">
-                    <Button
-                      className="w-full"
-                      onClick={() => openApplicationDialog(program)}
-                      disabled={isApplicationDisabled}
-                    >
-                      {deadlineStatus.status === "full"
-                        ? "Program Full"
-                        : deadlineStatus.status === "closed"
-                          ? "Applications Closed"
-                          : deadlineStatus.status === "scheduled"
-                            ? "Not Yet Open"
-                            : "Apply Now"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 mr-2 text-blue-500" />
+                          <span>
+                            Ages {program.ageRange.min}-{program.ageRange.max}
+                          </span>
+                        </div>
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-2 text-green-500" />
+                          <span className={spotsLeft <= 5 && spotsLeft > 0 ? "text-orange-600 font-medium" : ""}>
+                            {spotsLeft} spot(s) left
+                          </span>
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Application Fee:</span>
+                          <span className="font-semibold">{program.fees.applicationFee.toLocaleString()} Frw</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Tuition Fee:</span>
+                          <span className="font-semibold">{program.fees.tuitionFee.toLocaleString()} Frw</span>
+                        </div>
+                      </div>
+
+                      {/* Status message */}
+                      {deadlineStatus.status !== "open" && (
+                        <div
+                          className={`border rounded-lg p-3 ${
+                            deadlineStatus.status === "full"
+                              ? "bg-red-50 border-red-200"
+                              : deadlineStatus.status === "closed"
+                                ? "bg-yellow-50 border-yellow-200"
+                                : "bg-blue-50 border-blue-200"
+                          }`}
+                        >
+                          <div className="flex items-center">
+                            <Clock
+                              className={`h-4 w-4 mr-2 ${
+                                deadlineStatus.status === "full"
+                                  ? "text-red-600"
+                                  : deadlineStatus.status === "closed"
+                                    ? "text-yellow-600"
+                                    : "text-blue-600"
+                              }`}
+                            />
+                            <span
+                              className={`text-sm ${
+                                deadlineStatus.status === "full"
+                                  ? "text-red-800"
+                                  : deadlineStatus.status === "closed"
+                                    ? "text-yellow-800"
+                                    : "text-blue-800"
+                              }`}
+                            >
+                              {deadlineStatus.message}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Application deadline info for open programs */}
+                      {deadlineStatus.status === "open" && program.deadlines.applicationEnd && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 mr-2 text-green-600" />
+                            <span className="text-sm text-green-800">
+                              Apply by: {new Date(program.deadlines.applicationEnd).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      <Button
+                        className="w-full"
+                        onClick={() => openApplicationDialog(program)}
+                        disabled={isApplicationDisabled}
+                      >
+                        {deadlineStatus.status === "full"
+                          ? "Program Full"
+                          : deadlineStatus.status === "closed"
+                            ? "Applications Closed"
+                            : deadlineStatus.status === "scheduled"
+                              ? "Not Yet Open"
+                              : "Apply Now"}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -801,6 +801,7 @@ export default function AdmissionPage() {
                 </div>
               </div>
             </div>
+
             {/* Address Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -922,12 +923,9 @@ export default function AdmissionPage() {
                 </div>
                 <div>
                   <Label htmlFor="childYear">Level *</Label>
-                  <Select
-                    value={formData.childYear}
-                    onValueChange={(value) => handleInputChange("childYear", value)}
-                  >
+                  <Select value={formData.childYear} onValueChange={(value) => handleInputChange("childYear", value)}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Year" />
+                      <SelectValue placeholder="Select Level" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Baby">Baby</SelectItem>
@@ -937,7 +935,7 @@ export default function AdmissionPage() {
                   </Select>
                 </div>
               </div>
-            </div><br />
+            </div>
 
             {/* Custom Fields */}
             {selectedProgram?.customFields && selectedProgram.customFields.length > 0 && (

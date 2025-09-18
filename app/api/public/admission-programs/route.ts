@@ -9,14 +9,31 @@ export async function GET() {
     // Get admission settings to check global status
     const settings = await db.collection("admissionSettings").findOne({})
 
+    // If global status is closed, return empty programs array
     if (!settings || settings.globalStatus === "closed") {
       return NextResponse.json({
         programs: [],
-        settings: settings || { globalStatus: "closed" },
+        settings: settings || {
+          globalStatus: "closed",
+          closedMessage: "Admissions are currently closed. Please check back later for updates.",
+          contactInfo: {
+            phone: "+250 786 376 459",
+            email: "goldenlight4.school@gmail.com",
+            address: "Musanze, Rwanda",
+          },
+        },
       })
     }
 
-    // Only return active programs with open admissions
+    // If global status is scheduled, return empty programs array
+    if (settings.globalStatus === "scheduled") {
+      return NextResponse.json({
+        programs: [],
+        settings,
+      })
+    }
+
+    // Only return active programs when global status is "open"
     const programs = await db
       .collection("admissionPrograms")
       .find({
