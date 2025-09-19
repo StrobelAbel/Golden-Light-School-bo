@@ -1840,21 +1840,35 @@ export default function StudentsPage() {
                               ? new Date(editFormData.dateOfBirth).toISOString().split("T")[0]
                               : ""
                           }
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const dob = new Date(e.target.value);
+                            const today = new Date();
+                            let age = today.getFullYear() - dob.getFullYear();
+                            const m = today.getMonth() - dob.getMonth();
+
+                            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                              age--;
+                            }
+
                             setEditFormData((prev) => ({
                               ...prev,
-                              dateOfBirth: new Date(e.target.value),
-                            }))
-                          }
+                              dateOfBirth: dob,
+                              childAge: age >= 0 ? age : 0, // prevent negative values
+                            }));
+                          }}
                           required
                         />
                       </div>
+
                       <div className="space-y-2">
                         <Label htmlFor="edit-gender">Gender *</Label>
                         <Select
                           value={editFormData.gender || "Male"}
                           onValueChange={(value) =>
-                            setEditFormData((prev) => ({ ...prev, gender: value as "Male" | "Female" }))
+                            setEditFormData((prev) => ({
+                              ...prev,
+                              gender: value as "Male" | "Female",
+                            }))
                           }
                         >
                           <SelectTrigger>
@@ -1866,19 +1880,17 @@ export default function StudentsPage() {
                           </SelectContent>
                         </Select>
                       </div>
+
                       <div className="space-y-2">
                         <Label htmlFor="edit-childAge">Age *</Label>
                         <Input
                           id="edit-childAge"
                           type="number"
                           value={editFormData.childAge || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, childAge: Number.parseInt(e.target.value) || 0 }))
-                          }
-                          placeholder="Enter age"
-                          required
+                          readOnly // makes it non-editable
                         />
                       </div>
+
                     </CardContent>
                   </Card>
 
