@@ -40,14 +40,14 @@ export default function AboutPage() {
       bio: "With over 15 years in early childhood education, Sarah founded Golden Light School to provide quality, affordable education.",
     },
     {
-      name: "Uwimana Grace",
-      role: "Educational Technology Specialist",
+      name: "Ndahayo Daniel Dimitrova",
+      role: "Child Development Specialist",
       image: "/placeholder.svg?height=300&width=300&text=Michael+Chen",
       bio: "Michael brings expertise in educational technology, helping integrate smart learning aids into our curriculum.",
     },
     {
-      name: "Emily Rodriguez",
-      role: "Child Development Specialist",
+      name: "Murenzi Norbert",
+      role: "Technical Officer",
       image: "/placeholder.svg?height=300&width=300&text=Emily+Rodriguez",
       bio: "Emily specializes in child psychology and development, ensuring our approach meets each child's unique needs.",
     },

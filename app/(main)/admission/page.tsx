@@ -597,6 +597,10 @@ export default function AdmissionPage() {
                           <span className="text-sm text-gray-600">Tuition Fee:</span>
                           <span className="font-semibold">{program.fees.tuitionFee.toLocaleString()} Frw</span>
                         </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Registration Fee:</span>
+                          <span className="font-semibold">{program.fees.registrationFee.toLocaleString()} Frw</span>
+                        </div>
                       </div>
 
                       {/* Status message */}
