@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import clientPromise from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
+import { sendApplicationStatusEmail, sendAdminNotification } from "@/lib/email-service"
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +11,6 @@ export async function GET(request: NextRequest) {
 
     const filters: any = {}
 
-    // Apply filters
     if (searchParams.get("status")) {
       filters.status = searchParams.get("status")
     }
@@ -66,7 +66,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if program is still active and open
     if (program.status !== "active" || program.admissionStatus !== "open") {
       return NextResponse.json(
         {
@@ -77,11 +76,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check deadline
     if (program.deadlines?.applicationEnd) {
       const deadline = new Date(program.deadlines.applicationEnd)
       if (new Date() > deadline) {
-        // Auto-close the program if deadline has passed
         await db
           .collection("admissionPrograms")
           .updateOne({ _id: new ObjectId(applicationData.programId) }, { $set: { admissionStatus: "closed" } })
@@ -95,14 +92,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Check capacity - count pending and approved applications
+    // Check capacity
     const currentApplications = await db.collection("applications").countDocuments({
       programId: applicationData.programId,
       status: { $in: ["pending", "approved"] },
     })
 
     if (currentApplications >= program.capacity) {
-      // Auto-close program if full
       await db
         .collection("admissionPrograms")
         .updateOne(
@@ -128,14 +124,13 @@ export async function POST(request: NextRequest) {
 
     const result = await db.collection("applications").insertOne(application)
 
-    // Update current enrollment count
+    // Update program enrollment
     await db.collection("admissionPrograms").updateOne(
       { _id: new ObjectId(applicationData.programId) },
       {
         $inc: { currentEnrollment: 1 },
         $set: {
           updatedAt: new Date(),
-          // Close program if it reaches capacity
           ...(currentApplications + 1 >= program.capacity
             ? {
                 admissionStatus: "closed",
@@ -146,14 +141,40 @@ export async function POST(request: NextRequest) {
       },
     )
 
-    // Create notification for new application
+    // Create ADMIN notification
     await db.collection("notifications").insertOne({
       type: "new_application",
       title: "New Application Received",
-      message: `New admission application from ${application.fatherName} for ${application.childName}`,
+      message: `New admission application from ${application.fatherName} for ${application.childName} - ${program.name}`,
       isRead: false,
       createdAt: new Date(),
       relatedId: result.insertedId.toString(),
+      priority: "high",
+      metadata: {
+        applicantName: `${application.fatherName} / ${application.childName}`,
+        programName: program.name,
+      },
+    })
+
+    // Send confirmation email to parent
+    await sendApplicationStatusEmail(
+      application.email,
+      application.fatherName,
+      application.childName,
+      "submitted",
+      program.name,
+    )
+
+    // Send admin notification email
+    await sendAdminNotification("New Application Received", `A new admission application has been submitted.`, {
+      Program: program.name,
+      "Child Name": application.childName,
+      "Father Name": application.fatherName,
+      "Mother Name": application.motherName,
+      Email: application.email,
+      Phone: application.phone,
+      "Application ID": result.insertedId.toString(),
+      "Submitted At": new Date().toLocaleString(),
     })
 
     return NextResponse.json({

@@ -17,9 +17,11 @@ interface Application {
   fatherName?: string
   fatherPhone?: number
   fatherId?: string
+  fatherEmail?: string
   motherName?: string
   motherPhone?: number
   motherId?: string
+  motherEmail?: string
   province?: string
   district?: string
   sector?: string
@@ -63,6 +65,50 @@ export default function AdminApplicationsPage() {
     }
   }
 
+  const updateBulkApplicationStatus = async (ids: string[], status: string, notes = "") => {
+    try {
+      // Get applications data for email sending
+      const selectedApps = applications.filter(app => ids.includes(app._id))
+      
+      // Update all applications
+      const updatePromises = ids.map(id => 
+        fetch(`/api/applications/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status, notes }),
+        })
+      )
+      
+      const responses = await Promise.allSettled(updatePromises)
+      
+      // Send bulk emails
+      if (selectedApps.length > 0 && (status === "under_review" || status === "approved" || status === "rejected")) {
+        await fetch("/api/send-bulk-application-emails", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            applications: selectedApps,
+            status
+          })
+        })
+      }
+      
+      // Update local state
+      setApplications(prevApps =>
+        prevApps.map(app =>
+          ids.includes(app._id)
+            ? { ...app, status: status as any, updatedAt: new Date().toISOString() }
+            : app
+        )
+      )
+      
+      fetchApplications()
+    } catch (error) {
+      console.error("Error updating applications:", error)
+      alert("Error updating application status. Please try again.")
+    }
+  }
+
   const updateApplicationStatus = async (id: string, status: string, notes = "") => {
     try {
       const response = await fetch(`/api/applications/${id}`, {
@@ -74,6 +120,24 @@ export default function AdminApplicationsPage() {
       const result = await response.json()
 
       if (response.ok) {
+        // Send email notification for status changes
+        const application = applications.find(app => app._id === id)
+        if (application && (status === "under_review" || status === "approved" || status === "rejected")) {
+          const emailStatus = status === "under_review" ? "submitted" : status
+          
+          await fetch("/api/send-application-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fatherEmail: application.fatherEmail,
+              motherEmail: application.motherEmail,
+              childName: application.childName,
+              status: emailStatus,
+              programName: application.childYear
+            })
+          })
+        }
+
         // Update local applications state
         setApplications(prevApps =>
           prevApps.map(app =>
@@ -282,7 +346,7 @@ export default function AdminApplicationsPage() {
                   size="sm"
                   variant="outline"
                   onClick={() => {
-                    selectedApplications.forEach(id => updateApplicationStatus(id, 'under_review', 'Bulk updated to under review'))
+                    updateBulkApplicationStatus(selectedApplications, 'under_review', 'Bulk updated to under review')
                     setSelectedApplications([])
                   }}
                   className="bg-yellow-50 border-yellow-200 text-yellow-800 hover:bg-yellow-100"
@@ -292,7 +356,7 @@ export default function AdminApplicationsPage() {
                 <Button
                   size="sm"
                   onClick={() => {
-                    selectedApplications.forEach(id => updateApplicationStatus(id, 'approved', 'Bulk approved'))
+                    updateBulkApplicationStatus(selectedApplications, 'approved', 'Bulk approved')
                     setSelectedApplications([])
                   }}
                   className="bg-green-600 hover:bg-green-700"
@@ -302,7 +366,7 @@ export default function AdminApplicationsPage() {
                 <Button
                   size="sm"
                   onClick={() => {
-                    selectedApplications.forEach(id => updateApplicationStatus(id, 'rejected', 'Bulk rejected'))
+                    updateBulkApplicationStatus(selectedApplications, 'rejected', 'Bulk rejected')
                     setSelectedApplications([])
                   }}
                   className="bg-red-600 hover:bg-red-700"
@@ -456,6 +520,10 @@ export default function AdminApplicationsPage() {
                     <Label className="text-sm font-medium text-gray-600">ID Number</Label>
                     <p className="text-gray-900">{selectedApplication.fatherId}</p>
                   </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Email</Label>
+                    <p className="text-gray-900">{selectedApplication.fatherEmail}</p>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -483,6 +551,12 @@ export default function AdminApplicationsPage() {
                       <div>
                         <Label className="text-sm font-medium text-gray-600">ID Number</Label>
                         <p className="text-gray-900">{selectedApplication.motherId}</p>
+                      </div>
+                    )}
+                    {selectedApplication.motherEmail && (
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Email</Label>
+                        <p className="text-gray-900">{selectedApplication.motherEmail}</p>
                       </div>
                     )}
                   </CardContent>

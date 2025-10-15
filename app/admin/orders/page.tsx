@@ -62,6 +62,23 @@ export default function AdminOrdersPage() {
       })
 
       if (response.ok) {
+        // Send email notification for status changes
+        if (selectedOrder && (status === "ready_for_pickup" || status === "completed")) {
+          await fetch("/api/send-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: selectedOrder.email,
+              customerName: selectedOrder.parentName,
+              productName: selectedOrder.productName,
+              status: status === "ready_for_pickup" ? "ready" : "completed",
+              orderId: selectedOrder._id,
+              quantity: selectedOrder.quantity,
+              totalAmount: selectedOrder.totalAmount
+            })
+          })
+        }
+        
         fetchOrders()
         setIsViewDialogOpen(false)
         setSelectedOrder(null)

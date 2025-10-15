@@ -2,14 +2,41 @@ import { type NextRequest, NextResponse } from "next/server"
 import clientPromise from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 
-export async function GET() {
+// Force dynamic rendering and disable caching
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export async function GET(request: NextRequest) {
   try {
     const client = await clientPromise
     const db = client.db("golden-light-school")
+    const { searchParams } = new URL(request.url)
+    
+    const cleanup = searchParams.get("cleanup")
+    
+    // Auto-cleanup old notifications (older than 30 days)
+    if (cleanup === "true") {
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+      
+      await db.collection("notifications").deleteMany({
+        createdAt: { $lt: thirtyDaysAgo },
+        isRead: true
+      })
+    }
 
-    const notifications = await db.collection("notifications").find({}).sort({ createdAt: -1 }).limit(50).toArray()
+    const notifications = await db.collection("notifications")
+      .find({})
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .toArray()
 
-    return NextResponse.json(notifications)
+    const response = NextResponse.json(notifications)
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   } catch (error) {
     console.error("Error fetching notifications:", error)
     return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 })
@@ -20,9 +47,23 @@ export async function PUT(request: NextRequest) {
   try {
     const client = await clientPromise
     const db = client.db("golden-light-school")
-    const { id, isRead } = await request.json()
+    const { id, isRead, markAllAsRead } = await request.json()
 
-    await db.collection("notifications").updateOne({ _id: new ObjectId(id) }, { $set: { isRead } })
+    if (markAllAsRead) {
+      // Bulk update all unread notifications
+      await db.collection("notifications").updateMany(
+        { isRead: false },
+        { $set: { isRead: true, updatedAt: new Date() } }
+      )
+    } else if (id) {
+      // Update single notification
+      await db.collection("notifications").updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { isRead, updatedAt: new Date() } }
+      )
+    } else {
+      return NextResponse.json({ error: "Missing id or markAllAsRead parameter" }, { status: 400 })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import clientPromise from "@/lib/mongodb"
 import type { Product } from "@/lib/models/Product"
+import { sendAdminNotification } from "@/lib/email-service"
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +11,6 @@ export async function GET(request: NextRequest) {
 
     const filters: any = {}
 
-    // Apply filters
     if (searchParams.get("category")) {
       filters.category = searchParams.get("category")
     }
@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
       filters.$or = [{ name: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }]
     }
 
-    // Handle visibility filter - important for public vs admin views
     const isVisibleParam = searchParams.get("isVisible")
     if (isVisibleParam !== null) {
       filters.isVisible = isVisibleParam === "true"
@@ -49,14 +48,29 @@ export async function POST(request: NextRequest) {
 
     const result = await db.collection("products").insertOne(product)
 
-    // Create notification for new product
+    // Create ADMIN notification for new product
     await db.collection("notifications").insertOne({
-      type: "system",
+      type: "new_product",
       title: "New Product Added",
       message: `Product "${product.name}" has been added to the catalog`,
       isRead: false,
       createdAt: new Date(),
       relatedId: result.insertedId.toString(),
+      priority: "low",
+      metadata: {
+        productName: product.name,
+        stockLevel: product.stock,
+      },
+    })
+
+    // Send admin notification email
+    await sendAdminNotification("New Product Added to Catalog", `A new product has been added to your store.`, {
+      "Product Name": product.name,
+      Category: product.category,
+      Price: `${product.price} Frw`,
+      "Stock Level": product.stock,
+      Visibility: product.isVisible ? "Visible to public" : "Hidden",
+      "Product ID": result.insertedId.toString(),
     })
 
     return NextResponse.json({ success: true, id: result.insertedId })

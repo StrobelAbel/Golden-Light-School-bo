@@ -261,11 +261,12 @@ export default function StudentsPage() {
     if (!selectedStudent || !editFormData._id) return
 
     try {
-      const response = await fetch(`/api/admin/students/${editFormData._id}`, {
+      const { _id, ...updateData } = editFormData
+      const response = await fetch(`/api/admin/students/${_id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...editFormData,
+          ...updateData,
           updatedAt: new Date(),
         }),
       })
@@ -1669,7 +1670,7 @@ export default function StudentsPage() {
                   {selectedStudent.firstName} {selectedStudent.lastName}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Outstanding: Frw {selectedStudent.amountDue.toLocaleString()}
+                  Outstanding: Frw {selectedStudent.amountDue?.toLocaleString()}
                 </div>
               </div>
 
@@ -2227,11 +2228,31 @@ export default function StudentsPage() {
                           onChange={(e) => {
                             const paid = Number.parseFloat(e.target.value) || 0
                             const total = editFormData.totalFees || 0
+                            const due = Math.max(0, total - paid)
+                            
+                            let paymentStatus: "paid" | "not_paid" | "half_paid" | "overdue"
+                            if (paid === 0) {
+                              paymentStatus = "not_paid"
+                            } else if (paid >= total) {
+                              paymentStatus = "paid"
+                            } else {
+                              // For partial payments, check if overdue based on admission date
+                              const admissionDate = editFormData.admissionDate ? new Date(editFormData.admissionDate) : new Date()
+                              const monthsSinceAdmission = (Date.now() - admissionDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+                              
+                              // Consider overdue if more than 3 months since admission and less than 50% paid
+                              if (monthsSinceAdmission > 3 && (paid / total) < 0.5) {
+                                paymentStatus = "overdue"
+                              } else {
+                                paymentStatus = "half_paid"
+                              }
+                            }
+                            
                             setEditFormData((prev) => ({
                               ...prev,
                               amountPaid: paid,
-                              amountDue: total - paid,
-                              paymentStatus: paid === 0 ? "not_paid" : paid === total ? "paid" : "half_paid",
+                              amountDue: due,
+                              paymentStatus,
                             }))
                           }}
                           placeholder="Enter amount paid"

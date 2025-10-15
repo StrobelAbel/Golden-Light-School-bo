@@ -84,9 +84,11 @@ export default function AdmissionPage() {
     fatherName: "",
     fatherId: "",
     fatherPhone: "",
+    fatherEmail: "",
     motherName: "",
     motherId: "",
     motherPhone: "",
+    motherEmail: "",
     province: "",
     district: "",
     sector: "",
@@ -181,9 +183,11 @@ export default function AdmissionPage() {
         { field: "fatherName", label: "Father's Name" },
         { field: "fatherId", label: "Father's ID" },
         { field: "fatherPhone", label: "Father's Phone" },
+        { field: "fatherEmail", label: "Father's Email" },
         { field: "motherName", label: "Mother's Name" },
         { field: "motherId", label: "Mother's ID" },
         { field: "motherPhone", label: "Mother's Phone" },
+        { field: "motherEmail", label: "Mother's Email" },
         { field: "province", label: "Province" },
         { field: "district", label: "District" },
         { field: "sector", label: "Sector" },
@@ -206,6 +210,20 @@ export default function AdmissionPage() {
       // Validate ID numbers (16 digits)
       if (!/^\d{16}$/.test(formData.fatherId)) {
         setError("Father's ID must be exactly 16 digits.")
+        setIsSubmitting(false)
+        return
+      }
+
+      // Validate Email addresses
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(formData.fatherEmail)) {
+        setError("Please enter a valid email address for father.")
+        setIsSubmitting(false)
+        return
+      }
+
+      if (!emailRegex.test(formData.motherEmail)) {
+        setError("Please enter a valid email address for mother.")
         setIsSubmitting(false)
         return
       }
@@ -291,9 +309,11 @@ export default function AdmissionPage() {
       fatherName: "",
       fatherId: "",
       fatherPhone: "",
+      fatherEmail: "",
       motherName: "",
       motherId: "",
       motherPhone: "",
+      motherEmail: "",
       province: "",
       district: "",
       sector: "",
@@ -755,6 +775,16 @@ export default function AdmissionPage() {
                     required
                   />
                 </div>
+                <div>
+                  <Label htmlFor="fatherEmail">Email Address *</Label>
+                  <Input
+                    id="fatherEmail"
+                    type="email"
+                    value={formData.fatherEmail}
+                    onChange={(e) => handleInputChange("fatherEmail", e.target.value)}
+                    required
+                  />
+                </div>
               </div>
             </div>
 
@@ -800,6 +830,16 @@ export default function AdmissionPage() {
                       handleInputChange("motherPhone", formatted)
                     }}
                     placeholder="+250 XXX XXX XXX"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="motherEmail">Email Address *</Label>
+                  <Input
+                    id="motherEmail"
+                    type="email"
+                    value={formData.motherEmail}
+                    onChange={(e) => handleInputChange("motherEmail", e.target.value)}
                     required
                   />
                 </div>

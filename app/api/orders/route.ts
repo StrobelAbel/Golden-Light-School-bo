@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import clientPromise from "@/lib/mongodb"
 import type { Order } from "@/lib/models/Order"
 import { ObjectId } from "mongodb"
+import { sendOrderStatusEmail, sendAdminNotification } from "@/lib/email-service"
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +12,6 @@ export async function GET(request: NextRequest) {
 
     const filters: any = {}
 
-    // Apply filters
     if (searchParams.get("status")) {
       filters.status = searchParams.get("status")
     }
@@ -29,7 +29,6 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    // Date range filter
     if (searchParams.get("dateFrom") || searchParams.get("dateTo")) {
       filters.orderDate = {}
       if (searchParams.get("dateFrom")) {
@@ -55,7 +54,6 @@ export async function POST(request: NextRequest) {
     const db = client.db("golden-light-school")
     const body = await request.json()
 
-    // Verify product exists and has stock
     const product = await db.collection("products").findOne({ _id: new ObjectId(body.productId) })
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 })
@@ -82,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     const result = await db.collection("orders").insertOne(order)
 
-    // Create notification for new order
+    // Create ADMIN notification
     await db.collection("notifications").insertOne({
       type: "new_order",
       title: "New Product Order",
@@ -90,6 +88,34 @@ export async function POST(request: NextRequest) {
       isRead: false,
       createdAt: new Date(),
       relatedId: result.insertedId.toString(),
+      priority: "medium",
+      metadata: {
+        productName: order.productName,
+        customerName: order.parentName,
+      },
+    })
+
+    // Send confirmation email to customer
+    await sendOrderStatusEmail(
+      order.email,
+      order.parentName,
+      order.productName,
+      "pending",
+      result.insertedId.toString(),
+      order.quantity,
+      order.totalAmount,
+    )
+
+    // Send admin notification email
+    await sendAdminNotification("New Product Order", `A new product order has been placed.`, {
+      "Order ID": result.insertedId.toString(),
+      Product: order.productName,
+      Quantity: order.quantity,
+      "Total Amount": `${order.totalAmount} Frw`,
+      Customer: order.parentName,
+      Email: order.email,
+      Phone: order.phone,
+      "Ordered At": new Date().toLocaleString(),
     })
 
     return NextResponse.json({ success: true, id: result.insertedId })

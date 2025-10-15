@@ -27,6 +27,30 @@ export async function POST(request: NextRequest) {
     const currentYear = new Date().getFullYear()
     const academicYear = `${currentYear}-${currentYear + 1}`
 
+    // Get admission programs for fee lookup
+    const admissionPrograms = await db
+      .collection("admission-programs")
+      .find({ status: "active" })
+      .toArray()
+    
+    // Create fee lookup map from admission programs
+    const feeMap = new Map()
+    admissionPrograms.forEach(program => {
+      feeMap.set(program.name, program.fees?.tuitionFee)
+    })
+    
+    // Fallback to fee structures if no programs found
+    if (feeMap.size === 0) {
+      const feeStructures = await db
+        .collection("fee-structures")
+        .find({ academicYear })
+        .toArray()
+      
+      feeStructures.forEach(fee => {
+        feeMap.set(fee.class, fee.totalFee)
+      })
+    }
+
     // Get last studentId instead of count
     const lastStudent = await db
       .collection("students")
@@ -55,6 +79,9 @@ export async function POST(request: NextRequest) {
         application.fatherPhone ||
         application.motherPhone ||
         "N/A"
+
+      // Get fee for this student's program/class
+      const classFee = feeMap.get(application.childYear)
 
       const student = {
         studentId,
@@ -89,8 +116,8 @@ export async function POST(request: NextRequest) {
 
         paymentStatus: "not_paid",
         amountPaid: 0,
-        amountDue: 50000,
-        totalFees: 50000,
+        amountDue: classFee,
+        totalFees: classFee,
         paymentHistory: [],
         disciplinaryActions: [],
         achievements: [],

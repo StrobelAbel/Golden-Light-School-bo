@@ -402,10 +402,10 @@ export default function ProductsPage() {
               </Button>
             </div>
           ) : (
-            <form onSubmit={handleSubmitOrder} className="space-y-4">
+            <form onSubmit={handleSubmitOrder} className="space-y-2">
               {selectedProduct && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex justify-between items-center mb-2">
+                <div className="bg-gray-50 p-2 rounded-lg">
+                  <div className="flex justify-between items-center mb-1">
                     <h4 className="font-medium">{selectedProduct.name}</h4>
                     <span className="font-bold text-green-600">{selectedProduct.price} Frw</span>
                   </div>
@@ -433,7 +433,7 @@ export default function ProductsPage() {
                       </Button>
                     </div>
                   </div>
-                  <div className="mt-2 text-right">
+                  <div className="mt-1 text-right">
                     <span className="text-lg font-bold">
                       Total: {(orderForm.quantity * orderForm.productPrice)} Frw
                     </span>
@@ -473,7 +473,7 @@ export default function ProductsPage() {
                 />
               </div>
 
-              <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+              <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded-lg">
                 <p>
                   <strong>Pickup Information:</strong>
                 </p>
@@ -482,7 +482,7 @@ export default function ProductsPage() {
                 <p>• Payment can be made upon pickup</p>
               </div>
 
-              <div className="flex space-x-2 pt-4">
+              <div className="flex space-x-2 pt-2">
                 <Button
                   type="button"
                   variant="outline"

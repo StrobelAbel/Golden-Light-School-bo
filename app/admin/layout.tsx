@@ -66,15 +66,20 @@ export default function AdminLayout({
   const pathname = usePathname()
 
   // Memoize the fetchNotifications function to prevent recreation on every render
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async (includeCleanup = false) => {
     try {
       const token = localStorage.getItem("adminToken")
       if (!token) return // Don't fetch if no token
 
-      const response = await fetch("/api/notifications", {
+      const url = includeCleanup ? "/api/notifications?cleanup=true" : "/api/notifications"
+      const response = await fetch(url, {
         headers: {
-          Authorization: `Bearer ${token}`, // Add auth header if needed
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         },
+        cache: 'no-store'
       })
 
       if (!response.ok) {
@@ -131,13 +136,19 @@ export default function AdminLayout({
   useEffect(() => {
     if (!isAuthenticated || pathname === "/admin/login") return
 
-    // Initial fetch
-    fetchNotifications()
+    // Initial fetch with cleanup
+    fetchNotifications(true)
 
-    // Set up polling interval
-    const interval = setInterval(fetchNotifications, 30000) // Increased to 30 seconds to reduce server load
+    // Set up polling interval (every 30 seconds)
+    const interval = setInterval(() => fetchNotifications(), 30000)
+    
+    // Set up cleanup interval (every hour)
+    const cleanupInterval = setInterval(() => fetchNotifications(true), 3600000)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      clearInterval(cleanupInterval)
+    }
   }, [isAuthenticated, pathname, fetchNotifications])
 
   const markNotificationAsRead = async (id: string) => {
@@ -149,9 +160,11 @@ export default function AdminLayout({
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Add auth header if needed
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
         },
         body: JSON.stringify({ id, isRead: true }),
+        cache: 'no-store'
       })
 
       if (response.ok) {
@@ -167,21 +180,20 @@ export default function AdminLayout({
       const token = localStorage.getItem("adminToken")
       if (!token) return
 
-      const unreadNotifications = notifications.filter((n) => !n.isRead)
+      const response = await fetch("/api/notifications", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
+        },
+        body: JSON.stringify({ markAllAsRead: true }),
+        cache: 'no-store'
+      })
 
-      const promises = unreadNotifications.map((n) =>
-        fetch("/api/notifications", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Add auth header if needed
-          },
-          body: JSON.stringify({ id: n._id, isRead: true }),
-        }),
-      )
-
-      await Promise.all(promises)
-      fetchNotifications()
+      if (response.ok) {
+        fetchNotifications()
+      }
     } catch (error) {
       console.error("Error marking all notifications as read:", error)
     }
@@ -212,6 +224,14 @@ export default function AdminLayout({
         return "📦"
       case "low_stock":
         return "⚠️"
+      case "out_of_stock":
+        return "❌"
+      case "payment_received":
+        return "💰"
+      case "status_change":
+        return "🔄"
+      case "system":
+        return "⚙️"
       default:
         return "ℹ️"
     }
