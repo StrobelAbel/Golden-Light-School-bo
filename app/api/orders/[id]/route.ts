@@ -43,14 +43,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
       if (product) {
         // Deduct stock when order is confirmed
-        if (oldStatus === "pending" && newStatus === "confirmed") {
-          await db.collection("products").updateOne(
-            { _id: new ObjectId(order.productId) },
-            {
-              $inc: { stock: -order.quantity },
-              $set: { updatedAt: new Date() },
-            },
-          )
+          if (
+            (oldStatus === "pending" && newStatus === "confirmed") ||
+            (oldStatus !== "completed" && newStatus === "completed")
+          ) {
+            await db.collection("products").updateOne(
+              { _id: new ObjectId(order.productId) },
+              {
+                $inc: { stock: -order.quantity },
+                $set: { updatedAt: new Date() },
+              },
+            )
         }
 
         // Restore stock if order is cancelled
