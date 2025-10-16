@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslation } from "@/hooks/useTranslation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -17,6 +18,7 @@ interface SalesReport {
 }
 
 export default function AdminReportsPage() {
+  const { t } = useTranslation()
   const [salesData, setSalesData] = useState<SalesReport[]>([])
   const [loading, setLoading] = useState(false)
   const [dateFrom, setDateFrom] = useState("")
@@ -92,12 +94,12 @@ export default function AdminReportsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Sales Reports</h1>
-          <p className="text-gray-600">Track product sales and revenue over time</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('Sales Reports')}</h1>
+          <p className="text-gray-600">{t('Track product sales and revenue over time')}</p>
         </div>
         <Button onClick={exportToCSV} disabled={salesData.length === 0} className="bg-green-600 hover:bg-green-700">
           <Download className="mr-2 h-4 w-4" />
-          Export CSV
+          {t('Export CSV')}
         </Button>
       </div>
 
@@ -106,21 +108,21 @@ export default function AdminReportsPage() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Calendar className="mr-2 h-5 w-5" />
-            Report Period
+            {t('Report Period')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4 items-end">
             <div className="flex-1">
-              <Label htmlFor="dateFrom">From Date</Label>
+              <Label htmlFor="dateFrom">{t('From Date')}</Label>
               <Input id="dateFrom" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
             </div>
             <div className="flex-1">
-              <Label htmlFor="dateTo">To Date</Label>
+              <Label htmlFor="dateTo">{t('To Date')}</Label>
               <Input id="dateTo" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
             </div>
             <Button onClick={fetchSalesReport} disabled={loading} className="bg-blue-600 hover:bg-blue-700">
-              {loading ? "Loading..." : "Generate Report"}
+              {loading ? t('Loading...') : t('Generate Report')}
             </Button>
           </div>
         </CardContent>
@@ -132,7 +134,7 @@ export default function AdminReportsPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm font-medium">Total Revenue</p>
+                <p className="text-green-100 text-sm font-medium">{t('Total Revenue')}</p>
                 <p className="text-3xl font-bold">{totalRevenue} Frw</p>
               </div>
               <DollarSign className="h-12 w-12 text-green-200" />
@@ -144,7 +146,7 @@ export default function AdminReportsPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm font-medium">Total Orders</p>
+                <p className="text-blue-100 text-sm font-medium">{t('Total Orders')}</p>
                 <p className="text-3xl font-bold">{totalOrders}</p>
               </div>
               <TrendingUp className="h-12 w-12 text-blue-200" />
@@ -156,7 +158,7 @@ export default function AdminReportsPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm font-medium">Items Sold</p>
+                <p className="text-purple-100 text-sm font-medium">{t('Items Sold')}</p>
                 <p className="text-3xl font-bold">{totalItemsSold}</p>
               </div>
               <Package className="h-12 w-12 text-purple-200" />
@@ -172,7 +174,7 @@ export default function AdminReportsPage() {
             {/* Revenue Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>Revenue by Product</CardTitle>
+                <CardTitle>{t('Revenue by Product')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -180,7 +182,7 @@ export default function AdminReportsPage() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="productName" angle={-45} textAnchor="end" height={100} fontSize={12} />
                     <YAxis />
-                    <Tooltip formatter={(value) => [`Frw ${Number(value)}`, "Revenue"]} />
+                    <Tooltip formatter={(value) => [`Frw ${Number(value)}`, t('Revenue')]} />
                     <Bar dataKey="totalRevenue" fill="#10B981" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -190,7 +192,7 @@ export default function AdminReportsPage() {
             {/* Quantity Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>Quantity Sold by Product</CardTitle>
+                <CardTitle>{t('Quantity Sold by Product')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -219,16 +221,16 @@ export default function AdminReportsPage() {
           {/* Detailed Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Detailed Sales Report</CardTitle>
+              <CardTitle>{t('Detailed Sales Report')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left p-4 font-medium text-gray-600">Product Name</th>
-                      <th className="text-left p-4 font-medium text-gray-600">Quantity Sold</th>
-                      <th className="text-left p-4 font-medium text-gray-600">Total Revenue</th>
+                      <th className="text-left p-4 font-medium text-gray-600">{t('Product Name')}</th>
+                      <th className="text-left p-4 font-medium text-gray-600">{t('Quantity Sold')}</th>
+                      <th className="text-left p-4 font-medium text-gray-600">{t('Total Revenue')}ue</th>
                       <th className="text-left p-4 font-medium text-gray-600">Number of Orders</th>
                       <th className="text-left p-4 font-medium text-gray-600">Avg. Order Value</th>
                     </tr>

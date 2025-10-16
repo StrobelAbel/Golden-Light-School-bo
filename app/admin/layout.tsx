@@ -4,6 +4,8 @@ import type React from "react"
 import { useEffect, useState, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
+import { useSessionTimeout } from "@/hooks/useSessionTimeout"
+import { useTranslation } from "@/hooks/useTranslation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -62,8 +64,48 @@ export default function AdminLayout({
   const [unreadCount, setUnreadCount] = useState(0)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null)
+  const [sessionTimeout, setSessionTimeout] = useState(30) // Default 30 minutes
   const router = useRouter()
   const pathname = usePathname()
+
+  const { t } = useTranslation()
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem("adminToken")
+    localStorage.removeItem("adminUser")
+    setIsAuthenticated(false)
+    setAdminUser(null)
+    setNotifications([])
+    setUnreadCount(0)
+    router.push("/admin/login")
+  }, [router])
+
+  // Session timeout hook
+  const { resetTimer } = useSessionTimeout({
+    timeout: sessionTimeout,
+    onLogout: handleLogout,
+    enabled: isAuthenticated && pathname !== "/admin/login"
+  })
+
+  // Listen for storage changes to update session timeout
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const userStr = localStorage.getItem("adminUser")
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr)
+          if (user.settings?.sessionTimeout && user.settings.sessionTimeout !== sessionTimeout) {
+            setSessionTimeout(user.settings.sessionTimeout)
+          }
+        } catch (error) {
+          console.error("Error parsing admin user from storage:", error)
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [sessionTimeout])
 
   // Memoize the fetchNotifications function to prevent recreation on every render
   const fetchNotifications = useCallback(async (includeCleanup = false) => {
@@ -119,7 +161,12 @@ export default function AdminLayout({
       setIsAuthenticated(true)
       if (userStr) {
         try {
-          setAdminUser(JSON.parse(userStr))
+          const user = JSON.parse(userStr)
+          setAdminUser(user)
+          // Load session timeout from user settings if available
+          if (user.settings?.sessionTimeout) {
+            setSessionTimeout(user.settings.sessionTimeout)
+          }
         } catch (error) {
           console.error("Error parsing admin user:", error)
           // Clear corrupted data
@@ -199,20 +246,7 @@ export default function AdminLayout({
     }
   }
 
-  const handleLogout = useCallback(() => {
-    // Clear all auth data
-    localStorage.removeItem("adminToken")
-    localStorage.removeItem("adminUser")
 
-    // Reset state
-    setIsAuthenticated(false)
-    setAdminUser(null)
-    setNotifications([])
-    setUnreadCount(0)
-
-    // Redirect
-    router.push("/admin/login")
-  }, [router])
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -272,13 +306,13 @@ export default function AdminLayout({
   }
 
   const navItems = [
-    { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/products", label: "Products", icon: Package },
-    { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
-    { href: "/admin/admissions", label: "Admissions", icon: GraduationCap },
-    { href: "/admin/students", label: "Students", icon: Users },
-    { href: "/admin/applications", label: "Applications", icon: FileText },
-    { href: "/admin/reports", label: "Reports", icon: BarChart3 },
+    { href: "/admin/dashboard", label: t("Dashboard"), icon: LayoutDashboard },
+    { href: "/admin/products", label: t("Products"), icon: Package },
+    { href: "/admin/orders", label: t("Orders"), icon: ShoppingCart },
+    { href: "/admin/admissions", label: t("Admissions"), icon: GraduationCap },
+    { href: "/admin/students", label: t("Students"), icon: Users },
+    { href: "/admin/applications", label: t("Applications"), icon: FileText },
+    { href: "/admin/reports", label: t("Reports"), icon: BarChart3 },
   ]
 
   return (
@@ -304,7 +338,7 @@ export default function AdminLayout({
                 className="object-contain rounded-full"
               />
             </div>
-            <span className="text-white font-bold text-lg">Admin Panel</span>
+            <span className="text-white font-bold text-lg">{t("Admin Panel")}</span>
           </div>
           <Button
             variant="ghost"
@@ -343,7 +377,7 @@ export default function AdminLayout({
             className="w-full justify-start text-golden-100 hover:bg-white/10 hover:text-white"
           >
             <LogOut className="mr-3 h-5 w-5" />
-            Logout
+            {t("Logout")}
           </Button>
         </div>
       </div>
@@ -357,7 +391,7 @@ export default function AdminLayout({
               <Menu className="h-5 w-5" />
             </Button>
             <div className="hidden lg:block">
-              <h1 className="text-xl font-semibold text-gray-900">Admin Dashboard</h1>
+              <h1 className="text-xl font-semibold text-gray-900">{t("Admin Dashboard")}</h1>
             </div>
           </div>
 
@@ -379,7 +413,7 @@ export default function AdminLayout({
                   <DialogTitle>Notifications</DialogTitle>
                   {unreadCount > 0 && (
                     <Button variant="ghost" size="sm" onClick={markAllAsRead}>
-                      Mark all read
+                      {t("Mark all read")}
                     </Button>
                   )}
                 </DialogHeader>
@@ -387,7 +421,7 @@ export default function AdminLayout({
                   {notifications.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>No notifications yet</p>
+                      <p>{t("No notifications yet")}</p>
                     </div>
                   ) : (
                     notifications.map((notification) => (
@@ -440,19 +474,19 @@ export default function AdminLayout({
                 <DropdownMenuItem asChild>
                   <Link href="/admin/profile">
                     <User className="mr-2 h-4 w-4" />
-                    Profile Settings
+                    {t("Profile Settings")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/admin/account">
                     <Settings className="mr-2 h-4 w-4" />
-                    Account Settings
+                    {t("Account Settings")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                   <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
+                  {t("Sign Out")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

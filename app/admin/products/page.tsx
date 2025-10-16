@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
+import { useTranslation } from "@/hooks/useTranslation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -29,6 +30,7 @@ interface Product {
 }
 
 export default function AdminProductsPage() {
+  const { t } = useTranslation()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -263,10 +265,10 @@ export default function AdminProductsPage() {
       {/* Header with Stats */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t("Products")}</h1>
           <p className="text-gray-600">Manage your learning aids and educational products</p>
           <div className="flex gap-4 mt-2 text-sm">
-            <span className="text-green-600">{inStockCount} in stock</span>
+            <span className="text-green-600">{inStockCount} {t("in stock")}</span>
             <span className="text-orange-600">{lowStockCount} low stock</span>
             <span className="text-red-600">{outOfStockCount} empty</span>
           </div>
@@ -275,17 +277,17 @@ export default function AdminProductsPage() {
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700">
               <Plus className="mr-2 h-4 w-4" />
-              Add Product
+              {t("Add New Product")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
+              <DialogTitle>{editingProduct ? t("Edit") + " " + t("Products") : t("Add New Product")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Product Name</Label>
+                  <Label htmlFor="name">{t("Name")}</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -294,7 +296,7 @@ export default function AdminProductsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="category">{t("Category")}</Label>
                   <Select
                     value={formData.category}
                     onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -324,7 +326,7 @@ export default function AdminProductsPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="price">Price (Frw)</Label>
+                  <Label htmlFor="price">{t("Price")} (Frw)</Label>
                   <Input
                     id="price"
                     type="number"
@@ -335,7 +337,7 @@ export default function AdminProductsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="stock">Stock Quantity</Label>
+                  <Label htmlFor="stock">{t("Stock")} {t("Quantity")}</Label>
                   <Input
                     id="stock"
                     type="number"
@@ -376,13 +378,13 @@ export default function AdminProductsPage() {
                     resetForm()
                   }}
                 >
-                  Cancel
+                  {t("Cancel")}
                 </Button>
                 <Button 
                   onClick={handleSubmit} 
                   className="bg-gradient-to-r from-golden-500 to-golden-600"
                 >
-                  {editingProduct ? "Update Product" : "Add Product"}
+                  {editingProduct ? t("Save") : t("Add")}
                 </Button>
               </div>
             </div>

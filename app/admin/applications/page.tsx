@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslation } from "@/hooks/useTranslation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -40,6 +41,7 @@ interface Application {
 }
 
 export default function AdminApplicationsPage() {
+  const { t } = useTranslation()
   const [applications, setApplications] = useState<Application[]>([])
   const [selectedApplications, setSelectedApplications] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
@@ -239,7 +241,7 @@ export default function AdminApplicationsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Application Management</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t("Application Management")}</h1>
         <p className="text-gray-600">Manage admission applications and student enrollment</p>
       </div>
 
@@ -249,7 +251,7 @@ export default function AdminApplicationsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Applications</p>
+                <p className="text-sm font-medium text-gray-600">{t("Applications")}</p>
                 <p className="text-2xl font-bold text-gray-900">{statusCounts.total}</p>
               </div>
               <FileText className="h-8 w-8 text-blue-600" />
@@ -260,7 +262,7 @@ export default function AdminApplicationsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Pending</p>
+                <p className="text-sm font-medium text-gray-600">{t("pending")}</p>
                 <p className="text-2xl font-bold text-blue-600">{statusCounts.pending}</p>
               </div>
               <div className="text-2xl">📋</div>
@@ -271,7 +273,7 @@ export default function AdminApplicationsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Under Review</p>
+                <p className="text-sm font-medium text-gray-600">{t("under_review")}</p>
                 <p className="text-2xl font-bold text-yellow-600">{statusCounts.under_review}</p>
               </div>
               <div className="text-2xl">⏳</div>
@@ -282,7 +284,7 @@ export default function AdminApplicationsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Approved</p>
+                <p className="text-sm font-medium text-gray-600">{t("approved")}</p>
                 <p className="text-2xl font-bold text-green-600">{statusCounts.approved}</p>
               </div>
               <div className="text-2xl">✓</div>
@@ -293,7 +295,7 @@ export default function AdminApplicationsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Rejected</p>
+                <p className="text-sm font-medium text-gray-600">{t("rejected")}</p>
                 <p className="text-2xl font-bold text-red-600">{statusCounts.rejected}</p>
               </div>
               <div className="text-2xl">✗</div>
@@ -361,7 +363,7 @@ export default function AdminApplicationsPage() {
                   }}
                   className="bg-green-600 hover:bg-green-700"
                 >
-                  Bulk Approve
+                  {t("Approve")}
                 </Button>
                 <Button
                   size="sm"
@@ -371,7 +373,7 @@ export default function AdminApplicationsPage() {
                   }}
                   className="bg-red-600 hover:bg-red-700"
                 >
-                  Bulk Reject
+                  {t("Reject")}
                 </Button>
                 <Button
                   size="sm"
@@ -389,7 +391,7 @@ export default function AdminApplicationsPage() {
       {/* Applications Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Applications ({filteredApplications.length})</CardTitle>
+          <CardTitle>{t("Applications")} ({filteredApplications.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -468,7 +470,7 @@ export default function AdminApplicationsPage() {
                         }}
                       >
                         <Eye className="h-4 w-4 mr-1" />
-                        View
+                        {t("View")}
                       </Button>
                     </td>
                   </tr>
@@ -480,11 +482,11 @@ export default function AdminApplicationsPage() {
           {filteredApplications.length === 0 && (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No applications found</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("No applications found")}</h3>
               <p className="text-gray-600">
                 {searchTerm || selectedStatus !== "all"
-                  ? "Try adjusting your search or filter criteria"
-                  : "No applications have been submitted yet"}
+                  ? t("Try adjusting your search or filter criteria")
+                  : t("No applications yet")}
               </p>
             </div>
           )}
@@ -495,7 +497,7 @@ export default function AdminApplicationsPage() {
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Application Details</DialogTitle>
+            <DialogTitle>{t("Applications")} Details</DialogTitle>
           </DialogHeader>
           {selectedApplication && (
             <div className="space-y-6">
@@ -687,13 +689,13 @@ export default function AdminApplicationsPage() {
                       onClick={() => updateApplicationStatus(selectedApplication._id, "approved", statusNotes)}
                       className="bg-green-600 hover:bg-green-700"
                     >
-                      Approve Application
+                      {t("Approve")}
                     </Button>
                     <Button
                       onClick={() => updateApplicationStatus(selectedApplication._id, "rejected", statusNotes)}
                       className="bg-red-600 hover:bg-red-700"
                     >
-                      Reject Application
+                      {t("Reject")}
                     </Button>
                   </div>
                 </CardContent>

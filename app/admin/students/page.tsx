@@ -37,6 +37,7 @@ import {
 } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 import type { Student, StudentStats } from "@/lib/models/Student"
+import { useTranslation } from "@/hooks/useTranslation"
 
 interface StudentsResponse {
   students: Student[]
@@ -50,6 +51,7 @@ interface StudentsResponse {
 }
 
 export default function StudentsPage() {
+  const { t } = useTranslation()
   const [students, setStudents] = useState<Student[]>([])
   const [stats, setStats] = useState<StudentStats | null>(null)
   const [pagination, setPagination] = useState({
@@ -407,31 +409,31 @@ export default function StudentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Students Management</h1>
-          <p className="text-muted-foreground">Manage student records, payments, and academic information</p>
+          <h1 className="text-3xl font-bold">{t('Students Management')}</h1>
+          <p className="text-muted-foreground">{t('Manage student records, payments, and academic information')}</p>
         </div>
         <div className="flex items-center space-x-2">
           <Button onClick={handleImportApproved} variant="outline">
             <Upload className="h-4 w-4 mr-2" />
-            Import Approved
+            {t('Import Approved')}
           </Button>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <UserPlus className="h-4 w-4 mr-2" />
-                Add Student
+                {t('Add Student')}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Add New Student</DialogTitle>
+                <DialogTitle>{t('Add New Student')}</DialogTitle>
               </DialogHeader>
               <div className="space-y-6">
                 <Tabs defaultValue="basic" className="w-full">
                   <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                    <TabsTrigger value="academic">Academic</TabsTrigger>
-                    <TabsTrigger value="financial">Financial</TabsTrigger>
+                    <TabsTrigger value="basic">{t('Basic Info')}</TabsTrigger>
+                    <TabsTrigger value="academic">{t('Academic')}</TabsTrigger>
+                    <TabsTrigger value="financial">{t('Financial')}</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="basic" className="space-y-6">
@@ -440,12 +442,12 @@ export default function StudentsPage() {
                       <CardHeader>
                         <CardTitle className="flex items-center">
                           <User className="mr-2 h-5 w-5 text-blue-600" />
-                          Student Information
+                          {t('Student Information')}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="studentId">Student ID</Label>
+                          <Label htmlFor="studentId">{t('Student ID')}</Label>
                           <Input
                             id="studentId"
                             value={addFormData.studentId || ""}
@@ -456,7 +458,7 @@ export default function StudentsPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="firstName">First Name *</Label>
+                          <Label htmlFor="firstName">{t('First Name')} *</Label>
                           <Input
                             id="firstName"
                             value={addFormData.firstName || ""}
@@ -468,7 +470,7 @@ export default function StudentsPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="lastName">Last Name *</Label>
+                          <Label htmlFor="lastName">{t('Last Name')} *</Label>
                           <Input
                             id="lastName"
                             value={addFormData.lastName || ""}
@@ -480,7 +482,7 @@ export default function StudentsPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                          <Label htmlFor="dateOfBirth">{t('Date of Birth')} *</Label>
                           <Input
                             id="dateOfBirth"
                             type="date"
@@ -514,7 +516,7 @@ export default function StudentsPage() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="gender">Gender *</Label>
+                          <Label htmlFor="gender">{t('Gender')} *</Label>
                           <Select
                             value={addFormData.gender || "Male"}
                             onValueChange={(value) =>
@@ -528,14 +530,14 @@ export default function StudentsPage() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Male">Male</SelectItem>
-                              <SelectItem value="Female">Female</SelectItem>
+                              <SelectItem value="Male">{t('Male')}</SelectItem>
+                              <SelectItem value="Female">{t('Female')}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="childAge">Age *</Label>
+                          <Label htmlFor="childAge">{t('Age')} *</Label>
                           <Input
                             id="childAge"
                             type="number"

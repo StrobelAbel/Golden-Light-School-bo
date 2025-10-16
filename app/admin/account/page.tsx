@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import { useTheme } from "next-themes"
+import { useTranslation } from "@/hooks/useTranslation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -76,6 +78,8 @@ export default function AccountSettingsPage() {
   const [error, setError] = useState("")
   
   const router = useRouter()
+  const { setTheme } = useTheme()
+  const { t } = useTranslation()
 
   // Fetch account settings with better error handling
   const fetchAccountSettings = useCallback(async () => {
@@ -146,6 +150,41 @@ export default function AccountSettingsPage() {
     }
   }, [error])
 
+  // Save settings quietly (without showing success message)
+  const saveSettingsQuietly = async (settingsToSave: typeof settings) => {
+    try {
+      const token = localStorage.getItem("adminToken")
+      if (!token) return
+
+      const response = await fetch("/api/admin/account-settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ settings: settingsToSave }),
+      })
+
+      if (response.ok) {
+        // Update localStorage with new settings
+        const adminUserStr = localStorage.getItem("adminUser")
+        if (adminUserStr) {
+          try {
+            const adminUser = JSON.parse(adminUserStr)
+            adminUser.settings = settingsToSave
+            localStorage.setItem("adminUser", JSON.stringify(adminUser))
+            // Trigger language change event for immediate effect
+            window.dispatchEvent(new Event('languageChanged'))
+          } catch (error) {
+            console.error("Error updating admin user settings:", error)
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error saving settings:", err)
+    }
+  }
+
   // Save account settings with timeout
   const saveSettings = async () => {
     setSaving(true)
@@ -179,6 +218,18 @@ export default function AccountSettingsPage() {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         throw new Error(errorData.error || `Failed to save settings: ${response.status}`)
+      }
+
+      // Update localStorage with new settings
+      const adminUserStr = localStorage.getItem("adminUser")
+      if (adminUserStr) {
+        try {
+          const adminUser = JSON.parse(adminUserStr)
+          adminUser.settings = settings
+          localStorage.setItem("adminUser", JSON.stringify(adminUser))
+        } catch (error) {
+          console.error("Error updating admin user settings:", error)
+        }
       }
 
       setSuccess("Account settings saved successfully!")
@@ -312,8 +363,8 @@ export default function AccountSettingsPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Settings</h1>
-        <p className="text-gray-600">Manage your account security, notifications, and preferences</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("Account Settings")}</h1>
+        <p className="text-gray-600">{t("Manage your account security, notifications, and preferences")}</p>
       </div>
 
       {/* Success/Error Messages */}
@@ -339,26 +390,29 @@ export default function AccountSettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Shield className="h-5 w-5" />
-                <span>Security & Privacy</span>
+                <span>{t("Security & Privacy")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="text-base font-medium">Two-Factor Authentication</Label>
-                  <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
+                  <Label className="text-base font-medium">{t("Two-Factor Authentication")}</Label>
+                  <p className="text-sm text-gray-500">{t("Add an extra layer of security to your account")}</p>
                 </div>
                 <Switch
                   checked={settings.twoFactorAuth}
-                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, twoFactorAuth: checked }))}
+                  onCheckedChange={async (checked) => {
+                    setSettings(prev => ({ ...prev, twoFactorAuth: checked }))
+                    await saveSettingsQuietly({ ...settings, twoFactorAuth: checked })
+                  }}
                 />
               </div>
 
               <Separator />
 
               <div className="space-y-3">
-                <Label className="text-base font-medium">Session Timeout</Label>
-                <div className="flex items-center space-x-4">
+                <Label className="text-base font-medium">{t("Session Timeout")}</Label>
+                <div className="space-y-2">
                   <select 
                     value={settings.sessionTimeout}
                     onChange={(e) => setSettings(prev => ({ ...prev, sessionTimeout: parseInt(e.target.value) }))}
@@ -370,7 +424,10 @@ export default function AccountSettingsPage() {
                     <option value={120}>2 hours</option>
                     <option value={480}>8 hours</option>
                   </select>
-                  <p className="text-sm text-gray-500">Automatic logout after inactivity</p>
+                  <p className="text-sm text-gray-500 flex items-center">
+                    <Clock className="h-4 w-4 mr-1" />
+                    Automatic logout after inactivity
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -381,18 +438,21 @@ export default function AccountSettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Bell className="h-5 w-5" />
-                <span>Notifications</span>
+                <span>{t("Notifications")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="text-base font-medium">Email Notifications</Label>
-                  <p className="text-sm text-gray-500">Receive notifications via email</p>
+                  <Label className="text-base font-medium">{t("Email Notifications")}</Label>
+                  <p className="text-sm text-gray-500">{t("Receive notifications via email")}</p>
                 </div>
                 <Switch
                   checked={settings.emailNotifications}
-                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, emailNotifications: checked }))}
+                  onCheckedChange={async (checked) => {
+                    setSettings(prev => ({ ...prev, emailNotifications: checked }))
+                    await saveSettingsQuietly({ ...settings, emailNotifications: checked })
+                  }}
                 />
               </div>
 
@@ -400,12 +460,15 @@ export default function AccountSettingsPage() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="text-base font-medium">Push Notifications</Label>
-                  <p className="text-sm text-gray-500">Receive browser push notifications</p>
+                  <Label className="text-base font-medium">{t("Push Notifications")}</Label>
+                  <p className="text-sm text-gray-500">{t("Receive browser push notifications")}</p>
                 </div>
                 <Switch
                   checked={settings.pushNotifications}
-                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, pushNotifications: checked }))}
+                  onCheckedChange={async (checked) => {
+                    setSettings(prev => ({ ...prev, pushNotifications: checked }))
+                    await saveSettingsQuietly({ ...settings, pushNotifications: checked })
+                  }}
                 />
               </div>
             </CardContent>
@@ -416,36 +479,46 @@ export default function AccountSettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Globe className="h-5 w-5" />
-                <span>Preferences</span>
+                <span>{t("Preferences")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-3">
-                <Label className="text-base font-medium">Theme</Label>
+                <Label className="text-base font-medium">{t("Theme")}</Label>
                 <select 
                   value={settings.theme}
-                  onChange={(e) => setSettings(prev => ({ ...prev, theme: e.target.value as 'light' | 'dark' | 'system' }))}
+                  onChange={async (e) => {
+                    const newTheme = e.target.value as 'light' | 'dark' | 'system'
+                    setSettings(prev => ({ ...prev, theme: newTheme }))
+                    setTheme(newTheme)
+                    await saveSettingsQuietly({ ...settings, theme: newTheme })
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-golden-500"
                 >
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-                  <option value="system">System</option>
+                  <option value="light">{t("Light")}</option>
+                  <option value="dark">{t("Dark")}</option>
+                  <option value="system">{t("System")}</option>
                 </select>
               </div>
 
               <Separator />
 
               <div className="space-y-3">
-                <Label className="text-base font-medium">Language</Label>
+                <Label className="text-base font-medium">{t("Language")}</Label>
                 <select 
                   value={settings.language}
-                  onChange={(e) => setSettings(prev => ({ ...prev, language: e.target.value }))}
+                  onChange={async (e) => {
+                    const newLanguage = e.target.value
+                    setSettings(prev => ({ ...prev, language: newLanguage }))
+                    await saveSettingsQuietly({ ...settings, language: newLanguage })
+                    // Trigger immediate language change
+                    window.dispatchEvent(new Event('languageChanged'))
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-golden-500"
                 >
                   <option value="en">English</option>
+                  <option value="rw">Kinyarwanda</option>
                   <option value="fr">Français</option>
-                  <option value="es">Español</option>
-                  <option value="de">Deutsch</option>
                 </select>
               </div>
             </CardContent>
@@ -456,18 +529,18 @@ export default function AccountSettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Download className="h-5 w-5" />
-                <span>Data Management</span>
+                <span>{t("Data Management")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
-                  <h4 className="font-medium">Export Account Data</h4>
-                  <p className="text-sm text-gray-500">Download a copy of your account information</p>
+                  <h4 className="font-medium">{t("Export Account Data")}</h4>
+                  <p className="text-sm text-gray-500">{t("Download a copy of your account information")}</p>
                 </div>
                 <Button onClick={exportAccountData} variant="outline">
                   <Download className="mr-2 h-4 w-4" />
-                  Export
+                  {t("Export")}
                 </Button>
               </div>
             </CardContent>
@@ -483,12 +556,12 @@ export default function AccountSettingsPage() {
               {saving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {t("Saving...")}
                 </>
               ) : (
                 <>
                   <Settings className="mr-2 h-4 w-4" />
-                  Save Settings
+                  {t("Save Settings")}
                 </>
               )}
             </Button>
@@ -500,7 +573,7 @@ export default function AccountSettingsPage() {
           {/* Account Overview */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Account Overview</CardTitle>
+              <CardTitle className="text-lg">{t("Account Overview")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-3">
@@ -517,7 +590,7 @@ export default function AccountSettingsPage() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Role</span>
+                  <span className="text-sm text-gray-600">{t("Role")}</span>
                   <Badge variant="outline" className="bg-golden-50 border-golden-200 text-golden-700">
                     <Shield className="mr-1 h-3 w-3" />
                     {account?.role?.replace("_", " ").toUpperCase() || "ADMIN"}
@@ -525,16 +598,16 @@ export default function AccountSettingsPage() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Status</span>
+                  <span className="text-sm text-gray-600">{t("Status")}</span>
                   <Badge variant={account?.isActive ? "default" : "destructive"}>
-                    {account?.isActive ? "Active" : "Inactive"}
+                    {account?.isActive ? t("Active") : t("Inactive")}
                   </Badge>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">2FA</span>
                   <Badge variant={settings.twoFactorAuth ? "default" : "secondary"}>
-                    {settings.twoFactorAuth ? "Enabled" : "Disabled"}
+                    {settings.twoFactorAuth ? t("Enabled") : t("Disabled")}
                   </Badge>
                 </div>
               </div>
@@ -546,7 +619,7 @@ export default function AccountSettingsPage() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <Activity className="mr-2 h-4 w-4" />
-                Active Sessions
+                {t("Active Sessions")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -565,7 +638,7 @@ export default function AccountSettingsPage() {
                           </p>
                         </div>
                         {session.current ? (
-                          <Badge variant="default" className="text-xs">Current</Badge>
+                          <Badge variant="default" className="text-xs">{t("Current")}</Badge>
                         ) : (
                           <Button
                             size="sm"
@@ -580,7 +653,7 @@ export default function AccountSettingsPage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500 text-center py-4">No active sessions</p>
+                  <p className="text-sm text-gray-500 text-center py-4">{t("No active sessions")}</p>
                 )}
               </div>
             </CardContent>

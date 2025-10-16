@@ -29,6 +29,7 @@ import {
   X
 } from "lucide-react"
 import Image from "next/image"
+import { useTranslation } from "@/hooks/useTranslation"
 
 interface UserProfile {
   _id: string
@@ -60,6 +61,7 @@ interface PasswordChangeData {
 }
 
 export default function ProfileSettingsPage() {
+  const { t } = useTranslation()
   // Profile data state
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [formData, setFormData] = useState({
@@ -398,7 +400,7 @@ export default function ProfileSettingsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-golden-600" />
-          <p className="text-gray-600">Loading profile...</p>
+          <p className="text-gray-600">{t('Loading profile...')}</p>
         </div>
       </div>
     )
@@ -408,8 +410,8 @@ export default function ProfileSettingsPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Profile Settings</h1>
-        <p className="text-gray-600">Update your personal information and avatar</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('Profile Settings')}</h1>
+        <p className="text-gray-600">{t('Update your personal information and avatar')}</p>
       </div>
 
       {/* Success/Error Messages */}
@@ -434,7 +436,7 @@ export default function ProfileSettingsPage() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <Camera className="mr-2 h-4 w-4" />
-                Profile Picture
+                {t('Profile Picture')}
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
@@ -480,7 +482,7 @@ export default function ProfileSettingsPage() {
                       {uploadingAvatar ? (
                         <Loader2 className="h-3 w-3 animate-spin" />
                       ) : (
-                        "Save"
+                        t('Save')
                       )}
                     </Button>
                     <Button
@@ -498,8 +500,8 @@ export default function ProfileSettingsPage() {
               )}
 
               <div className="text-xs text-gray-500">
-                <p>JPG, PNG up to 5MB</p>
-                <p>Recommended: 400x400px</p>
+                <p>{t('JPG, PNG up to 5MB')}</p>
+                <p>{t('Recommended: 400x400px')}</p>
               </div>
             </CardContent>
           </Card>
@@ -512,7 +514,7 @@ export default function ProfileSettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <User className="h-5 w-5" />
-                <span>Personal Information</span>
+                <span>{t('Personal Information')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -521,7 +523,7 @@ export default function ProfileSettingsPage() {
                   <div>
                     <Label htmlFor="username" className="flex items-center space-x-1">
                       <User className="h-4 w-4" />
-                      <span>Username *</span>
+                      <span>{t('Username')} *</span>
                     </Label>
                     <Input
                       id="username"
@@ -535,7 +537,7 @@ export default function ProfileSettingsPage() {
                   <div>
                     <Label htmlFor="email" className="flex items-center space-x-1">
                       <Mail className="h-4 w-4" />
-                      <span>Email *</span>
+                      <span>{t('Email')} *</span>
                     </Label>
                     <Input
                       id="email"
@@ -551,7 +553,7 @@ export default function ProfileSettingsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="firstName">First Name</Label>
+                    <Label htmlFor="firstName">{t('First Name')}</Label>
                     <Input
                       id="firstName"
                       value={formData.firstName}
@@ -561,7 +563,7 @@ export default function ProfileSettingsPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName">Last Name</Label>
+                    <Label htmlFor="lastName">{t('Last Name')}</Label>
                     <Input
                       id="lastName"
                       value={formData.lastName}
@@ -576,7 +578,7 @@ export default function ProfileSettingsPage() {
                   <div>
                     <Label htmlFor="phone" className="flex items-center space-x-1">
                       <Phone className="h-4 w-4" />
-                      <span>Phone</span>
+                      <span>{t('Phone')}</span>
                     </Label>
                     <Input
                       id="phone"
@@ -590,7 +592,7 @@ export default function ProfileSettingsPage() {
                   <div>
                     <Label htmlFor="location" className="flex items-center space-x-1">
                       <MapPin className="h-4 w-4" />
-                      <span>Location</span>
+                      <span>{t('Location')}</span>
                     </Label>
                     <Input
                       id="location"
@@ -604,7 +606,7 @@ export default function ProfileSettingsPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="bio">Bio</Label>
+                  <Label htmlFor="bio">{t('Bio')}</Label>
                   <Textarea
                     id="bio"
                     value={formData.bio}
@@ -626,13 +628,13 @@ export default function ProfileSettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Building className="h-5 w-5" />
-                <span>Professional Information</span>
+                <span>{t('Professional Information')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="department">Department</Label>
+                  <Label htmlFor="department">{t('Department')}</Label>
                   <Input
                     id="department"
                     value={formData.department}
@@ -643,7 +645,7 @@ export default function ProfileSettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="position">Position</Label>
+                  <Label htmlFor="position">{t('Position')}</Label>
                   <Input
                     id="position"
                     value={formData.position}
@@ -662,13 +664,13 @@ export default function ProfileSettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Globe className="h-5 w-5" />
-                <span>Links & Social Media</span>
+                <span>{t('Links & Social Media')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="website">Website</Label>
+                  <Label htmlFor="website">{t('Website')}</Label>
                   <Input
                     id="website"
                     type="url"
@@ -682,7 +684,7 @@ export default function ProfileSettingsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="linkedin">LinkedIn</Label>
+                    <Label htmlFor="linkedin">{t('LinkedIn')}</Label>
                     <Input
                       id="linkedin"
                       type="url"
@@ -697,7 +699,7 @@ export default function ProfileSettingsPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="twitter">Twitter</Label>
+                    <Label htmlFor="twitter">{t('Twitter')}</Label>
                     <Input
                       id="twitter"
                       type="url"
@@ -712,7 +714,7 @@ export default function ProfileSettingsPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="github">GitHub</Label>
+                    <Label htmlFor="github">{t('GitHub')}</Label>
                     <Input
                       id="github"
                       type="url"
@@ -736,13 +738,13 @@ export default function ProfileSettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Lock className="h-5 w-5" />
-                <span>Change Password</span>
+                <span>{t('Change Password')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handlePasswordChange} className="space-y-4">
                 <div>
-                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Label htmlFor="currentPassword">{t('Current Password')}</Label>
                   <div className="relative">
                     <Input
                       id="currentPassword"
@@ -767,7 +769,7 @@ export default function ProfileSettingsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="newPassword">New Password</Label>
+                    <Label htmlFor="newPassword">{t('New Password')}</Label>
                     <div className="relative">
                       <Input
                         id="newPassword"
@@ -792,7 +794,7 @@ export default function ProfileSettingsPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Label htmlFor="confirmPassword">{t('Confirm New Password')}</Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
@@ -825,12 +827,12 @@ export default function ProfileSettingsPage() {
                   {changingPassword ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Changing Password...
+                      {t('Changing Password...')}
                     </>
                   ) : (
                     <>
                       <Lock className="mr-2 h-4 w-4" />
-                      Change Password
+                      {t('Change Password')}
                     </>
                   )}
                 </Button>
@@ -845,7 +847,7 @@ export default function ProfileSettingsPage() {
               variant="outline"
               disabled={saving}
             >
-              Reset Changes
+              {t('Reset Changes')}
             </Button>
             <Button 
               onClick={(e) => handleProfileUpdate(e)}
@@ -855,12 +857,12 @@ export default function ProfileSettingsPage() {
               {saving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving Profile...
+                  {t('Saving Profile...')}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  Save Profile
+                  {t('Save Profile')}
                 </>
               )}
             </Button>
@@ -872,25 +874,25 @@ export default function ProfileSettingsPage() {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center">
                   <Calendar className="mr-2 h-4 w-4" />
-                  Profile Information
+                  {t('Profile Information')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Member Since:</span>
+                    <span className="text-gray-600">{t('Member Since')}:</span>
                     <span className="font-medium">{formatDate(profile.createdAt)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Last Updated:</span>
+                    <span className="text-gray-600">{t('Last Updated')}:</span>
                     <span className="font-medium">{formatDate(profile.updatedAt)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Profile ID:</span>
+                    <span className="text-gray-600">{t('Profile ID')}:</span>
                     <span className="font-mono text-xs">{profile._id}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Role:</span>
+                    <span className="text-gray-600">{t('Role')}:</span>
                     <Badge variant="outline" className="bg-golden-50 border-golden-200 text-golden-700">
                       {profile.role?.replace("_", " ").toUpperCase() || "ADMIN"}
                     </Badge>

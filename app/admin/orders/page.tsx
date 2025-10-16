@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslation } from "@/hooks/useTranslation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -29,6 +30,7 @@ interface Order {
 }
 
 export default function AdminOrdersPage() {
+  const { t } = useTranslation()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -139,7 +141,7 @@ export default function AdminOrdersPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t("Manage Orders")}</h1>
         <p className="text-gray-600">Manage product orders and track sales</p>
       </div>
 
@@ -149,7 +151,7 @@ export default function AdminOrdersPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                <p className="text-sm font-medium text-gray-600">{t("Total Orders")}</p>
                 <p className="text-2xl font-bold text-gray-900">{statusCounts.total}</p>
               </div>
               <ShoppingCart className="h-8 w-8 text-blue-600" />
@@ -160,7 +162,7 @@ export default function AdminOrdersPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Pending</p>
+                <p className="text-sm font-medium text-gray-600">{t("pending")}</p>
                 <p className="text-2xl font-bold text-yellow-600">{statusCounts.pending}</p>
               </div>
               <div className="text-2xl">⏳</div>
@@ -171,7 +173,7 @@ export default function AdminOrdersPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Ready for Pickup</p>
+                <p className="text-sm font-medium text-gray-600">{t("ready")}</p>
                 <p className="text-2xl font-bold text-blue-600">{statusCounts.ready_for_pickup}</p>
               </div>
               <div className="text-2xl">📦</div>
@@ -182,7 +184,7 @@ export default function AdminOrdersPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Completed</p>
+                <p className="text-sm font-medium text-gray-600">{t("completed")}</p>
                 <p className="text-2xl font-bold text-green-600">{statusCounts.completed}</p>
               </div>
               <div className="text-2xl">✓</div>
@@ -224,7 +226,7 @@ export default function AdminOrdersPage() {
       {/* Orders Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Orders ({filteredOrders.length})</CardTitle>
+          <CardTitle>{t("Orders")} ({filteredOrders.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -290,7 +292,7 @@ export default function AdminOrdersPage() {
                         }}
                       >
                         <Eye className="h-4 w-4 mr-1" />
-                        View
+                        {t("View")}
                       </Button>
                     </td>
                   </tr>
@@ -302,11 +304,11 @@ export default function AdminOrdersPage() {
           {filteredOrders.length === 0 && (
             <div className="text-center py-8">
               <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders found</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("No orders found")}</h3>
               <p className="text-gray-600">
                 {searchTerm || selectedStatus !== "all"
-                  ? "Try adjusting your search or filter criteria"
-                  : "No orders have been placed yet"}
+                  ? t("Try adjusting your search or filter criteria")
+                  : t("No orders have been placed yet")}
               </p>
             </div>
           )}
@@ -317,7 +319,7 @@ export default function AdminOrdersPage() {
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Order Details</DialogTitle>
+            <DialogTitle>{t("Order Details")}</DialogTitle>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-6">
@@ -326,7 +328,7 @@ export default function AdminOrdersPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <ShoppingCart className="mr-2 h-5 w-5" />
-                    Order Information
+                    {t("Order Details")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -358,7 +360,7 @@ export default function AdminOrdersPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <User className="mr-2 h-5 w-5" />
-                    Customer Information
+                    {t("Customer Information")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -382,7 +384,7 @@ export default function AdminOrdersPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Package className="mr-2 h-5 w-5" />
-                    Product Information
+                    {t("Product Information")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -406,7 +408,7 @@ export default function AdminOrdersPage() {
               {/* Admin Notes */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Admin Notes</CardTitle>
+                  <CardTitle>{t("Admin Notes")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {selectedOrder.adminNotes && (
@@ -431,7 +433,7 @@ export default function AdminOrdersPage() {
               {/* Status Management */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Update Order Status</CardTitle>
+                  <CardTitle>{t("Update Order Status")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
@@ -440,7 +442,7 @@ export default function AdminOrdersPage() {
                         onClick={() => updateOrderStatus(selectedOrder._id, "ready_for_pickup", adminNotes)}
                         className="bg-blue-600 hover:bg-blue-700"
                       >
-                        Mark Ready for Pickup
+                        {t("Mark Ready for Pickup")}
                       </Button>
                     )}
                     {selectedOrder.status !== "completed" && (
@@ -448,7 +450,7 @@ export default function AdminOrdersPage() {
                         onClick={() => updateOrderStatus(selectedOrder._id, "completed", adminNotes)}
                         className="bg-green-600 hover:bg-green-700"
                       >
-                        Mark as Completed
+                        {t("Mark as Completed")}
                       </Button>
                     )}
                     {selectedOrder.status !== "pending" && (
@@ -456,7 +458,7 @@ export default function AdminOrdersPage() {
                         onClick={() => updateOrderStatus(selectedOrder._id, "pending", adminNotes)}
                         variant="outline"
                       >
-                        Mark as Pending
+                        {t("Mark as Pending")}
                       </Button>
                     )}
                   </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslation } from "@/hooks/useTranslation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -38,6 +39,7 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
+  const { t } = useTranslation()
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
     totalApplications: 0,
@@ -137,25 +139,25 @@ export default function AdminDashboard() {
     if (stock === 0) {
       return (
         <Badge variant="destructive" className="bg-red-600">
-          Out of Stock
+          {t("Out of Stock")}
         </Badge>
       )
     } else if (stock < 5) {
       return (
         <Badge variant="destructive" className="bg-orange-500">
-          {stock} left
+          {stock} {t("left")}
         </Badge>
       )
     }
     return (
       <Badge variant="default" className="bg-green-500">
-        {stock} in stock
+        {stock} {t("in stock")}
       </Badge>
     )
   }
 
   const getStockDisplay = (stock: number) => {
-    return stock === 0 ? "Empty" : `${stock} left`
+    return stock === 0 ? t("Empty") : `${stock} ${t("left")}`
   }
 
   if (loading) {
@@ -174,9 +176,9 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-golden-500 to-cyan-500 rounded-lg p-6 text-white">
-        <h1 className="text-3xl font-bold mb-2">Welcome to Golden Light School Admin</h1>
+        <h1 className="text-3xl font-bold mb-2">{t("Welcome to Golden Light School Admin")}</h1>
         <p className="text-golden-100">
-          Manage your school's products, orders, applications, and more from this dashboard.
+          {t("Manage your school's products, orders, applications, and more from this dashboard.")}
         </p>
       </div>
 
@@ -186,7 +188,7 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm font-medium">Total Products</p>
+                <p className="text-blue-100 text-sm font-medium">{t("Total Products")}</p>
                 <p className="text-3xl font-bold">{stats.totalProducts}</p>
                 <p className="text-blue-100 text-xs mt-1">
                   {totalCriticalStock > 0 && (
@@ -207,9 +209,9 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm font-medium">Total Orders</p>
+                <p className="text-green-100 text-sm font-medium">{t("Total Orders")}</p>
                 <p className="text-3xl font-bold">{stats.totalOrders}</p>
-                <p className="text-green-100 text-xs mt-1">{stats.pendingOrders} pending</p>
+                <p className="text-green-100 text-xs mt-1">{stats.pendingOrders} {t("pending")}</p>
               </div>
               <ShoppingCart className="h-12 w-12 text-green-200" />
             </div>
@@ -220,9 +222,9 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm font-medium">Applications</p>
+                <p className="text-purple-100 text-sm font-medium">{t("Applications")}</p>
                 <p className="text-3xl font-bold">{stats.totalApplications}</p>
-                <p className="text-purple-100 text-xs mt-1">{stats.pendingApplications} pending</p>
+                <p className="text-purple-100 text-xs mt-1">{stats.pendingApplications} {t("pending")}</p>
               </div>
               <FileText className="h-12 w-12 text-purple-200" />
             </div>
@@ -233,9 +235,9 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-yellow-100 text-sm font-medium">Pending Orders</p>
+                <p className="text-yellow-100 text-sm font-medium">{t("Pending Orders")}</p>
                 <p className="text-3xl font-bold">{stats.pendingOrders}</p>
-                <p className="text-yellow-100 text-xs mt-1">Need attention</p>
+                <p className="text-yellow-100 text-xs mt-1">{t("Need attention")}</p>
               </div>
               <Clock className="h-12 w-12 text-yellow-200" />
             </div>
@@ -251,7 +253,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-red-100 text-sm font-medium">
-                  {stats.outOfStockProducts > 0 ? 'Critical Stock' : 'Low Stock'}
+                  {stats.outOfStockProducts > 0 ? t('Critical Stock') : t('Low Stock')}
                 </p>
                 <p className="text-3xl font-bold">{totalCriticalStock}</p>
                 <p className="text-red-100 text-xs mt-1">
@@ -272,7 +274,7 @@ export default function AdminDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <TrendingUp className="mr-2 h-5 w-5" />
-            Quick Actions
+            {t("Quick Actions")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -280,25 +282,25 @@ export default function AdminDashboard() {
             <Link href="/admin/products">
               <Button className="w-full h-20 bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700 flex flex-col items-center justify-center space-y-2">
                 <Plus className="h-6 w-6" />
-                <span>Add New Product</span>
+                <span>{t("Add New Product")}</span>
               </Button>
             </Link>
             <Link href="/admin/orders">
               <Button className="w-full h-20 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 flex flex-col items-center justify-center space-y-2">
                 <ShoppingCart className="h-6 w-6" />
-                <span>Manage Orders</span>
+                <span>{t("Manage Orders")}</span>
               </Button>
             </Link>
             <Link href="/admin/applications">
               <Button className="w-full h-20 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 flex flex-col items-center justify-center space-y-2">
                 <Eye className="h-6 w-6" />
-                <span>Review Applications</span>
+                <span>{t("Review Applications")}</span>
               </Button>
             </Link>
             <Link href="/admin/reports">
               <Button className="w-full h-20 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 flex flex-col items-center justify-center space-y-2">
                 <TrendingUp className="h-6 w-6" />
-                <span>View Reports</span>
+                <span>{t("View Reports")}</span>
               </Button>
             </Link>
           </div>
@@ -312,18 +314,18 @@ export default function AdminDashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center">
               <ShoppingCart className="mr-2 h-5 w-5" />
-              Recent Orders
+              {t("Recent Orders")}
             </CardTitle>
             <Link href="/admin/orders">
               <Button variant="outline" size="sm">
-                View All
+                {t("View All")}
               </Button>
             </Link>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {stats.recentOrders.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">No orders yet</p>
+                <p className="text-gray-500 text-center py-4">{t("No orders yet")}</p>
               ) : (
                 stats.recentOrders.map((order) => (
                   <div key={order._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -355,18 +357,18 @@ export default function AdminDashboard() {
               <AlertTriangle className={`mr-2 h-5 w-5 ${
                 stats.outOfStockProducts > 0 ? 'text-red-700' : 'text-red-600'
               }`} />
-              {stats.outOfStockProducts > 0 ? 'Critical Stock Alert' : 'Low Stock Alert'}
+              {stats.outOfStockProducts > 0 ? t('Critical Stock Alert') : t('Low Stock Alert')}
             </CardTitle>
             <Link href="/admin/products">
               <Button variant="outline" size="sm">
-                Manage Stock
+                {t("Manage Stock")}
               </Button>
             </Link>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {criticalStockItems.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">All products are well stocked</p>
+                <p className="text-gray-500 text-center py-4">{t("All products are well stocked")}</p>
               ) : (
                 criticalStockItems.map((product) => (
                   <div
@@ -398,18 +400,18 @@ export default function AdminDashboard() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center">
             <FileText className="mr-2 h-5 w-5" />
-            Recent Applications
+            {t("Recent Applications")}
           </CardTitle>
           <Link href="/admin/applications">
             <Button variant="outline" size="sm">
-              View All
+              {t("View All")}
             </Button>
           </Link>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {stats.recentApplications.length === 0 ? (
-              <p className="text-gray-500 text-center py-4 col-span-full">No applications yet</p>
+              <p className="text-gray-500 text-center py-4 col-span-full">{t("No applications yet")}</p>
             ) : (
               stats.recentApplications.map((application) => (
                 <div key={application._id} className="p-3 bg-gray-50 rounded-lg">
@@ -431,7 +433,7 @@ export default function AdminDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <AlertCircle className="mr-2 h-5 w-5" />
-            System Status
+            {t("System Status")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -439,29 +441,29 @@ export default function AdminDashboard() {
             <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               <div>
-                <p className="font-medium text-green-900">Database</p>
-                <p className="text-sm text-green-700">Connected</p>
+                <p className="font-medium text-green-900">{t("Database")}</p>
+                <p className="text-sm text-green-700">{t("Connected")}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               <div>
-                <p className="font-medium text-green-900">API Services</p>
-                <p className="text-sm text-green-700">Operational</p>
+                <p className="font-medium text-green-900">{t("API Services")}</p>
+                <p className="text-sm text-green-700">{t("Operational")}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               <div>
-                <p className="font-medium text-green-900">Orders System</p>
-                <p className="text-sm text-green-700">Active</p>
+                <p className="font-medium text-green-900">{t("Orders System")}</p>
+                <p className="text-sm text-green-700">{t("Active")}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               <div>
-                <p className="font-medium text-green-900">Notifications</p>
-                <p className="text-sm text-green-700">Active</p>
+                <p className="font-medium text-green-900">{t("Notifications")}</p>
+                <p className="text-sm text-green-700">{t("Active")}</p>
               </div>
             </div>
           </div>
