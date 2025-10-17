@@ -276,6 +276,7 @@ export default function StudentsPage() {
       if (response.ok) {
         fetchStudents()
         setIsEditDialogOpen(false)
+        setSelectedStudent(null)
         setEditFormData({})
         toast({
           title: "Success",
@@ -315,6 +316,7 @@ export default function StudentsPage() {
       if (response.ok) {
         fetchStudents()
         setIsPaymentDialogOpen(false)
+        setSelectedStudent(null)
         setPaymentFormData({
           amount: "",
           paymentMethod: "cash",
@@ -417,14 +419,16 @@ export default function StudentsPage() {
             <Upload className="h-4 w-4 mr-2" />
             {t('Import Approved')}
           </Button>
+          <Button 
+            onClick={() => setIsAddDialogOpen(true)}
+            className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700"
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            {t('Add Student')}
+          </Button>
+          
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <UserPlus className="h-4 w-4 mr-2" />
-                {t('Add Student')}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{t('Add New Student')}</DialogTitle>
               </DialogHeader>
@@ -937,8 +941,8 @@ export default function StudentsPage() {
                   <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleAddStudent}>
-                    Add Student
+                  <Button onClick={handleAddStudent} className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700">
+                    {t('Add Student')}
                   </Button>
                 </div>
               </div>
@@ -950,49 +954,49 @@ export default function StudentsPage() {
       {/* Statistics Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
+          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-blue-100">{t('Total Students')}</CardTitle>
+              <Users className="h-4 w-4 text-blue-200" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground">{stats.active} active students</p>
+              <p className="text-xs text-blue-100">{stats.active} {t('Active Students')}</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-green-100">{t('Total Revenue')}</CardTitle>
+              <DollarSign className="h-4 w-4 text-green-200" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">Frw {stats.totalRevenue.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">This academic year</p>
+              <p className="text-xs text-green-100">{t('This Academic Year')}</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Outstanding Fees</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-red-100">{t('Outstanding Fees')}</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-red-200" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">Frw {stats.outstandingFees.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">Pending payments</p>
+              <p className="text-xs text-red-100">{t('Pending Payments')}</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-golden-500 to-golden-600 text-white border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Payment Rate</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-golden-100">{t('Payment Rate')}</CardTitle>
+              <TrendingUp className="h-4 w-4 text-golden-200" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {Math.round(((stats.byPaymentStatus.paid || 0) / stats.total) * 100)}%
               </div>
-              <p className="text-xs text-muted-foreground">Fully paid students</p>
+              <p className="text-xs text-golden-100">{t('Fully Paid Students')}</p>
             </CardContent>
           </Card>
         </div>
@@ -1129,8 +1133,8 @@ export default function StudentsPage() {
                       {/* Student */}
                       <TableCell>
                         <div className="flex items-center space-x-3">
-                          <Avatar>
-                            <AvatarFallback>
+                          <Avatar className="bg-gradient-to-br from-golden-400 to-golden-600">
+                            <AvatarFallback className="bg-gradient-to-br from-golden-400 to-golden-600 text-white font-semibold">
                               {`${student.firstName?.[0]}${student.lastName?.[0] || ""}`.toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
@@ -1276,7 +1280,7 @@ export default function StudentsPage() {
 
       {/* View Student Profile Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Student Profile</DialogTitle>
           </DialogHeader>
@@ -1766,7 +1770,7 @@ export default function StudentsPage() {
                 <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleAddPayment}>Add Payment</Button>
+                <Button onClick={handleAddPayment} className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700">{t('Add Payment')}</Button>
               </div>
             </div>
           )}
@@ -1775,7 +1779,7 @@ export default function StudentsPage() {
 
       {/* Edit Student Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Student</DialogTitle>
           </DialogHeader>
@@ -2298,8 +2302,8 @@ export default function StudentsPage() {
                 <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleEditStudent}>
-                  Update Student
+                <Button onClick={handleEditStudent} className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700">
+                  {t('Update Student')}
                 </Button>
               </div>
             </div>
