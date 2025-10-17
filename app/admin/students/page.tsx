@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -30,8 +30,6 @@ import {
   Upload,
   DollarSign,
   AlertTriangle,
-  Phone,
-  Mail,
   MapPin,
   TrendingUp,
 } from "lucide-react"
@@ -120,6 +118,19 @@ export default function StudentsPage() {
   const statuses = ["active", "inactive", "graduated", "transferred", "suspended"]
   const paymentStatuses = ["paid", "not_paid", "half_paid", "overdue"]
   const academicYears = ["2025-2026", "2024-2025", "2023-2024", "2022-2023"]
+
+  // Add this helper function at the top of the component, after the state declarations
+  const handleDialogClose = (setter: (value: boolean) => void) => {
+    return (open: boolean) => {
+      setter(open)
+      if (!open) {
+        // Ensure pointer-events are restored when closing
+        setTimeout(() => {
+          document.body.style.pointerEvents = ""
+        }, 100)
+      }
+    }
+  }
 
   const fetchStudents = useCallback(async () => {
     setLoading(true)
@@ -411,33 +422,33 @@ export default function StudentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{t('Students Management')}</h1>
-          <p className="text-muted-foreground">{t('Manage student records, payments, and academic information')}</p>
+          <h1 className="text-3xl font-bold">{t("Students Management")}</h1>
+          <p className="text-muted-foreground">{t("Manage student records, payments, and academic information")}</p>
         </div>
         <div className="flex items-center space-x-2">
           <Button onClick={handleImportApproved} variant="outline">
             <Upload className="h-4 w-4 mr-2" />
-            {t('Import Approved')}
+            {t("Import Approved")}
           </Button>
-          <Button 
+          <Button
             onClick={() => setIsAddDialogOpen(true)}
             className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700"
           >
             <UserPlus className="h-4 w-4 mr-2" />
-            {t('Add Student')}
+            {t("Add Student")}
           </Button>
-          
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+
+          <Dialog open={isAddDialogOpen} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
             <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{t('Add New Student')}</DialogTitle>
+                <DialogTitle>{t("Add New Student")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-6">
                 <Tabs defaultValue="basic" className="w-full">
                   <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="basic">{t('Basic Info')}</TabsTrigger>
-                    <TabsTrigger value="academic">{t('Academic')}</TabsTrigger>
-                    <TabsTrigger value="financial">{t('Financial')}</TabsTrigger>
+                    <TabsTrigger value="basic">{t("Basic Info")}</TabsTrigger>
+                    <TabsTrigger value="academic">{t("Academic")}</TabsTrigger>
+                    <TabsTrigger value="financial">{t("Financial")}</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="basic" className="space-y-6">
@@ -446,47 +457,41 @@ export default function StudentsPage() {
                       <CardHeader>
                         <CardTitle className="flex items-center">
                           <User className="mr-2 h-5 w-5 text-blue-600" />
-                          {t('Student Information')}
+                          {t("Student Information")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="studentId">{t('Student ID')}</Label>
+                          <Label htmlFor="studentId">{t("Student ID")}</Label>
                           <Input
                             id="studentId"
                             value={addFormData.studentId || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, studentId: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, studentId: e.target.value }))}
                             placeholder="Leave empty for auto-generation"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="firstName">{t('First Name')} *</Label>
+                          <Label htmlFor="firstName">{t("First Name")} *</Label>
                           <Input
                             id="firstName"
                             value={addFormData.firstName || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, firstName: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, firstName: e.target.value }))}
                             placeholder="Enter first name"
                             required
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="lastName">{t('Last Name')} *</Label>
+                          <Label htmlFor="lastName">{t("Last Name")} *</Label>
                           <Input
                             id="lastName"
                             value={addFormData.lastName || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, lastName: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, lastName: e.target.value }))}
                             placeholder="Enter last name"
                             required
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="dateOfBirth">{t('Date of Birth')} *</Label>
+                          <Label htmlFor="dateOfBirth">{t("Date of Birth")} *</Label>
                           <Input
                             id="dateOfBirth"
                             type="date"
@@ -520,7 +525,7 @@ export default function StudentsPage() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="gender">{t('Gender')} *</Label>
+                          <Label htmlFor="gender">{t("Gender")} *</Label>
                           <Select
                             value={addFormData.gender || "Male"}
                             onValueChange={(value) =>
@@ -534,14 +539,14 @@ export default function StudentsPage() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Male">{t('Male')}</SelectItem>
-                              <SelectItem value="Female">{t('Female')}</SelectItem>
+                              <SelectItem value="Male">{t("Male")}</SelectItem>
+                              <SelectItem value="Female">{t("Female")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="childAge">{t('Age')} *</Label>
+                          <Label htmlFor="childAge">{t("Age")} *</Label>
                           <Input
                             id="childAge"
                             type="number"
@@ -556,7 +561,6 @@ export default function StudentsPage() {
                             required
                           />
                         </div>
-
                       </CardContent>
                     </Card>
 
@@ -574,9 +578,7 @@ export default function StudentsPage() {
                           <Input
                             id="fatherName"
                             value={addFormData.fatherName || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, fatherName: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, fatherName: e.target.value }))}
                             placeholder="Enter father name"
                           />
                         </div>
@@ -585,9 +587,7 @@ export default function StudentsPage() {
                           <Input
                             id="fatherId"
                             value={addFormData.fatherId || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, fatherId: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, fatherId: e.target.value }))}
                             placeholder="Enter father ID"
                           />
                         </div>
@@ -596,9 +596,7 @@ export default function StudentsPage() {
                           <Input
                             id="fatherPhone"
                             value={addFormData.fatherPhone || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, fatherPhone: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, fatherPhone: e.target.value }))}
                             placeholder="Enter father phone"
                           />
                         </div>
@@ -619,9 +617,7 @@ export default function StudentsPage() {
                           <Input
                             id="motherName"
                             value={addFormData.motherName || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, motherName: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, motherName: e.target.value }))}
                             placeholder="Enter mother name"
                           />
                         </div>
@@ -630,9 +626,7 @@ export default function StudentsPage() {
                           <Input
                             id="motherId"
                             value={addFormData.motherId || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, motherId: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, motherId: e.target.value }))}
                             placeholder="Enter mother ID"
                           />
                         </div>
@@ -641,9 +635,7 @@ export default function StudentsPage() {
                           <Input
                             id="motherPhone"
                             value={addFormData.motherPhone || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, motherPhone: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, motherPhone: e.target.value }))}
                             placeholder="Enter mother phone"
                           />
                         </div>
@@ -664,9 +656,7 @@ export default function StudentsPage() {
                           <Input
                             id="province"
                             value={addFormData.province || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, province: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, province: e.target.value }))}
                             placeholder="Enter province"
                           />
                         </div>
@@ -675,9 +665,7 @@ export default function StudentsPage() {
                           <Input
                             id="district"
                             value={addFormData.district || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, district: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, district: e.target.value }))}
                             placeholder="Enter district"
                           />
                         </div>
@@ -686,9 +674,7 @@ export default function StudentsPage() {
                           <Input
                             id="sector"
                             value={addFormData.sector || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, sector: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, sector: e.target.value }))}
                             placeholder="Enter sector"
                           />
                         </div>
@@ -697,9 +683,7 @@ export default function StudentsPage() {
                           <Input
                             id="cell"
                             value={addFormData.cell || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, cell: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, cell: e.target.value }))}
                             placeholder="Enter cell"
                           />
                         </div>
@@ -708,9 +692,7 @@ export default function StudentsPage() {
                           <Input
                             id="village"
                             value={addFormData.village || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, village: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, village: e.target.value }))}
                             placeholder="Enter village"
                           />
                         </div>
@@ -719,9 +701,7 @@ export default function StudentsPage() {
                           <Textarea
                             id="address"
                             value={addFormData.address || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, address: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, address: e.target.value }))}
                             placeholder="Enter additional address information"
                           />
                         </div>
@@ -743,9 +723,7 @@ export default function StudentsPage() {
                           <Label htmlFor="level">Level *</Label>
                           <Select
                             value={addFormData.class || ""}
-                            onValueChange={(value) =>
-                              setAddFormData((prev) => ({ ...prev, class: value }))
-                            }
+                            onValueChange={(value) => setAddFormData((prev) => ({ ...prev, class: value }))}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder="Select level" />
@@ -763,9 +741,7 @@ export default function StudentsPage() {
                           <Label htmlFor="academicYear">Academic Year *</Label>
                           <Select
                             value={addFormData.academicYear || "2025-2026"}
-                            onValueChange={(value) =>
-                              setAddFormData((prev) => ({ ...prev, academicYear: value }))
-                            }
+                            onValueChange={(value) => setAddFormData((prev) => ({ ...prev, academicYear: value }))}
                           >
                             <SelectTrigger>
                               <SelectValue />
@@ -802,9 +778,7 @@ export default function StudentsPage() {
                           <Label htmlFor="status">Status *</Label>
                           <Select
                             value={addFormData.status || "active"}
-                            onValueChange={(value) =>
-                              setAddFormData((prev) => ({ ...prev, status: value as any }))
-                            }
+                            onValueChange={(value) => setAddFormData((prev) => ({ ...prev, status: value as any }))}
                           >
                             <SelectTrigger>
                               <SelectValue />
@@ -823,9 +797,7 @@ export default function StudentsPage() {
                           <Input
                             id="previousSchool"
                             value={addFormData.previousSchool || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, previousSchool: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, previousSchool: e.target.value }))}
                             placeholder="Enter previous school (if any)"
                           />
                         </div>
@@ -846,9 +818,7 @@ export default function StudentsPage() {
                           <Textarea
                             id="notes"
                             value={addFormData.notes || ""}
-                            onChange={(e) =>
-                              setAddFormData((prev) => ({ ...prev, notes: e.target.value }))
-                            }
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, notes: e.target.value }))}
                             placeholder="Enter any additional notes about the student"
                             rows={4}
                           />
@@ -925,11 +895,7 @@ export default function StudentsPage() {
                         </div>
                         <div className="space-y-2">
                           <Label>Amount Due (Frw)</Label>
-                          <Input
-                            value={addFormData.amountDue || 0}
-                            disabled
-                            className="bg-muted"
-                          />
+                          <Input value={addFormData.amountDue || 0} disabled className="bg-muted" />
                         </div>
                       </CardContent>
                     </Card>
@@ -941,8 +907,11 @@ export default function StudentsPage() {
                   <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleAddStudent} className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700">
-                    {t('Add Student')}
+                  <Button
+                    onClick={handleAddStudent}
+                    className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700"
+                  >
+                    {t("Add Student")}
                   </Button>
                 </div>
               </div>
@@ -956,47 +925,49 @@ export default function StudentsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-100">{t('Total Students')}</CardTitle>
+              <CardTitle className="text-sm font-medium text-blue-100">{t("Total Students")}</CardTitle>
               <Users className="h-4 w-4 text-blue-200" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-blue-100">{stats.active} {t('Active Students')}</p>
+              <p className="text-xs text-blue-100">
+                {stats.active} {t("Active Students")}
+              </p>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-100">{t('Total Revenue')}</CardTitle>
+              <CardTitle className="text-sm font-medium text-green-100">{t("Total Revenue")}</CardTitle>
               <DollarSign className="h-4 w-4 text-green-200" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">Frw {stats.totalRevenue.toLocaleString()}</div>
-              <p className="text-xs text-green-100">{t('This Academic Year')}</p>
+              <p className="text-xs text-green-100">{t("This Academic Year")}</p>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-red-100">{t('Outstanding Fees')}</CardTitle>
+              <CardTitle className="text-sm font-medium text-red-100">{t("Outstanding Fees")}</CardTitle>
               <AlertTriangle className="h-4 w-4 text-red-200" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">Frw {stats.outstandingFees.toLocaleString()}</div>
-              <p className="text-xs text-red-100">{t('Pending Payments')}</p>
+              <p className="text-xs text-red-100">{t("Pending Payments")}</p>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-golden-500 to-golden-600 text-white border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-golden-100">{t('Payment Rate')}</CardTitle>
+              <CardTitle className="text-sm font-medium text-golden-100">{t("Payment Rate")}</CardTitle>
               <TrendingUp className="h-4 w-4 text-golden-200" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {Math.round(((stats.byPaymentStatus.paid || 0) / stats.total) * 100)}%
               </div>
-              <p className="text-xs text-golden-100">{t('Fully Paid Students')}</p>
+              <p className="text-xs text-golden-100">{t("Fully Paid Students")}</p>
             </CardContent>
           </Card>
         </div>
@@ -1142,9 +1113,7 @@ export default function StudentsPage() {
                             <div className="font-medium">
                               {student.firstName} {student.lastName}
                             </div>
-                            <div className="text-sm text-muted-foreground">
-                              ID: {student.studentId}
-                            </div>
+                            <div className="text-sm text-muted-foreground">ID: {student.studentId}</div>
                           </div>
                         </div>
                       </TableCell>
@@ -1175,9 +1144,7 @@ export default function StudentsPage() {
 
                       {/* Status */}
                       <TableCell>
-                        <Badge variant={getStatusBadgeVariant(student.status)}>
-                          {student.status}
-                        </Badge>
+                        <Badge variant={getStatusBadgeVariant(student.status)}>{student.status}</Badge>
                       </TableCell>
 
                       {/* Payment */}
@@ -1196,9 +1163,7 @@ export default function StudentsPage() {
                       {/* Admission */}
                       <TableCell>
                         <div>
-                          <div className="font-medium">
-                            {new Date(student.admissionDate).toLocaleDateString()}
-                          </div>
+                          <div className="font-medium">{new Date(student.admissionDate).toLocaleDateString()}</div>
                           <div className="text-sm text-muted-foreground">{student.academicYear}</div>
                         </div>
                       </TableCell>
@@ -1279,7 +1244,7 @@ export default function StudentsPage() {
       </Card>
 
       {/* View Student Profile Dialog */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+      <Dialog open={isViewDialogOpen} onOpenChange={handleDialogClose(setIsViewDialogOpen)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Student Profile</DialogTitle>
@@ -1316,28 +1281,23 @@ export default function StudentsPage() {
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Date of Birth</Label>
                       <p className="text-gray-900">
-                        {selectedStudent.dateOfBirth
-                          ? new Date(selectedStudent.dateOfBirth).toLocaleDateString()
-                          : "—"}
+                        {selectedStudent.dateOfBirth ? new Date(selectedStudent.dateOfBirth).toLocaleDateString() : "—"}
                       </p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Gender</Label>
-                      <p className="text-gray-900">
-                        {selectedStudent.gender || selectedStudent.childGender || "—"}
-                      </p>
+                      <p className="text-gray-900">{selectedStudent.gender || selectedStudent.childGender || "—"}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Age</Label>
                       <p className="text-gray-900">
-                        {typeof selectedStudent.childAge !== "undefined" &&
-                          selectedStudent.childAge !== null
+                        {typeof selectedStudent.childAge !== "undefined" && selectedStudent.childAge !== null
                           ? selectedStudent.childAge
                           : selectedStudent.dateOfBirth
                             ? Math.floor(
-                              (Date.now() - new Date(selectedStudent.dateOfBirth).getTime()) /
-                              (365.25 * 24 * 60 * 60 * 1000),
-                            )
+                                (Date.now() - new Date(selectedStudent.dateOfBirth).getTime()) /
+                                  (365.25 * 24 * 60 * 60 * 1000),
+                              )
                             : "—"}
                       </p>
                     </div>
@@ -1461,15 +1421,11 @@ export default function StudentsPage() {
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Admission Date</Label>
-                      <p className="text-gray-900">
-                        {new Date(selectedStudent.admissionDate).toLocaleDateString()}
-                      </p>
+                      <p className="text-gray-900">{new Date(selectedStudent.admissionDate).toLocaleDateString()}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Status</Label>
-                      <Badge variant={getStatusBadgeVariant(selectedStudent.status)}>
-                        {selectedStudent.status}
-                      </Badge>
+                      <Badge variant={getStatusBadgeVariant(selectedStudent.status)}>{selectedStudent.status}</Badge>
                     </div>
                     {selectedStudent.previousSchool && (
                       <div className="md:col-span-2">
@@ -1490,9 +1446,7 @@ export default function StudentsPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="p-3 bg-muted rounded-md text-gray-800">
-                        {selectedStudent.notes}
-                      </div>
+                      <div className="p-3 bg-muted rounded-md text-gray-800">{selectedStudent.notes}</div>
                     </CardContent>
                   </Card>
                 )}
@@ -1664,7 +1618,7 @@ export default function StudentsPage() {
       </Dialog>
 
       {/* Add Payment Dialog */}
-      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+      <Dialog open={isPaymentDialogOpen} onOpenChange={handleDialogClose(setIsPaymentDialogOpen)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Payment</DialogTitle>
@@ -1770,7 +1724,12 @@ export default function StudentsPage() {
                 <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleAddPayment} className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700">{t('Add Payment')}</Button>
+                <Button
+                  onClick={handleAddPayment}
+                  className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700"
+                >
+                  {t("Add Payment")}
+                </Button>
               </div>
             </div>
           )}
@@ -1778,7 +1737,7 @@ export default function StudentsPage() {
       </Dialog>
 
       {/* Edit Student Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog open={isEditDialogOpen} onOpenChange={handleDialogClose(setIsEditDialogOpen)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Student</DialogTitle>
@@ -1807,9 +1766,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-studentId"
                           value={editFormData.studentId || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, studentId: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, studentId: e.target.value }))}
                           placeholder="Enter student ID"
                         />
                       </div>
@@ -1818,9 +1775,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-firstName"
                           value={editFormData.firstName || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, firstName: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, firstName: e.target.value }))}
                           placeholder="Enter first name"
                           required
                         />
@@ -1830,9 +1785,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-lastName"
                           value={editFormData.lastName || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, lastName: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, lastName: e.target.value }))}
                           placeholder="Enter last name"
                           required
                         />
@@ -1848,20 +1801,20 @@ export default function StudentsPage() {
                               : ""
                           }
                           onChange={(e) => {
-                            const dob = new Date(e.target.value);
-                            const today = new Date();
-                            let age = today.getFullYear() - dob.getFullYear();
-                            const m = today.getMonth() - dob.getMonth();
+                            const dob = new Date(e.target.value)
+                            const today = new Date()
+                            let age = today.getFullYear() - dob.getFullYear()
+                            const m = today.getMonth() - dob.getMonth()
 
                             if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-                              age--;
+                              age--
                             }
 
                             setEditFormData((prev) => ({
                               ...prev,
                               dateOfBirth: dob,
                               childAge: age >= 0 ? age : 0, // prevent negative values
-                            }));
+                            }))
                           }}
                           required
                         />
@@ -1897,7 +1850,6 @@ export default function StudentsPage() {
                           readOnly // makes it non-editable
                         />
                       </div>
-
                     </CardContent>
                   </Card>
 
@@ -1915,9 +1867,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-fatherName"
                           value={editFormData.fatherName || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, fatherName: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, fatherName: e.target.value }))}
                           placeholder="Enter father name"
                         />
                       </div>
@@ -1926,9 +1876,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-fatherId"
                           value={editFormData.fatherId || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, fatherId: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, fatherId: e.target.value }))}
                           placeholder="Enter father ID"
                         />
                       </div>
@@ -1937,9 +1885,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-fatherPhone"
                           value={editFormData.fatherPhone || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, fatherPhone: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, fatherPhone: e.target.value }))}
                           placeholder="Enter father phone"
                         />
                       </div>
@@ -1960,9 +1906,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-motherName"
                           value={editFormData.motherName || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, motherName: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, motherName: e.target.value }))}
                           placeholder="Enter mother name"
                         />
                       </div>
@@ -1971,9 +1915,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-motherId"
                           value={editFormData.motherId || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, motherId: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, motherId: e.target.value }))}
                           placeholder="Enter mother ID"
                         />
                       </div>
@@ -1982,9 +1924,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-motherPhone"
                           value={editFormData.motherPhone || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, motherPhone: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, motherPhone: e.target.value }))}
                           placeholder="Enter mother phone"
                         />
                       </div>
@@ -2005,9 +1945,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-province"
                           value={editFormData.province || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, province: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, province: e.target.value }))}
                           placeholder="Enter province"
                         />
                       </div>
@@ -2016,9 +1954,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-district"
                           value={editFormData.district || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, district: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, district: e.target.value }))}
                           placeholder="Enter district"
                         />
                       </div>
@@ -2027,9 +1963,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-sector"
                           value={editFormData.sector || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, sector: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, sector: e.target.value }))}
                           placeholder="Enter sector"
                         />
                       </div>
@@ -2038,9 +1972,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-cell"
                           value={editFormData.cell || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, cell: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, cell: e.target.value }))}
                           placeholder="Enter cell"
                         />
                       </div>
@@ -2049,9 +1981,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-village"
                           value={editFormData.village || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, village: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, village: e.target.value }))}
                           placeholder="Enter village"
                         />
                       </div>
@@ -2060,9 +1990,7 @@ export default function StudentsPage() {
                         <Textarea
                           id="edit-address"
                           value={editFormData.address || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, address: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, address: e.target.value }))}
                           placeholder="Enter additional address information"
                         />
                       </div>
@@ -2084,9 +2012,7 @@ export default function StudentsPage() {
                         <Label htmlFor="edit-level">Level *</Label>
                         <Select
                           value={editFormData.class || ""}
-                          onValueChange={(value) =>
-                            setEditFormData((prev) => ({ ...prev, class: value }))
-                          }
+                          onValueChange={(value) => setEditFormData((prev) => ({ ...prev, class: value }))}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select level" />
@@ -2104,9 +2030,7 @@ export default function StudentsPage() {
                         <Label htmlFor="edit-academicYear">Academic Year *</Label>
                         <Select
                           value={editFormData.academicYear || "2025-2026"}
-                          onValueChange={(value) =>
-                            setEditFormData((prev) => ({ ...prev, academicYear: value }))
-                          }
+                          onValueChange={(value) => setEditFormData((prev) => ({ ...prev, academicYear: value }))}
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -2143,9 +2067,7 @@ export default function StudentsPage() {
                         <Label htmlFor="edit-status">Status *</Label>
                         <Select
                           value={editFormData.status || "active"}
-                          onValueChange={(value) =>
-                            setEditFormData((prev) => ({ ...prev, status: value as any }))
-                          }
+                          onValueChange={(value) => setEditFormData((prev) => ({ ...prev, status: value as any }))}
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -2164,9 +2086,7 @@ export default function StudentsPage() {
                         <Input
                           id="edit-previousSchool"
                           value={editFormData.previousSchool || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, previousSchool: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, previousSchool: e.target.value }))}
                           placeholder="Enter previous school (if any)"
                         />
                       </div>
@@ -2187,9 +2107,7 @@ export default function StudentsPage() {
                         <Textarea
                           id="edit-notes"
                           value={editFormData.notes || ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({ ...prev, notes: e.target.value }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, notes: e.target.value }))}
                           placeholder="Enter any additional notes about the student"
                           rows={4}
                         />
@@ -2235,7 +2153,7 @@ export default function StudentsPage() {
                             const paid = Number.parseFloat(e.target.value) || 0
                             const total = editFormData.totalFees || 0
                             const due = Math.max(0, total - paid)
-                            
+
                             let paymentStatus: "paid" | "not_paid" | "half_paid" | "overdue"
                             if (paid === 0) {
                               paymentStatus = "not_paid"
@@ -2243,17 +2161,20 @@ export default function StudentsPage() {
                               paymentStatus = "paid"
                             } else {
                               // For partial payments, check if overdue based on admission date
-                              const admissionDate = editFormData.admissionDate ? new Date(editFormData.admissionDate) : new Date()
-                              const monthsSinceAdmission = (Date.now() - admissionDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
-                              
+                              const admissionDate = editFormData.admissionDate
+                                ? new Date(editFormData.admissionDate)
+                                : new Date()
+                              const monthsSinceAdmission =
+                                (Date.now() - admissionDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+
                               // Consider overdue if more than 3 months since admission and less than 50% paid
-                              if (monthsSinceAdmission > 3 && (paid / total) < 0.5) {
+                              if (monthsSinceAdmission > 3 && paid / total < 0.5) {
                                 paymentStatus = "overdue"
                               } else {
                                 paymentStatus = "half_paid"
                               }
                             }
-                            
+
                             setEditFormData((prev) => ({
                               ...prev,
                               amountPaid: paid,
@@ -2286,11 +2207,7 @@ export default function StudentsPage() {
                       </div>
                       <div className="space-y-2">
                         <Label>Amount Due (Frw)</Label>
-                        <Input
-                          value={editFormData.amountDue || 0}
-                          disabled
-                          className="bg-muted"
-                        />
+                        <Input value={editFormData.amountDue || 0} disabled className="bg-muted" />
                       </div>
                     </CardContent>
                   </Card>
@@ -2302,8 +2219,11 @@ export default function StudentsPage() {
                 <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleEditStudent} className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700">
-                  {t('Update Student')}
+                <Button
+                  onClick={handleEditStudent}
+                  className="bg-gradient-to-r from-golden-500 to-golden-600 hover:from-golden-600 hover:to-golden-700"
+                >
+                  {t("Update Student")}
                 </Button>
               </div>
             </div>
