@@ -28,9 +28,11 @@ export interface Student {
   fatherName?: string
   fatherId?: string
   fatherPhone?: string
+  fatherEmail?: string
   motherName?: string
   motherId?: string
   motherPhone?: string
+  motherEmail?: string
   province?: string
   district?: string
   sector?: string

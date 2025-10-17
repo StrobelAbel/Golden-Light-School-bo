@@ -32,6 +32,7 @@ import {
   User,
   Settings,
   Shield,
+  Calendar,
 } from "lucide-react"
 
 interface Notification {
@@ -311,6 +312,7 @@ export default function AdminLayout({
     { href: "/admin/orders", label: t("Orders"), icon: ShoppingCart },
     { href: "/admin/admissions", label: t("Admissions"), icon: GraduationCap },
     { href: "/admin/students", label: t("Students"), icon: Users },
+    { href: "/admin/academic-years", label: t("Academic Years"), icon: Calendar },
     { href: "/admin/applications", label: t("Applications"), icon: FileText },
     { href: "/admin/reports", label: t("Reports"), icon: BarChart3 },
   ]

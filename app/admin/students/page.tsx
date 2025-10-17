@@ -84,9 +84,11 @@ export default function StudentsPage() {
     fatherName: "",
     fatherId: "",
     fatherPhone: "",
+    fatherEmail: "",
     motherName: "",
     motherId: "",
     motherPhone: "",
+    motherEmail: "",
     province: "",
     district: "",
     sector: "",
@@ -94,7 +96,7 @@ export default function StudentsPage() {
     village: "",
     address: "",
     level: "",
-    academicYear: "2025-2026",
+    academicYear: "",
     admissionDate: new Date(),
     previousSchool: "",
     status: "active",
@@ -117,7 +119,37 @@ export default function StudentsPage() {
   const levels = ["Age 2", "Age 3", "Age 4", "Age 5", "Age 6"]
   const statuses = ["active", "inactive", "graduated", "transferred", "suspended"]
   const paymentStatuses = ["paid", "not_paid", "half_paid", "overdue"]
-  const academicYears = ["2025-2026", "2024-2025", "2023-2024", "2022-2023"]
+  const [currentAcademicYear, setCurrentAcademicYear] = useState("")
+  
+  const generateAcademicYears = () => {
+    const currentYear = new Date().getFullYear()
+    const currentMonth = new Date().getMonth() + 1
+    const startYear = currentMonth >= 9 ? currentYear : currentYear - 1
+    
+    return [
+      `${startYear + 1}-${startYear + 2}`,
+      `${startYear}-${startYear + 1}`,
+      `${startYear - 1}-${startYear}`,
+      `${startYear - 2}-${startYear - 1}`,
+      `${startYear - 3}-${startYear - 2}`,
+    ]
+  }
+  
+  const academicYears = generateAcademicYears()
+  
+  const fetchCurrentAcademicYear = async () => {
+    try {
+      const response = await fetch("/api/admin/academic-years/current")
+      if (response.ok) {
+        const data = await response.json()
+        setCurrentAcademicYear(data.year || academicYears[1])
+      } else {
+        setCurrentAcademicYear(academicYears[1])
+      }
+    } catch (error) {
+      setCurrentAcademicYear(academicYears[1])
+    }
+  }
 
   // Add this helper function at the top of the component, after the state declarations
   const handleDialogClose = (setter: (value: boolean) => void) => {
@@ -166,8 +198,14 @@ export default function StudentsPage() {
   }, [pagination.page, pagination.limit, searchTerm, filters])
 
   useEffect(() => {
-    fetchStudents()
-  }, [fetchStudents])
+    fetchCurrentAcademicYear()
+  }, [])
+  
+  useEffect(() => {
+    if (currentAcademicYear) {
+      fetchStudents()
+    }
+  }, [fetchStudents, currentAcademicYear])
 
   const handleStatusChange = async (studentId: string, newStatus: string, reason?: string) => {
     try {
@@ -227,9 +265,11 @@ export default function StudentsPage() {
           fatherName: "",
           fatherId: "",
           fatherPhone: "",
+          fatherEmail: "",
           motherName: "",
           motherId: "",
           motherPhone: "",
+          motherEmail: "",
           province: "",
           district: "",
           sector: "",
@@ -237,7 +277,7 @@ export default function StudentsPage() {
           village: "",
           address: "",
           level: "",
-          academicYear: "2025-2026",
+          academicYear: currentAcademicYear,
           admissionDate: new Date(),
           previousSchool: "",
           status: "active",
@@ -572,7 +612,7 @@ export default function StudentsPage() {
                           Father Information
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="fatherName">Father Name</Label>
                           <Input
@@ -600,6 +640,16 @@ export default function StudentsPage() {
                             placeholder="Enter father phone"
                           />
                         </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="fatherEmail">Father Email</Label>
+                          <Input
+                            id="fatherEmail"
+                            type="email"
+                            value={addFormData.fatherEmail || ""}
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, fatherEmail: e.target.value }))}
+                            placeholder="Enter father email"
+                          />
+                        </div>
                       </CardContent>
                     </Card>
 
@@ -611,7 +661,7 @@ export default function StudentsPage() {
                           Mother Information
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="motherName">Mother Name</Label>
                           <Input
@@ -637,6 +687,16 @@ export default function StudentsPage() {
                             value={addFormData.motherPhone || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, motherPhone: e.target.value }))}
                             placeholder="Enter mother phone"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="motherEmail">Mother Email</Label>
+                          <Input
+                            id="motherEmail"
+                            type="email"
+                            value={addFormData.motherEmail || ""}
+                            onChange={(e) => setAddFormData((prev) => ({ ...prev, motherEmail: e.target.value }))}
+                            placeholder="Enter mother email"
                           />
                         </div>
                       </CardContent>
@@ -1312,7 +1372,7 @@ export default function StudentsPage() {
                       Father Information
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Name</Label>
                       <p className="text-gray-900">{selectedStudent.fatherName || "—"}</p>
@@ -1325,6 +1385,10 @@ export default function StudentsPage() {
                       <Label className="text-sm font-medium text-gray-600">Phone</Label>
                       <p className="text-gray-900">{selectedStudent.fatherPhone || "—"}</p>
                     </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Email</Label>
+                      <p className="text-gray-900">{selectedStudent.fatherEmail || "—"}</p>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -1336,7 +1400,7 @@ export default function StudentsPage() {
                       Mother Information
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Name</Label>
                       <p className="text-gray-900">{selectedStudent.motherName || "—"}</p>
@@ -1348,6 +1412,10 @@ export default function StudentsPage() {
                     <div>
                       <Label className="text-sm font-medium text-gray-600">Phone</Label>
                       <p className="text-gray-900">{selectedStudent.motherPhone || "—"}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Email</Label>
+                      <p className="text-gray-900">{selectedStudent.motherEmail || "—"}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -1861,7 +1929,7 @@ export default function StudentsPage() {
                         Father Information
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="edit-fatherName">Father Name</Label>
                         <Input
@@ -1889,6 +1957,16 @@ export default function StudentsPage() {
                           placeholder="Enter father phone"
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-fatherEmail">Father Email</Label>
+                        <Input
+                          id="edit-fatherEmail"
+                          type="email"
+                          value={editFormData.fatherEmail || ""}
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, fatherEmail: e.target.value }))}
+                          placeholder="Enter father email"
+                        />
+                      </div>
                     </CardContent>
                   </Card>
 
@@ -1900,7 +1978,7 @@ export default function StudentsPage() {
                         Mother Information
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="edit-motherName">Mother Name</Label>
                         <Input
@@ -1926,6 +2004,16 @@ export default function StudentsPage() {
                           value={editFormData.motherPhone || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, motherPhone: e.target.value }))}
                           placeholder="Enter mother phone"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-motherEmail">Mother Email</Label>
+                        <Input
+                          id="edit-motherEmail"
+                          type="email"
+                          value={editFormData.motherEmail || ""}
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, motherEmail: e.target.value }))}
+                          placeholder="Enter mother email"
                         />
                       </div>
                     </CardContent>

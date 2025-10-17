@@ -64,7 +64,8 @@ const DEFAULT_SETTINGS = {
   twoFactorAuth: false,
   sessionTimeout: 30,
   theme: 'system' as 'light' | 'dark' | 'system',
-  language: 'en'
+  language: 'en',
+  autoPromoteStudents: false
 }
 
 export default function AccountSettingsPage() {
@@ -520,6 +521,41 @@ export default function AccountSettingsPage() {
                   <option value="rw">Kinyarwanda</option>
                   <option value="fr">Français</option>
                 </select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Academic Year Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Calendar className="h-5 w-5" />
+                <span>{t("Academic Year Settings")}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <h4 className="font-medium">{t("Current Academic Year")}</h4>
+                  <p className="text-sm text-gray-500">{t("Manage academic years and terms")}</p>
+                </div>
+                <Button onClick={() => window.location.href = '/admin/academic-years'} variant="outline">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {t("Manage")}
+                </Button>
+              </div>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <h4 className="font-medium">{t("Auto-Promote Students")}</h4>
+                  <p className="text-sm text-gray-500">{t("Automatically promote students at year end")}</p>
+                </div>
+                <Switch
+                  checked={settings.autoPromoteStudents || false}
+                  onCheckedChange={async (checked) => {
+                    setSettings(prev => ({ ...prev, autoPromoteStudents: checked }))
+                    await saveSettingsQuietly({ ...settings, autoPromoteStudents: checked })
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
