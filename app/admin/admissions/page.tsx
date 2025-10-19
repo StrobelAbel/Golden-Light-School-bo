@@ -411,17 +411,23 @@ export default function AdminAdmissionsPage() {
         body: JSON.stringify(newSettings),
       })
 
-      if (response.ok) {
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`)
+      }
+
+      const result = await response.json()
+      
+      if (result.success) {
         setSettings(newSettings)
         setIsSettingsDialogOpen(false)
         setSuccessMessage("Admission settings updated successfully!")
         setTimeout(() => setSuccessMessage(""), 3000)
       } else {
-        setErrorMessage("Failed to update settings")
+        throw new Error(result.error || "Failed to update settings")
       }
     } catch (error) {
       console.error("Error updating settings:", error)
-      setErrorMessage("Failed to update settings")
+      setErrorMessage(error instanceof Error ? error.message : "Failed to update settings")
     }
   }
 

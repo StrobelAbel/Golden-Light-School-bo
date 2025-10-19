@@ -52,7 +52,19 @@ export async function PUT(request: NextRequest) {
   try {
     const client = await clientPromise
     const db = client.db("golden-light-school")
-    const body = await request.json()
+    
+    let body
+    try {
+      body = await request.json()
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError)
+      return NextResponse.json({ error: "Invalid JSON data", success: false }, { status: 400 })
+    }
+
+    // Validate required fields
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: "Invalid request body", success: false }, { status: 400 })
+    }
 
     // Ensure contactInfo exists
     const updateData = {
@@ -71,11 +83,18 @@ export async function PUT(request: NextRequest) {
       updatedBy: "admin"
     }
 
-    await db.collection("admissionSettings").updateOne({}, { $set: updateData }, { upsert: true })
-
-    return NextResponse.json({ success: true })
+    const result = await db.collection("admissionSettings").updateOne({}, { $set: updateData }, { upsert: true })
+    
+    if (result.acknowledged) {
+      return NextResponse.json({ success: true })
+    } else {
+      throw new Error("Database update failed")
+    }
   } catch (error) {
     console.error("Error updating admission settings:", error)
-    return NextResponse.json({ error: "Failed to update admission settings" }, { status: 500 })
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : "Failed to update admission settings", 
+      success: false 
+    }, { status: 500 })
   }
 }
