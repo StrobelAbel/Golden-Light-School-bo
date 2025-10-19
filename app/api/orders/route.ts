@@ -83,15 +83,22 @@ export async function POST(request: NextRequest) {
     // Create ADMIN notification
     await db.collection("notifications").insertOne({
       type: "new_order",
+      category: "orders",
       title: "New Product Order",
       message: `New order from ${order.parentName} for ${order.productName} (Qty: ${order.quantity})`,
       isRead: false,
       createdAt: new Date(),
       relatedId: result.insertedId.toString(),
       priority: "medium",
+      actions: [{
+        label: "View Order",
+        url: `/admin/orders/${result.insertedId.toString()}`,
+        type: "primary"
+      }],
       metadata: {
         productName: order.productName,
         customerName: order.parentName,
+        amount: order.totalAmount,
       },
     })
 

@@ -6,42 +6,56 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   try {
     const client = await clientPromise
     const db = client.db("golden-light-school")
-
     const data = await request.json()
+
+    // Validate required fields
+    if (!data.year || !data.startDate || !data.endDate) {
+      return NextResponse.json({ error: "Year, start date, and end date are required" }, { status: 400 })
+    }
+
+    // Check if year already exists (excluding current record)
+    const existingYear = await db.collection("academic-years").findOne({ 
+      year: data.year, 
+      _id: { $ne: new ObjectId(params.id) }
+    })
+
+    if (existingYear) {
+      return NextResponse.json({ error: "Academic year already exists" }, { status: 400 })
+    }
 
     // If this is set as active, deactivate all other years
     if (data.isActive) {
-      await db
-        .collection("academic-years")
-        .updateMany({ _id: { $ne: new ObjectId(params.id) } }, { $set: { isActive: false } })
+      await db.collection("academic-years").updateMany(
+        { _id: { $ne: new ObjectId(params.id) } }, 
+        { $set: { isActive: false } }
+      )
     }
 
     // If this is set as default, remove default from all other years
     if (data.isDefault) {
-      await db
-        .collection("academic-years")
-        .updateMany({ _id: { $ne: new ObjectId(params.id) } }, { $set: { isDefault: false } })
+      await db.collection("academic-years").updateMany(
+        { _id: { $ne: new ObjectId(params.id) } }, 
+        { $set: { isDefault: false } }
+      )
     }
 
-    const updateData: any = {
+    const updateData = {
+      year: data.year,
+      startDate: new Date(data.startDate),
+      endDate: new Date(data.endDate),
+      isActive: data.isActive || false,
+      isDefault: data.isDefault || false,
       updatedAt: new Date(),
     }
 
-    if (data.year) updateData.year = data.year
-    if (data.startDate) updateData.startDate = new Date(data.startDate)
-    if (data.endDate) updateData.endDate = new Date(data.endDate)
-    if (typeof data.isActive !== "undefined") updateData.isActive = data.isActive
-    if (typeof data.isDefault !== "undefined") updateData.isDefault = data.isDefault
+    await db.collection("academic-years").updateOne(
+      { _id: new ObjectId(params.id) },
+      { $set: updateData }
+    )
 
-    const result = await db
-      .collection("academic-years")
-      .updateOne({ _id: new ObjectId(params.id) }, { $set: updateData })
-
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ error: "Academic year not found" }, { status: 404 })
-    }
-
-    return NextResponse.json({ message: "Academic year updated successfully" })
+    return NextResponse.json({
+      message: "Academic year updated successfully",
+    })
   } catch (error) {
     console.error("Error updating academic year:", error)
     return NextResponse.json({ error: "Failed to update academic year" }, { status: 500 })
@@ -53,31 +67,32 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const client = await clientPromise
     const db = client.db("golden-light-school")
 
-    // Check if there are students enrolled in this year
-    const year = await db.collection("academic-years").findOne({ _id: new ObjectId(params.id) })
-
-    if (!year) {
+    // Check if there are students associated with this academic year
+    const academicYear = await db.collection("academic-years").findOne({ _id: new ObjectId(params.id) })
+    if (!academicYear) {
       return NextResponse.json({ error: "Academic year not found" }, { status: 404 })
     }
 
-    const studentCount = await db.collection("students").countDocuments({ academicYear: year.year })
-
+    const studentCount = await db.collection("students").countDocuments({ academicYear: academicYear.year })
     if (studentCount > 0) {
-      return NextResponse.json(
-        {
-          error: `Cannot delete academic year with ${studentCount} enrolled students`,
-        },
-        { status: 400 },
-      )
+      return NextResponse.json({ 
+        error: `Cannot delete academic year with ${studentCount} associated students` 
+      }, { status: 400 })
     }
 
-    const result = await db.collection("academic-years").deleteOne({ _id: new ObjectId(params.id) })
-
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ error: "Academic year not found" }, { status: 404 })
+    // Check if there are programs associated with this academic year
+    const programCount = await db.collection("admissionPrograms").countDocuments({ academicYear: academicYear.year })
+    if (programCount > 0) {
+      return NextResponse.json({ 
+        error: `Cannot delete academic year with ${programCount} associated programs` 
+      }, { status: 400 })
     }
 
-    return NextResponse.json({ message: "Academic year deleted successfully" })
+    await db.collection("academic-years").deleteOne({ _id: new ObjectId(params.id) })
+
+    return NextResponse.json({
+      message: "Academic year deleted successfully",
+    })
   } catch (error) {
     console.error("Error deleting academic year:", error)
     return NextResponse.json({ error: "Failed to delete academic year" }, { status: 500 })

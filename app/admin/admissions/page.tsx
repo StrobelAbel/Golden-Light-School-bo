@@ -131,10 +131,15 @@ export default function AdminAdmissionsPage() {
     action: string;
     count: number;
   } | null>(null)
+  
+  const [academicYears, setAcademicYears] = useState<any[]>([])
+  const [filters, setFilters] = useState({ academicYear: "" })
+  const [filteredPrograms, setFilteredPrograms] = useState<AdmissionProgram[]>([])
 
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    academicYear: "",
     ageRange: { min: 2, max: 6 },
     capacity: 20,
     fees: {
@@ -161,12 +166,22 @@ export default function AdminAdmissionsPage() {
     fetchPrograms()
     fetchSettings()
     fetchApplications()
+    fetchAcademicYears()
   }, [])
 
   useEffect(() => {
     // Filter applications based on some criteria (you can modify this logic)
     setFilteredApplications(applications)
   }, [applications])
+
+  useEffect(() => {
+    // Filter programs by academic year
+    if (filters.academicYear) {
+      setFilteredPrograms(programs.filter(p => p.academicYear === filters.academicYear))
+    } else {
+      setFilteredPrograms(programs)
+    }
+  }, [programs, filters.academicYear])
 
   // Add this useEffect for real-time deadline checking
   useEffect(() => {
@@ -238,6 +253,18 @@ export default function AdminAdmissionsPage() {
     } catch (error) {
       console.error("Error fetching applications:", error)
       setErrorMessage("Failed to fetch applications.")
+    }
+  }
+
+  const fetchAcademicYears = async () => {
+    try {
+      const response = await fetch("/api/admin/academic-years")
+      if (response.ok) {
+        const data = await response.json()
+        setAcademicYears(data)
+      }
+    } catch (error) {
+      console.error("Error fetching academic years:", error)
     }
   }
 
@@ -387,9 +414,14 @@ export default function AdminAdmissionsPage() {
       if (response.ok) {
         setSettings(newSettings)
         setIsSettingsDialogOpen(false)
+        setSuccessMessage("Admission settings updated successfully!")
+        setTimeout(() => setSuccessMessage(""), 3000)
+      } else {
+        setErrorMessage("Failed to update settings")
       }
     } catch (error) {
       console.error("Error updating settings:", error)
+      setErrorMessage("Failed to update settings")
     }
   }
 
@@ -397,6 +429,7 @@ export default function AdminAdmissionsPage() {
     setFormData({
       name: "",
       description: "",
+      academicYear: "",
       ageRange: { min: 2, max: 6 },
       capacity: 20,
       fees: {
@@ -425,6 +458,7 @@ export default function AdminAdmissionsPage() {
     setFormData({
       name: program.name,
       description: program.description,
+      academicYear: program.academicYear || "",
       ageRange: program.ageRange,
       capacity: program.capacity,
       fees: program.fees,
@@ -618,9 +652,30 @@ export default function AdminAdmissionsPage() {
         </TabsList>
 
         <TabsContent value="programs" className="space-y-6">
+          {/* Program Filters */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <Select value={filters.academicYear || "all"} onValueChange={(value) => setFilters(prev => ({ ...prev, academicYear: value === "all" ? "" : value }))}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Filter by Academic Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Academic Years</SelectItem>
+                    {academicYears.map((year) => (
+                      <SelectItem key={year._id} value={year.year}>
+                        {year.year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+          
           {/* Programs Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {programs.map((program) => (
+            {filteredPrograms.map((program) => (
               <Card key={program._id} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
@@ -639,6 +694,11 @@ export default function AdminAdmissionsPage() {
                     <Badge className={getStatusColor(program.admissionStatus)} variant="outline">
                       {program.admissionStatus}
                     </Badge>
+                    {program.academicYear && (
+                      <Badge variant="secondary" className="text-xs">
+                        {program.academicYear}
+                      </Badge>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -759,6 +819,19 @@ export default function AdminAdmissionsPage() {
               </Card>
             ))}
           </div>
+
+          {filteredPrograms.length === 0 && programs.length > 0 && (
+            <Card>
+              <CardContent className="text-center py-12">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Programs Found</h3>
+                <p className="text-gray-600 mb-4">No programs match the selected academic year</p>
+                <Button onClick={() => setFilters({ academicYear: "" })} variant="outline">
+                  Clear Filter
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
           {programs.length === 0 && (
             <Card>
@@ -922,7 +995,7 @@ export default function AdminAdmissionsPage() {
             {/* Basic Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">{t("Basic Information")}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="name">{t("Program Name")}</Label>
                   <Input
@@ -931,6 +1004,24 @@ export default function AdminAdmissionsPage() {
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder={t("e.g., Nursery Program")}
                   />
+                </div>
+                <div>
+                  <Label htmlFor="academicYear">{t("Academic Year")} *</Label>
+                  <Select
+                    value={formData.academicYear}
+                    onValueChange={(value) => setFormData({ ...formData, academicYear: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("Select Academic Year")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {academicYears.map((year) => (
+                        <SelectItem key={year._id} value={year.year}>
+                          {year.year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="capacity">{t("Capacity")}</Label>
@@ -1175,57 +1266,202 @@ export default function AdminAdmissionsPage() {
 
       {/* Settings Dialog */}
       <Dialog open={isSettingsDialogOpen} onOpenChange={setIsSettingsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t("Admission Settings")}</DialogTitle>
           </DialogHeader>
 
           {settings && (
             <div className="space-y-6">
-              <div>
-                <Label htmlFor="globalStatus">{t("Global Admission Status")}</Label>
-                <Select
-                  value={settings.globalStatus}
-                  onValueChange={(value: "open" | "closed" | "scheduled") =>
-                    setSettings({ ...settings, globalStatus: value })
-                  }
+              {/* Global Status */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Global Admission Control</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="globalStatus">{t("Global Admission Status")}</Label>
+                    <Select
+                      value={settings.globalStatus}
+                      onValueChange={(value: "open" | "closed" | "scheduled") =>
+                        setSettings({ ...settings, globalStatus: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="open">{t("Open")} - Applications are accepted</SelectItem>
+                        <SelectItem value="closed">{t("Closed")} - No applications accepted</SelectItem>
+                        <SelectItem value="scheduled">{t("Scheduled")} - Opening soon</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Messages */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Public Page Messages</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="welcomeMessage">Welcome Message (When Open)</Label>
+                    <Textarea
+                      id="welcomeMessage"
+                      value={settings.welcomeMessage}
+                      onChange={(e) => setSettings({ ...settings, welcomeMessage: e.target.value })}
+                      rows={3}
+                      placeholder="Message shown when admissions are open"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="closedMessage">Closed Message</Label>
+                    <Textarea
+                      id="closedMessage"
+                      value={settings.closedMessage}
+                      onChange={(e) => setSettings({ ...settings, closedMessage: e.target.value })}
+                      rows={3}
+                      placeholder="Message shown when admissions are closed"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="scheduledMessage">Scheduled Message</Label>
+                    <Textarea
+                      id="scheduledMessage"
+                      value={settings.scheduledMessage}
+                      onChange={(e) => setSettings({ ...settings, scheduledMessage: e.target.value })}
+                      rows={3}
+                      placeholder="Message shown when admissions are scheduled to open"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Contact Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Contact Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        value={settings.contactInfo?.phone || ""}
+                        onChange={(e) => setSettings({ 
+                          ...settings, 
+                          contactInfo: { ...settings.contactInfo, phone: e.target.value }
+                        })}
+                        placeholder="+250 XXX XXX XXX"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={settings.contactInfo?.email || ""}
+                        onChange={(e) => setSettings({ 
+                          ...settings, 
+                          contactInfo: { ...settings.contactInfo, email: e.target.value }
+                        })}
+                        placeholder="admissions@school.com"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="address">School Address</Label>
+                    <Input
+                      id="address"
+                      value={settings.contactInfo?.address || ""}
+                      onChange={(e) => setSettings({ 
+                        ...settings, 
+                        contactInfo: { ...settings.contactInfo, address: e.target.value }
+                      })}
+                      placeholder="School location"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* FAQ Management */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">FAQ Section</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {settings.faqItems?.map((faq, index) => (
+                    <div key={index} className="border rounded-lg p-4 space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 space-y-2">
+                          <Input
+                            value={faq.question}
+                            onChange={(e) => {
+                              const newFaqs = [...(settings.faqItems || [])]
+                              newFaqs[index].question = e.target.value
+                              setSettings({ ...settings, faqItems: newFaqs })
+                            }}
+                            placeholder="Question"
+                          />
+                          <Textarea
+                            value={faq.answer}
+                            onChange={(e) => {
+                              const newFaqs = [...(settings.faqItems || [])]
+                              newFaqs[index].answer = e.target.value
+                              setSettings({ ...settings, faqItems: newFaqs })
+                            }}
+                            placeholder="Answer"
+                            rows={2}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const newFaqs = settings.faqItems?.filter((_, i) => i !== index) || []
+                            setSettings({ ...settings, faqItems: newFaqs })
+                          }}
+                          className="ml-2"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const newFaqs = [...(settings.faqItems || []), { question: "", answer: "" }]
+                      setSettings({ ...settings, faqItems: newFaqs })
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add FAQ
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <div className="flex justify-between items-center pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.open('/admission', '_blank')}
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="open">{t("Open")}</SelectItem>
-                    <SelectItem value="closed">{t("Closed")}</SelectItem>
-                    <SelectItem value="scheduled">{t("Scheduled")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="welcomeMessage">{(t("Welcome Message"))}</Label>
-                <Textarea
-                  id="welcomeMessage"
-                  value={settings.welcomeMessage}
-                  onChange={(e) => setSettings({ ...settings, welcomeMessage: e.target.value })}
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="closedMessage">{t("Closed Message")}</Label>
-                <Textarea
-                  id="closedMessage"
-                  value={settings.closedMessage}
-                  onChange={(e) => setSettings({ ...settings, closedMessage: e.target.value })}
-                  rows={3}
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsSettingsDialogOpen(false)}>
-                  {t("Cancel")}
+                  <Eye className="h-4 w-4 mr-2" />
+                  Preview Public Page
                 </Button>
-                <Button onClick={() => handleUpdateSettings(settings)}>{t("Save Settings")}</Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setIsSettingsDialogOpen(false)}>
+                    {t("Cancel")}
+                  </Button>
+                  <Button onClick={() => handleUpdateSettings(settings)}>{t("Save Settings")}</Button>
+                </div>
               </div>
             </div>
           )}

@@ -2,6 +2,7 @@ export interface AdmissionProgram {
   _id?: string
   name: string
   description: string
+  academicYear: string
   ageRange: {
     min: number
     max: number

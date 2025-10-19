@@ -54,12 +54,24 @@ export async function PUT(request: NextRequest) {
     const db = client.db("golden-light-school")
     const body = await request.json()
 
+    // Ensure contactInfo exists
     const updateData = {
-      ...body,
+      globalStatus: body.globalStatus || "open",
+      welcomeMessage: body.welcomeMessage || "",
+      closedMessage: body.closedMessage || "",
+      scheduledMessage: body.scheduledMessage || "",
+      contactInfo: {
+        phone: body.contactInfo?.phone || "",
+        email: body.contactInfo?.email || "",
+        address: body.contactInfo?.address || ""
+      },
+      socialMedia: body.socialMedia || {},
+      faqItems: body.faqItems || [],
       updatedAt: new Date(),
+      updatedBy: "admin"
     }
 
-    const result = await db.collection("admissionSettings").updateOne({}, { $set: updateData }, { upsert: true })
+    await db.collection("admissionSettings").updateOne({}, { $set: updateData }, { upsert: true })
 
     return NextResponse.json({ success: true })
   } catch (error) {

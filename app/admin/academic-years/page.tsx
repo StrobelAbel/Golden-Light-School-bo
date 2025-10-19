@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Clock } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Calendar, Plus, Edit, Trash2, GraduationCap, Users, CheckCircle, AlertCircle } from "lucide-react"
+import { Calendar, Plus, Edit, Trash2, GraduationCap, Users, CheckCircle, AlertCircle, Eye, FileText } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 import { useTranslation } from "@/hooks/useTranslation"
 import {
@@ -31,6 +32,7 @@ interface AcademicYear {
   isActive: boolean
   isDefault: boolean
   studentCount: number
+  applicantCount: number
   status: "upcoming" | "active" | "completed"
 }
 
@@ -43,6 +45,10 @@ export default function AcademicYearsPage() {
   const [selectedYear, setSelectedYear] = useState<AcademicYear | null>(null)
   const [deleteYearId, setDeleteYearId] = useState<string | null>(null)
   const [promoteYearId, setPromoteYearId] = useState<string | null>(null)
+  const [viewDetailsYear, setViewDetailsYear] = useState<AcademicYear | null>(null)
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
+  const [yearDetails, setYearDetails] = useState<any>(null)
+  const [detailsLoading, setDetailsLoading] = useState(false)
   const [formData, setFormData] = useState({
     year: "",
     startDate: "",
@@ -183,6 +189,26 @@ export default function AcademicYearsPage() {
     }
   }
 
+  const handleViewDetails = async (year: AcademicYear) => {
+    setViewDetailsYear(year)
+    setIsDetailsDialogOpen(true)
+    setDetailsLoading(true)
+    
+    try {
+      const response = await fetch(`/api/admin/academic-years/${year._id}/details`)
+      if (response.ok) {
+        const data = await response.json()
+        setYearDetails(data)
+      } else {
+        toast({ title: "Error", description: "Failed to load year details", variant: "destructive" })
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to load year details", variant: "destructive" })
+    } finally {
+      setDetailsLoading(false)
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
@@ -296,19 +322,20 @@ export default function AcademicYearsPage() {
                   <TableHead>{t("Duration")}</TableHead>
                   <TableHead>{t("Status")}</TableHead>
                   <TableHead>{t("Students")}</TableHead>
+                  <TableHead>{t("Applicants")}</TableHead>
                   <TableHead>{t("Actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
+                    <TableCell colSpan={6} className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-600 mx-auto"></div>
                     </TableCell>
                   </TableRow>
                 ) : academicYears.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
+                    <TableCell colSpan={6} className="text-center py-8">
                       <div className="flex flex-col items-center gap-2">
                         <AlertCircle className="h-8 w-8 text-muted-foreground" />
                         <p className="text-muted-foreground">{t("No academic years found")}</p>
@@ -355,7 +382,21 @@ export default function AcademicYearsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
+                        <div className="flex items-center">
+                          <FileText className="h-4 w-4 mr-1 text-muted-foreground" />
+                          {year.applicantCount || 0}
+                        </div>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleViewDetails(year)}
+                            title="View details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
@@ -587,6 +628,132 @@ export default function AcademicYearsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Academic Year Details Dialog */}
+      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("Academic Year Details")} - {viewDetailsYear?.year}</DialogTitle>
+          </DialogHeader>
+          
+          {detailsLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-600"></div>
+            </div>
+          ) : yearDetails ? (
+            <div className="space-y-6">
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <FileText className="h-5 w-5 text-blue-600" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t("Programs")}</p>
+                        <p className="text-2xl font-bold">{yearDetails.stats.totalPrograms}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t("Total Applicants")}</p>
+                        <p className="text-2xl font-bold">{yearDetails.stats.totalApplicants}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t("Approved")}</p>
+                        <p className="text-2xl font-bold">{yearDetails.stats.applicantsByStatus.approved}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <Clock className="h-5 w-5 text-yellow-600" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t("Pending")}</p>
+                        <p className="text-2xl font-bold">{yearDetails.stats.applicantsByStatus.pending}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Applicants List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("Applicants List")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{t("Child Name")}</TableHead>
+                          <TableHead>{t("Parent")}</TableHead>
+                          <TableHead>{t("Program")}</TableHead>
+                          <TableHead>{t("Status")}</TableHead>
+                          <TableHead>{t("Applied Date")}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {yearDetails.applicants.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center py-8">
+                              {t("No applicants found for this academic year")}
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          yearDetails.applicants.map((applicant: any) => (
+                            <TableRow key={applicant._id}>
+                              <TableCell className="font-medium">{applicant.childName}</TableCell>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">{applicant.fatherName}</div>
+                                  <div className="text-sm text-muted-foreground">{applicant.email}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>{applicant.programName}</TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant={applicant.status === 'approved' ? 'default' : 
+                                          applicant.status === 'rejected' ? 'destructive' : 
+                                          applicant.status === 'under_review' ? 'secondary' : 'outline'}
+                                >
+                                  {applicant.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{new Date(applicant.createdAt).toLocaleDateString()}</TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">{t("Failed to load details")}</p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

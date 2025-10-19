@@ -723,6 +723,7 @@ export const translations = {
     "Delete Academic Year": "Supprimer l'année académique",
     "Total Years": "Total des années",
     "Active Year": "Année active",
+    "Total Applicants": "Total des candidats",
     // Active: "Actif",
     Upcoming: "À venir",
     // Completed: "Terminé",
@@ -731,6 +732,9 @@ export const translations = {
     "Create First Academic Year": "Créer la première année académique",
     "Manage academic years, terms, and student promotions":
     "Gérer les années académiques, les trimestres et les promotions des étudiants",
+    "Applicants List": "Liste des candidats",
+    "Applicants": "Candidats",
+    "Academic Year Details": "Détails de l'année académique",
 
     // Profile
     "Loading profile...": "Chargement du profil...",
@@ -1534,7 +1538,7 @@ export const translations = {
     "Manage academic years, terms, and student promotions": "Gucunga imyaka y'amashuri, ibihe, no kuzamura abanyeshuri",
     "Total Years": "Imyaka yose",
     "Active Year": "Umwaka ukora",
-    None: "Nta na kimwe",
+    None: "Ntawo",
     "Create First Academic Year": "Kora umwaka wa mbere w'ishuri",
     Default: "Ibisanzwe",
     // to: "kugera",
@@ -1560,6 +1564,10 @@ export const translations = {
     // "This will permanently delete this academic year. This action cannot be undone.":
     //   "Ibi birasiba burundu uyu mwaka w'ishuri. Icyi gikorwa ntigishobora gusubirwaho.",
     "Delete Academic Year": "Siba Umwaka w'Ishuri",
+    "Total Applicants": "Abasaba bose",
+    "Applicants List": "Urutonde rw'abasaba",
+    "Applicants": "Abasaba",
+    "Academic Year Details": "Amakuru y'umwaka w'ishuri",
 
     // New additions for public pages
     "Our Mission": "Intego Yacu",

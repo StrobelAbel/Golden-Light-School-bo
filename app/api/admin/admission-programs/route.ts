@@ -29,6 +29,17 @@ export async function POST(request: NextRequest) {
     const db = client.db("golden-light-school")
     const body = await request.json()
 
+    // Validate required fields
+    if (!body.academicYear) {
+      return NextResponse.json({ error: "Academic Year is required" }, { status: 400 })
+    }
+
+    // Verify academic year exists
+    const academicYearExists = await db.collection("academic-years").findOne({ year: body.academicYear })
+    if (!academicYearExists) {
+      return NextResponse.json({ error: "Selected Academic Year does not exist" }, { status: 400 })
+    }
+
     const program: Omit<AdmissionProgram, "_id"> = {
       ...body,
       currentEnrollment: 0,
@@ -41,11 +52,21 @@ export async function POST(request: NextRequest) {
     // Create notification
     await db.collection("notifications").insertOne({
       type: "system",
+      category: "admissions",
       title: "New Admission Program Created",
-      message: `New admission program "${program.name}" has been created`,
+      message: `New admission program "${program.name}" has been created for ${program.academicYear}`,
       isRead: false,
       createdAt: new Date(),
       relatedId: result.insertedId.toString(),
+      priority: "medium",
+      actions: [{
+        label: "View Program",
+        url: `/admin/admissions`,
+        type: "primary"
+      }],
+      metadata: {
+        programName: program.name,
+      },
     })
 
     return NextResponse.json({ success: true, id: result.insertedId })

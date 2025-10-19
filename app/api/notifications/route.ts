@@ -13,6 +13,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     
     const cleanup = searchParams.get("cleanup")
+    const category = searchParams.get("category")
+    const priority = searchParams.get("priority")
+    const unreadOnly = searchParams.get("unreadOnly") === "true"
     
     // Auto-cleanup old notifications (older than 30 days)
     if (cleanup === "true") {
@@ -25,10 +28,16 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    // Build filter query
+    const filter: any = {}
+    if (category && category !== "all") filter.category = category
+    if (priority && priority !== "all") filter.priority = priority
+    if (unreadOnly) filter.isRead = false
+
     const notifications = await db.collection("notifications")
-      .find({})
+      .find(filter)
       .sort({ createdAt: -1 })
-      .limit(50)
+      .limit(100)
       .toArray()
 
     const response = NextResponse.json(notifications)

@@ -35,16 +35,8 @@ import {
   Calendar,
 } from "lucide-react"
 import { LanguageSwitcher } from "@/components/language-switcher"
-
-interface Notification {
-  _id: string
-  type: string
-  title: string
-  message: string
-  isRead: boolean
-  createdAt: string
-  relatedId?: string
-}
+import { EnhancedNotifications } from "@/components/admin/enhanced-notifications"
+import { Notification } from "@/lib/models/Notification"
 
 interface AdminUser {
   username: string
@@ -399,59 +391,14 @@ export default function AdminLayout({
 
           <div className="flex items-center space-x-4">
             <LanguageSwitcher variant="admin" size="sm" />
-            {/* Notifications */}
-            <Dialog open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500 text-white text-xs">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </Badge>
-                  )}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md max-h-[80vh] overflow-hidden">
-                <DialogHeader className="flex flex-row items-center justify-between">
-                  <DialogTitle>{t("Notifications")}</DialogTitle>
-                  {unreadCount > 0 && (
-                    <Button variant="ghost" size="sm" onClick={markAllAsRead}>
-                      {t("Mark all read")}
-                    </Button>
-                  )}
-                </DialogHeader>
-                <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>{t("No notifications yet")}</p>
-                    </div>
-                  ) : (
-                    notifications.map((notification) => (
-                      <Link
-                        key={notification._id}
-                        href={
-                          notification.type === "new_order" && notification.relatedId
-                            ? `/admin/orders/${notification.relatedId}`
-                            : "#"
-                        }
-                        className={`block p-3 rounded-lg transition hover:bg-gray-100 ${
-                          notification.isRead ? "opacity-70" : "font-semibold"
-                        }`}
-                        onClick={() => markNotificationAsRead(notification._id)}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <span>{getNotificationIcon(notification.type)}</span>
-                          <span className="flex-1">{notification.title}</span>
-                          <span className="text-xs text-gray-400">{getTimeAgo(notification.createdAt)}</span>
-                        </div>
-                        <div className="text-sm text-gray-600">{notification.message}</div>
-                      </Link>
-                    ))
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
+            {/* Enhanced Notifications */}
+            <EnhancedNotifications
+              notifications={notifications}
+              unreadCount={unreadCount}
+              onMarkAsRead={markNotificationAsRead}
+              onMarkAllAsRead={markAllAsRead}
+              onRefresh={() => fetchNotifications(true)}
+            />
 
             {/* Admin Profile */}
             <DropdownMenu>

@@ -51,12 +51,18 @@ export async function POST(request: NextRequest) {
     // Create ADMIN notification for new product
     await db.collection("notifications").insertOne({
       type: "new_product",
+      category: "inventory",
       title: "New Product Added",
       message: `Product "${product.name}" has been added to the catalog`,
       isRead: false,
       createdAt: new Date(),
       relatedId: result.insertedId.toString(),
       priority: "low",
+      actions: [{
+        label: "View Product",
+        url: `/admin/products`,
+        type: "primary"
+      }],
       metadata: {
         productName: product.name,
         stockLevel: product.stock,

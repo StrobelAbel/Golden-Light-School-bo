@@ -53,12 +53,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         // Product out of stock
         await db.collection("notifications").insertOne({
           type: "out_of_stock",
+          category: "inventory",
           title: "Product Out of Stock",
           message: `"${oldProduct.name}" is now out of stock`,
           isRead: false,
           createdAt: new Date(),
           relatedId: id,
           priority: "urgent",
+          actions: [{
+            label: "Restock",
+            url: `/admin/products`,
+            type: "primary"
+          }],
           metadata: {
             productName: oldProduct.name,
             stockLevel: 0,
@@ -81,12 +87,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         // Low stock alert
         await db.collection("notifications").insertOne({
           type: "low_stock",
+          category: "inventory",
           title: "Low Stock Alert",
           message: `"${oldProduct.name}" stock is running low (${newStock} remaining)`,
           isRead: false,
           createdAt: new Date(),
           relatedId: id,
           priority: "high",
+          actions: [{
+            label: "Restock",
+            url: `/admin/products`,
+            type: "primary"
+          }],
           metadata: {
             productName: oldProduct.name,
             stockLevel: newStock,

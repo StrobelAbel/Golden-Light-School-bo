@@ -42,7 +42,32 @@ export async function GET(request: NextRequest) {
     if (filters.class) query.class = filters.class
     if (filters.level) query.level = filters.level
     if (filters.status) query.status = filters.status
-    if (filters.academicYear) query.academicYear = filters.academicYear
+    if (filters.academicYear) {
+      // Get students who applied to programs in the selected academic year OR have matching academicYear field
+      const programs = await db.collection("admissionPrograms")
+        .find({ academicYear: filters.academicYear })
+        .project({ _id: 1 })
+        .toArray()
+      
+      const programIds = programs.map(p => p._id.toString())
+      
+      // Get applications for these programs
+      const applications = await db.collection("applications")
+        .find({ 
+          programId: { $in: programIds },
+          status: "approved"
+        })
+        .project({ _id: 1 })
+        .toArray()
+      
+      const applicationIds = applications.map(a => a._id.toString())
+      
+      // Filter students by their application ID OR their academicYear field
+      query.$or = [
+        { applicationId: { $in: applicationIds } },
+        { academicYear: filters.academicYear }
+      ]
+    }
     if (filters.paymentStatus) query.paymentStatus = filters.paymentStatus
 
     const students = await db

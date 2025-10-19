@@ -144,12 +144,18 @@ export async function POST(request: NextRequest) {
     // Create ADMIN notification
     await db.collection("notifications").insertOne({
       type: "new_application",
+      category: "admissions",
       title: "New Application Received",
       message: `New admission application from ${application.fatherName} for ${application.childName} - ${program.name}`,
       isRead: false,
       createdAt: new Date(),
       relatedId: result.insertedId.toString(),
       priority: "high",
+      actions: [{
+        label: "Review",
+        url: `/admin/applications`,
+        type: "primary"
+      }],
       metadata: {
         applicantName: `${application.fatherName} / ${application.childName}`,
         programName: program.name,

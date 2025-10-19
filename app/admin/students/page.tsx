@@ -120,34 +120,25 @@ export default function StudentsPage() {
   const statuses = ["active", "inactive", "graduated", "transferred", "suspended"]
   const paymentStatuses = ["paid", "not_paid", "half_paid", "overdue"]
   const [currentAcademicYear, setCurrentAcademicYear] = useState("")
+  const [academicYears, setAcademicYears] = useState<any[]>([])
   
-  const generateAcademicYears = () => {
-    const currentYear = new Date().getFullYear()
-    const currentMonth = new Date().getMonth() + 1
-    const startYear = currentMonth >= 9 ? currentYear : currentYear - 1
-    
-    return [
-      `${startYear + 1}-${startYear + 2}`,
-      `${startYear}-${startYear + 1}`,
-      `${startYear - 1}-${startYear}`,
-      `${startYear - 2}-${startYear - 1}`,
-      `${startYear - 3}-${startYear - 2}`,
-    ]
-  }
-  
-  const academicYears = generateAcademicYears()
-  
-  const fetchCurrentAcademicYear = async () => {
+  const fetchAcademicYears = async () => {
     try {
-      const response = await fetch("/api/admin/academic-years/current")
+      const response = await fetch("/api/admin/academic-years")
       if (response.ok) {
         const data = await response.json()
-        setCurrentAcademicYear(data.year || academicYears[1])
-      } else {
-        setCurrentAcademicYear(academicYears[1])
+        setAcademicYears(data)
+        
+        // Set current academic year to the active one or the first one
+        const activeYear = data.find((year: any) => year.isActive)
+        if (activeYear) {
+          setCurrentAcademicYear(activeYear.year)
+        } else if (data.length > 0) {
+          setCurrentAcademicYear(data[0].year)
+        }
       }
     } catch (error) {
-      setCurrentAcademicYear(academicYears[1])
+      console.error("Error fetching academic years:", error)
     }
   }
 
@@ -198,7 +189,7 @@ export default function StudentsPage() {
   }, [pagination.page, pagination.limit, searchTerm, filters])
 
   useEffect(() => {
-    fetchCurrentAcademicYear()
+    fetchAcademicYears()
   }, [])
   
   useEffect(() => {
@@ -808,8 +799,8 @@ export default function StudentsPage() {
                             </SelectTrigger>
                             <SelectContent>
                               {academicYears.map((year) => (
-                                <SelectItem key={year} value={year}>
-                                  {year}
+                                <SelectItem key={year._id} value={year.year}>
+                                  {year.year}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -1091,8 +1082,8 @@ export default function StudentsPage() {
               <SelectContent>
                 <SelectItem value="all">{t("All Years")}</SelectItem>
                 {academicYears.map((year) => (
-                  <SelectItem key={year} value={year}>
-                    {year}
+                  <SelectItem key={year._id} value={year.year}>
+                    {year.year}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -2125,8 +2116,8 @@ export default function StudentsPage() {
                           </SelectTrigger>
                           <SelectContent>
                             {academicYears.map((year) => (
-                              <SelectItem key={year} value={year}>
-                                {year}
+                              <SelectItem key={year._id} value={year.year}>
+                                {year.year}
                               </SelectItem>
                             ))}
                           </SelectContent>

@@ -9,10 +9,40 @@ export async function GET() {
     // Fetch all academic years
     const academicYears = await db.collection("academic-years").find({}).sort({ startDate: -1 }).toArray()
 
-    // Calculate student count and status for each year
+    // Calculate student count, applicant count and status for each year
     const enrichedYears = await Promise.all(
       academicYears.map(async (year) => {
-        const studentCount = await db.collection("students").countDocuments({ academicYear: year.year })
+        // Get programs for this academic year
+        const programs = await db.collection("admissionPrograms")
+          .find({ academicYear: year.year })
+          .project({ _id: 1 })
+          .toArray()
+        
+        const programIds = programs.map(p => p._id.toString())
+        
+        // Get approved applications for these programs
+        const applications = await db.collection("applications")
+          .find({ 
+            programId: { $in: programIds },
+            status: "approved"
+          })
+          .project({ _id: 1 })
+          .toArray()
+        
+        const applicationIds = applications.map(a => a._id.toString())
+        
+        // Count students: both manually added and from approved applications
+        const studentCount = await db.collection("students").countDocuments({
+          $or: [
+            { academicYear: year.year },
+            { applicationId: { $in: applicationIds } }
+          ]
+        })
+        
+        // Count all applicants (not just approved ones)
+        const applicantCount = await db.collection("applications").countDocuments({
+          programId: { $in: programIds }
+        })
 
         const now = new Date()
         const startDate = new Date(year.startDate)
@@ -31,6 +61,7 @@ export async function GET() {
           ...year,
           _id: year._id.toString(),
           studentCount,
+          applicantCount,
           status,
         }
       }),
