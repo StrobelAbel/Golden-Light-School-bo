@@ -1436,7 +1436,7 @@ export const translations = {
     "Update Academic Year": "Kuvugurura Umwaka w'Ishuri",
     "No academic years found": "Nta myaka y'amashuri ibonetse",
     Manage: "Gucunga",
-    "Import Approved": "Kinjiza byemewe",
+    "Import Approved": "Kwinjiza abemewe",
     "Add Student": "Ongeraho umunyeshuri",
     "Add New Student": "Ongeraho umunyeshuri mushya",
     "Basic Info": "Amakuru y'ibanze",
