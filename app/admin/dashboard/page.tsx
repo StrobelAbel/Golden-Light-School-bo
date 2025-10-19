@@ -193,9 +193,9 @@ export default function AdminDashboard() {
                 <p className="text-blue-100 text-xs mt-1">
                   {totalCriticalStock > 0 && (
                     <>
-                      {stats.outOfStockProducts > 0 && `${stats.outOfStockProducts} empty`}
+                      {stats.outOfStockProducts > 0 && `${stats.outOfStockProducts} ${t("Empty")}`}
                       {stats.outOfStockProducts > 0 && stats.lowStockProducts > 0 && ", "}
-                      {stats.lowStockProducts > 0 && `${stats.lowStockProducts} low stock`}
+                      {stats.lowStockProducts > 0 && `${stats.lowStockProducts} ${t("Low Stock")}`}
                     </>
                   )}
                 </p>
@@ -259,7 +259,7 @@ export default function AdminDashboard() {
                 <p className="text-red-100 text-xs mt-1">
                   {stats.outOfStockProducts > 0 
                     ? `${stats.outOfStockProducts} empty, ${stats.lowStockProducts} low`
-                    : 'Items need restocking'
+                    : t('Items need restocking')
                   }
                 </p>
               </div>
@@ -332,7 +332,7 @@ export default function AdminDashboard() {
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{order.parentName}</p>
                       <p className="text-sm text-gray-600">
-                        {order.productName} (Qty: {order.quantity})
+                        {order.productName} ({t("Qty")}: {order.quantity})
                       </p>
                       <p className="text-xs text-gray-500">{new Date(order.orderDate).toLocaleDateString()}</p>
                     </div>
@@ -419,7 +419,7 @@ export default function AdminDashboard() {
                     <p className="font-medium text-gray-900">{application.parentName}</p>
                     <Badge className={getStatusColor(application.status)}>{getStatusIcon(application.status)}</Badge>
                   </div>
-                  <p className="text-sm text-gray-600">Child: {application.childName}</p>
+                  <p className="text-sm text-gray-600">{t("Child")}: {application.childName}</p>
                   <p className="text-xs text-gray-500">{new Date(application.createdAt).toLocaleDateString()}</p>
                 </div>
               ))

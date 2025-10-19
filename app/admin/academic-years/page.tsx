@@ -189,21 +189,21 @@ export default function AcademicYearsPage() {
         return (
           <Badge className="bg-green-100 text-green-800 border-green-200">
             <CheckCircle className="h-3 w-3 mr-1" />
-            Active
+            {t("Active")}
           </Badge>
         )
       case "upcoming":
         return (
           <Badge className="bg-blue-100 text-blue-800 border-blue-200">
             <Calendar className="h-3 w-3 mr-1" />
-            Upcoming
+            {t("Upcoming")}
           </Badge>
         )
       case "completed":
         return (
           <Badge className="bg-gray-100 text-gray-800 border-gray-200">
             <CheckCircle className="h-3 w-3 mr-1" />
-            Completed
+            {t("Completed")}
           </Badge>
         )
       default:
@@ -254,7 +254,7 @@ export default function AcademicYearsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-100">Total Years</CardTitle>
+            <CardTitle className="text-sm font-medium text-blue-100">{t("Total Years")}</CardTitle>
             <Calendar className="h-4 w-4 text-blue-200" />
           </CardHeader>
           <CardContent>
@@ -264,17 +264,17 @@ export default function AcademicYearsPage() {
 
         <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-100">Active Year</CardTitle>
+            <CardTitle className="text-sm font-medium text-green-100">{t("Active Year")}</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-200" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{academicYears.find((y) => y.isActive)?.year || "None"}</div>
+            <div className="text-2xl font-bold">{academicYears.find((y) => y.isActive)?.year || t("None")}</div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-100">Total Students</CardTitle>
+            <CardTitle className="text-sm font-medium text-purple-100">{t("Total Students")}</CardTitle>
             <Users className="h-4 w-4 text-purple-200" />
           </CardHeader>
           <CardContent>
@@ -319,7 +319,7 @@ export default function AcademicYearsPage() {
                           }}
                           variant="outline"
                         >
-                          Create First Academic Year
+                          {t("Create First Academic Year")}
                         </Button>
                       </div>
                     </TableCell>
@@ -333,18 +333,18 @@ export default function AcademicYearsPage() {
                           {year.isDefault && (
                             <Badge variant="outline" className="text-xs">
                               <CheckCircle className="h-3 w-3 mr-1" />
-                              Default
+                              {t("Default")}
                             </Badge>
                           )}
                           {year.isActive && (
-                            <Badge className="bg-green-100 text-green-800 text-xs border-green-200">Current</Badge>
+                            <Badge className="bg-green-100 text-green-800 text-xs border-green-200">{t("Current")}</Badge>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
                           <div>{new Date(year.startDate).toLocaleDateString()}</div>
-                          <div className="text-muted-foreground">to {new Date(year.endDate).toLocaleDateString()}</div>
+                          <div className="text-muted-foreground">{t("to")} {new Date(year.endDate).toLocaleDateString()}</div>
                         </div>
                       </TableCell>
                       <TableCell>{getStatusBadge(year.status)}</TableCell>
@@ -552,15 +552,15 @@ export default function AcademicYearsPage() {
       <AlertDialog open={!!deleteYearId} onOpenChange={() => setDeleteYearId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t("Are you sure?")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this academic year. This action cannot be undone.
+              {t("This will permanently delete this academic year. This action cannot be undone.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteYear} className="bg-red-600 hover:bg-red-700">
-              Delete
+              {t("Delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -570,19 +570,19 @@ export default function AcademicYearsPage() {
       <AlertDialog open={!!promoteYearId} onOpenChange={() => setPromoteYearId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Promote Students</AlertDialogTitle>
+            <AlertDialogTitle>{t("Promote Students")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will promote all active students to the next class level. Students in Top class will be graduated.
-              This action cannot be undone. Make sure you have created the next academic year before proceeding.
+              {t("This will promote all active students to the next class level. Students in Top class will be graduated.")}
+              {t("This action cannot be undone. Make sure you have created the next academic year before proceeding.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handlePromoteStudents}
               className="bg-gradient-to-r from-golden-500 to-golden-600"
             >
-              Promote Students
+              {t("Promote Students")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

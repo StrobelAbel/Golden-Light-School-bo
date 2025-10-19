@@ -261,7 +261,7 @@ export default function ProductsPage() {
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                     <Input
-                      placeholder="Search products..."
+                      placeholder={t("Search products...")}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10 h-12"
@@ -270,10 +270,10 @@ export default function ProductsPage() {
                 </div>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="w-full lg:w-64 h-12">
-                    <SelectValue placeholder="All Categories" />
+                    <SelectValue placeholder={t("All Categories")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="all">{t("All Categories")}</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}

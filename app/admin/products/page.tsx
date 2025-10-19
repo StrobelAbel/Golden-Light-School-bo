@@ -195,14 +195,14 @@ export default function AdminProductsPage() {
       return (
         <Badge variant="destructive" className="bg-red-600">
           <Archive className="w-3 h-3 mr-1" />
-          Out of Stock
+          {t("Out of Stock")}
         </Badge>
       )
     } else if (stock < 5) {
       return (
         <Badge variant="destructive" className="bg-orange-500">
           <AlertTriangle className="w-3 h-3 mr-1" />
-          Low Stock
+          {t("Low Stock")}
         </Badge>
       )
     }
@@ -211,7 +211,7 @@ export default function AdminProductsPage() {
 
   const getStockText = (stock: number) => {
     if (stock === 0) return "Empty"
-    return `${stock} available`
+    return `${stock} ${t("available")}`
   }
 
   const getStockColor = (stock: number) => {
@@ -241,22 +241,22 @@ export default function AdminProductsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-red-500" />
-              Delete Product
+              {t("Delete Product")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{productToDelete?.name}"? This action cannot be undone and will permanently remove the product from your inventory.
+              {t("Are you sure you want to delete")} "{productToDelete?.name}"? {t("This action cannot be undone and will permanently remove the product from your inventory")}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={handleDeleteCancel}>
-              Cancel
+              {t("Cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Delete Product
+              {t("Delete Product")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -266,11 +266,11 @@ export default function AdminProductsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{t("Products")}</h1>
-          <p className="text-gray-600">Manage your learning aids and educational products</p>
-          <div className="flex gap-4 mt-2 text-sm">
+          <p className="text-gray-600">{t("Manage your learning aids and educational products")}</p>
+          <div className="flex gap-4 mt-2 text-sm"> 
             <span className="text-green-600">{inStockCount} {t("in stock")}</span>
-            <span className="text-orange-600">{lowStockCount} low stock</span>
-            <span className="text-red-600">{outOfStockCount} empty</span>
+            <span className="text-orange-600">{lowStockCount} {t("Low Stock")}</span>
+            <span className="text-red-600">{outOfStockCount} {t("Empty")}</span>
           </div>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -315,7 +315,7 @@ export default function AdminProductsPage() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t("Description")}</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
@@ -326,7 +326,7 @@ export default function AdminProductsPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="price">{t("Price")} (Frw)</Label>
+                  <Label htmlFor="price">{t("Price")} ({t("Rwf")})</Label>
                   <Input
                     id="price"
                     type="number"
@@ -355,11 +355,11 @@ export default function AdminProductsPage() {
                     onChange={(e) => setFormData({ ...formData, isVisible: e.target.checked })}
                     className="rounded"
                   />
-                  <Label htmlFor="isVisible">Visible to public</Label>
+                  <Label htmlFor="isVisible">{t("Visible to public")}</Label>
                 </div>
               </div>
               <div>
-                <Label htmlFor="image">Image URL</Label>
+                <Label htmlFor="image">{t("Image URL")}</Label>
                 <Input
                   id="image"
                   type="url"
@@ -399,7 +399,7 @@ export default function AdminProductsPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search products..."
+                placeholder={t("Search products...")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -407,10 +407,10 @@ export default function AdminProductsPage() {
             </div>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger>
-                <SelectValue placeholder="All Categories" />
+                <SelectValue placeholder={t("All Categories")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="all">{t("All Categories")}</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -423,11 +423,11 @@ export default function AdminProductsPage() {
                 <SelectValue placeholder="Stock Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Stock Levels</SelectItem>
-                <SelectItem value="in_stock">In Stock (5+)</SelectItem>
-                <SelectItem value="low_stock">Low Stock (1-4)</SelectItem>
-                <SelectItem value="out_of_stock">Out of Stock (0)</SelectItem>
-                <SelectItem value="critical">Critical (Low + Empty)</SelectItem>
+                <SelectItem value="all">{t("All Stock Levels")}</SelectItem>
+                <SelectItem value="in_stock">{t("in stock")} (5+)</SelectItem>
+                <SelectItem value="low_stock">{t("Low Stock")} (1-4)</SelectItem>
+                <SelectItem value="out_of_stock">{t("Out of Stock")} (0)</SelectItem>
+                <SelectItem value="critical">{t("Critical")} ({t("Low")} + {t("Empty")})</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -468,7 +468,7 @@ export default function AdminProductsPage() {
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                   <div className="text-white text-center">
                     <Archive className="h-8 w-8 mx-auto mb-2" />
-                    <p className="font-semibold">Out of Stock</p>
+                    <p className="font-semibold">{t("Out of Stock")}</p>
                   </div>
                 </div>
               )}
@@ -477,13 +477,13 @@ export default function AdminProductsPage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-start">
                   <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
-                  <span className="text-lg font-bold text-golden-600">{product.price} Frw</span>
+                  <span className="text-lg font-bold text-golden-600">{product.price} {t("Rwf")}</span>
                 </div>
                 <p className="text-gray-600 text-sm line-clamp-2">{product.description}</p>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-500">Category: {product.category}</span>
+                  <span className="text-gray-500">{t("Category")}: {product.category}</span>
                   <span className={getStockColor(product.stock)}>
-                    Stock: {getStockText(product.stock)}
+                    {t("Stock")}: {getStockText(product.stock)}
                   </span>
                 </div>
               </div>
@@ -514,7 +514,7 @@ export default function AdminProductsPage() {
         <Card>
           <CardContent className="p-8 text-center">
             <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("No products found")}</h3>
             <p className="text-gray-600 mb-4">
               {searchTerm || selectedCategory !== "all" || stockFilter !== "all"
                 ? "Try adjusting your search or filter criteria"

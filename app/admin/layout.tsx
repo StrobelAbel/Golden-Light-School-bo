@@ -34,6 +34,7 @@ import {
   Shield,
   Calendar,
 } from "lucide-react"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 interface Notification {
   _id: string
@@ -52,7 +53,7 @@ interface AdminUser {
   createdAt: string
 }
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 export default function AdminLayout({
   children,
 }: {
@@ -85,7 +86,7 @@ export default function AdminLayout({
   const { resetTimer } = useSessionTimeout({
     timeout: sessionTimeout,
     onLogout: handleLogout,
-    enabled: isAuthenticated && pathname !== "/admin/login"
+    enabled: isAuthenticated && pathname !== "/admin/login",
   })
 
   // Listen for storage changes to update session timeout
@@ -104,8 +105,8 @@ export default function AdminLayout({
       }
     }
 
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
+    window.addEventListener("storage", handleStorageChange)
+    return () => window.removeEventListener("storage", handleStorageChange)
   }, [sessionTimeout])
 
   // Memoize the fetchNotifications function to prevent recreation on every render
@@ -118,11 +119,11 @@ export default function AdminLayout({
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
         },
-        cache: 'no-store'
+        cache: "no-store",
       })
 
       if (!response.ok) {
@@ -189,7 +190,7 @@ export default function AdminLayout({
 
     // Set up polling interval (every 30 seconds)
     const interval = setInterval(() => fetchNotifications(), 30000)
-    
+
     // Set up cleanup interval (every hour)
     const cleanupInterval = setInterval(() => fetchNotifications(true), 3600000)
 
@@ -209,10 +210,10 @@ export default function AdminLayout({
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache'
+          "Cache-Control": "no-cache",
         },
         body: JSON.stringify({ id, isRead: true }),
-        cache: 'no-store'
+        cache: "no-store",
       })
 
       if (response.ok) {
@@ -233,10 +234,10 @@ export default function AdminLayout({
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache'
+          "Cache-Control": "no-cache",
         },
         body: JSON.stringify({ markAllAsRead: true }),
-        cache: 'no-store'
+        cache: "no-store",
       })
 
       if (response.ok) {
@@ -246,8 +247,6 @@ export default function AdminLayout({
       console.error("Error marking all notifications as read:", error)
     }
   }
-
-
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -372,7 +371,8 @@ export default function AdminLayout({
           })}
         </nav>
 
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="absolute bottom-4 left-4 right-4 space-y-2">
+          
           <Button
             onClick={handleLogout}
             variant="ghost"
@@ -398,6 +398,7 @@ export default function AdminLayout({
           </div>
 
           <div className="flex items-center space-x-4">
+            <LanguageSwitcher variant="admin" size="sm" />
             {/* Notifications */}
             <Dialog open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
               <DialogTrigger asChild>
@@ -412,7 +413,7 @@ export default function AdminLayout({
               </DialogTrigger>
               <DialogContent className="max-w-md max-h-[80vh] overflow-hidden">
                 <DialogHeader className="flex flex-row items-center justify-between">
-                  <DialogTitle>Notifications</DialogTitle>
+                  <DialogTitle>{t("Notifications")}</DialogTitle>
                   {unreadCount > 0 && (
                     <Button variant="ghost" size="sm" onClick={markAllAsRead}>
                       {t("Mark all read")}

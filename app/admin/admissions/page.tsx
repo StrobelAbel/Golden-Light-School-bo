@@ -6,6 +6,7 @@ const LoadingSpinner = () => (
   </div>
 )
 import { useState, useEffect } from "react"
+import { useTranslation } from "@/hooks/useTranslation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -108,6 +109,7 @@ interface Application {
 }
 
 export default function AdminAdmissionsPage() {
+  const { t } = useTranslation()
   const [selectedApplications, setSelectedApplications] = useState<string[]>([])
   const [programs, setPrograms] = useState<AdmissionProgram[]>([])
   const [settings, setSettings] = useState<AdmissionSettings | null>(null)
@@ -573,17 +575,17 @@ export default function AdminAdmissionsPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admission Management</h1>
-          <p className="text-gray-600">Manage admission programs, settings, and applications</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('Admission Management')}</h1>
+          <p className="text-gray-600">{t('Manage admission programs, settings, and applications')}</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={() => setIsSettingsDialogOpen(true)} variant="outline">
             <Settings className="h-4 w-4 mr-2" />
-            Settings
+            {t('Settings')}
           </Button>
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            New Program
+            {t('New Program')}
           </Button>
         </div>
       </div>
@@ -596,12 +598,12 @@ export default function AdminAdmissionsPage() {
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2">
                   {getStatusIcon(settings.globalStatus)}
-                  <span className="font-medium">Global Admission Status:</span>
+                  <span className="font-medium">{t('Global Admission Status')}:</span>
                 </div>
                 <Badge className={getStatusColor(settings.globalStatus)}>{settings.globalStatus.toUpperCase()}</Badge>
               </div>
               <Button onClick={() => setIsSettingsDialogOpen(true)} variant="outline" size="sm">
-                Manage
+                {t('Manage')}
               </Button>
             </div>
           </CardContent>
@@ -610,9 +612,9 @@ export default function AdminAdmissionsPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="programs">Programs</TabsTrigger>
-          <TabsTrigger value="applications">Applications</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="programs">{t('Programs')}</TabsTrigger>
+          <TabsTrigger value="applications">{t('Applications')}</TabsTrigger>
+          <TabsTrigger value="analytics">{t('Analytics')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="programs" className="space-y-6">
@@ -652,31 +654,31 @@ export default function AdminAdmissionsPage() {
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2 text-green-500" />
                       <span>
-                        {program.ageRange.min}-{program.ageRange.max} years
+                        {program.ageRange.min}-{program.ageRange.max} {t("years")}
                       </span>
                     </div>
                     <div className="flex items-center">
                       <DollarSign className="h-4 w-4 mr-2 text-yellow-500" />
-                      <span>{program.fees.tuitionFee} Frw</span>
+                      <span>{program.fees.tuitionFee} {t("Rwf")}</span>
                     </div>
                     <div className="flex items-center">
                       <FileText className="h-4 w-4 mr-2 text-purple-500" />
-                      <span>{program.requirements.length} requirements</span>
+                      <span>{program.requirements.length} {t("requirements")}</span>
                     </div>
                   </div>
 
                   <div className="space-y-2 text-sm">
-                    <div className="font-semibold text-gray-800">Deadlines:</div>
+                    <div className="font-semibold text-gray-800">{t("Deadlines")}:</div>
                     <ul className="ml-2 list-disc">
                       {program.deadlines.applicationStart && (
                         <li>
-                          <span className="font-medium">Application Start:</span>{" "}
+                          <span className="font-medium">{t("Application Start")}:</span>{" "}
                           {new Date(program.deadlines.applicationStart).toLocaleDateString()}
                         </li>
                       )}
                       {program.deadlines.applicationEnd && (
                         <li>
-                          <span className="font-medium">Application End:</span>{" "}
+                          <span className="font-medium">{t("Application End")}:</span>{" "}
                           {new Date(program.deadlines.applicationEnd).toLocaleDateString()}
                         </li>
                       )}
@@ -714,7 +716,7 @@ export default function AdminAdmissionsPage() {
                   <div className="flex justify-between">
                     <Button variant="outline" size="sm" onClick={() => openEditDialog(program)}>
                       <Edit className="h-4 w-4 mr-1" />
-                      Edit
+                      {t("Edit")}
                     </Button>
                     <Button
                       variant="outline"
@@ -723,7 +725,7 @@ export default function AdminAdmissionsPage() {
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
-                      Delete
+                      {t("Delete")}
                     </Button>
 
                   </div>
@@ -733,23 +735,23 @@ export default function AdminAdmissionsPage() {
                     <AlertDialogHeader>
                       <AlertDialogTitle className="flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5 text-red-500" />
-                        Delete Program
+                        {t("Delete Program")}
                       </AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to delete "{programToDelete?.name}"?
-                        This action cannot be undone and will permanently remove the program.
+                        {t("Are you sure you want to delete")} "{programToDelete?.name}"? <br />
+                         {t("This action cannot be undone and will permanently remove the program.")}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel onClick={handleDeleteCancel}>
-                        Cancel
+                        {t("Cancel")}
                       </AlertDialogCancel>
                       <AlertDialogAction
                         onClick={handleDeleteConfirm}
                         className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Delete Program
+                        {t("Delete Program")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -766,7 +768,7 @@ export default function AdminAdmissionsPage() {
                 <p className="text-gray-600 mb-4">Create your first admission program to get started</p>
                 <Button onClick={() => setIsCreateDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Create Program
+                  {t("Create Program")}
                 </Button>
               </CardContent>
             </Card>
@@ -780,7 +782,7 @@ export default function AdminAdmissionsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <span className="text-sm text-gray-600">
-                    {selectedApplications.length} application{selectedApplications.length !== 1 ? 's' : ''} selected
+                    {selectedApplications.length} {t("application")}{selectedApplications.length !== 1 ? 's' : ''} selected
                   </span>
                   <div className="flex gap-2 flex-wrap">
                     <Button
@@ -789,7 +791,7 @@ export default function AdminAdmissionsPage() {
                       onClick={() => handleBulkStatusUpdate('under_review')}
                       className="bg-yellow-50 border-yellow-200 text-yellow-800 hover:bg-yellow-100"
                     >
-                      Mark Under Review
+                      {t("Mark Under Review")}
                     </Button>
                     <Button
                       size="sm"
@@ -821,12 +823,12 @@ export default function AdminAdmissionsPage() {
           <Card>
             <CardContent className="text-center py-12">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Applications Management</h3>
-              <p className="text-gray-600 mb-4">View and manage all admission applications</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("Applications Management")}</h3>
+            <p className="text-gray-600 mb-4">{t("View and manage all admission applications")}</p>
               <Button asChild>
                 <a href="/admin/applications">
                   <Eye className="h-4 w-4 mr-2" />
-                  View Applications
+                  {t("View Applications")}
                 </a>
               </Button>
             </CardContent>
@@ -839,12 +841,12 @@ export default function AdminAdmissionsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Users className="h-5 w-5 mr-2" />
-                  Total Enrollment
+                  {t("Total Enrollments")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{programs.reduce((sum, p) => sum + p.currentEnrollment, 0)}</div>
-                <p className="text-sm text-gray-600">of {programs.reduce((sum, p) => sum + p.capacity, 0)} capacity</p>
+                <p className="text-sm text-gray-600">{t("of")} {programs.reduce((sum, p) => sum + p.capacity, 0)} {t("capacity")}</p>
               </CardContent>
             </Card>
 
@@ -852,12 +854,12 @@ export default function AdminAdmissionsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <FileText className="h-5 w-5 mr-2" />
-                  Active Programs
+                  {t("Active Programs")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{programs.filter((p) => p.status === "active").length}</div>
-                <p className="text-sm text-gray-600">of {programs.length} total programs</p>
+                <p className="text-sm text-gray-600">{t("of")} {programs.length} {t("total programs")}</p>
               </CardContent>
             </Card>
 
@@ -865,14 +867,14 @@ export default function AdminAdmissionsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <DollarSign className="h-5 w-5 mr-2" />
-                  Revenue Potential
+                  {t("Revenue Potential")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">
-                  {programs.reduce((sum, p) => sum + p.fees.tuitionFee * p.currentEnrollment, 0).toLocaleString()} Frw
+                  {programs.reduce((sum, p) => sum + p.fees.tuitionFee * p.currentEnrollment, 0).toLocaleString()} {t("Rwf")}
                 </div>
-                <p className="text-sm text-gray-600">Current enrollment</p>
+                <p className="text-sm text-gray-600">{t("Current enrollments")}</p>
               </CardContent>
             </Card>
           </div>
@@ -883,17 +885,17 @@ export default function AdminAdmissionsPage() {
       <Dialog open={bulkActionDialog?.open || false} onOpenChange={(open) => !open && setBulkActionDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Bulk Action</DialogTitle>
+            <DialogTitle></DialogTitle>
           </DialogHeader>
           <p>
-            Are you sure you want to {bulkActionDialog?.action} {bulkActionDialog?.count} application{bulkActionDialog?.count !== 1 ? 's' : ''}?
+            {t("Are you sure you want to")} {bulkActionDialog?.action} {bulkActionDialog?.count} {t("application")}{bulkActionDialog?.count !== 1 ? 's' : ''}?
           </p>
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setBulkActionDialog(null)}>
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button onClick={executeBulkAction}>
-              Confirm
+              {t("Confirm")}
             </Button>
           </div>
         </DialogContent>
@@ -913,25 +915,25 @@ export default function AdminAdmissionsPage() {
       >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isCreateDialogOpen ? "Create New Program" : "Edit Program"}</DialogTitle>
+            <DialogTitle>{isCreateDialogOpen ? t("Create New Program") : t("Edit Program")}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-6">
             {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Basic Information</h3>
+              <h3 className="text-lg font-semibold">{t("Basic Information")}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Program Name</Label>
+                  <Label htmlFor="name">{t("Program Name")}</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g., Nursery Program"
+                    placeholder={t("e.g., Nursery Program")}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="capacity">Capacity</Label>
+                  <Label htmlFor="capacity">{t("Capacity")}</Label>
                   <Input
                     id="capacity"
                     type="number"
@@ -942,19 +944,19 @@ export default function AdminAdmissionsPage() {
               </div>
 
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t("Description")}</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
-                  placeholder="Describe the program..."
+                  placeholder={t("Describe the program...")}
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="minAge">Minimum Age</Label>
+                  <Label htmlFor="minAge">{t("Minimum Age")}</Label>
                   <Input
                     id="minAge"
                     type="number"
@@ -968,7 +970,7 @@ export default function AdminAdmissionsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="maxAge">Maximum Age</Label>
+                  <Label htmlFor="maxAge">{t("Maximum Age")}</Label>
                   <Input
                     id="maxAge"
                     type="number"
@@ -982,7 +984,7 @@ export default function AdminAdmissionsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="status">{t("Status")}</Label>
                   <Select
                     value={formData.status}
                     onValueChange={(value: "active" | "inactive" | "full") =>
@@ -993,9 +995,9 @@ export default function AdminAdmissionsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="full">Full</SelectItem>
+                      <SelectItem value="active">{t("Active")}</SelectItem>
+                      <SelectItem value="inactive">{t("Inactive")}</SelectItem>
+                      <SelectItem value="full">{t("Full")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1004,10 +1006,10 @@ export default function AdminAdmissionsPage() {
 
             {/* Fees */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Fees Structure</h3>
+              <h3 className="text-lg font-semibold">{t("Fees Structure")}</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="applicationFee">Application Fee (Frw)</Label>
+                  <Label htmlFor="applicationFee">{t("Application Fee")} ({t("Rwf")})</Label>
                   <Input
                     id="applicationFee"
                     type="number"
@@ -1021,7 +1023,7 @@ export default function AdminAdmissionsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="tuitionFee">Tuition Fee (Frw)</Label>
+                  <Label htmlFor="tuitionFee">{t("Tuition Fee")} ({t("Rwf")})</Label>
                   <Input
                     id="tuitionFee"
                     type="number"
@@ -1035,7 +1037,7 @@ export default function AdminAdmissionsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="registrationFee">Registration Fee (Frw)</Label>
+                  <Label htmlFor="registrationFee">{t("Registration Fee")} ({t("Rwf")})</Label>
                   <Input
                     id="registrationFee"
                     type="number"
@@ -1053,9 +1055,9 @@ export default function AdminAdmissionsPage() {
 
             {/* Admission Status and Deadlines */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Admission Timeline</h3>
+              <h3 className="text-lg font-semibold">{t("Admission Timeline")}</h3>
               <div>
-                <Label htmlFor="admissionStatus">Admission Status</Label>
+                <Label htmlFor="admissionStatus">{t("Admission Status")}</Label>
                 <Select
                   value={formData.admissionStatus}
                   onValueChange={(value: "open" | "closed" | "scheduled") =>
@@ -1066,16 +1068,16 @@ export default function AdminAdmissionsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="open">Open</SelectItem>
-                    <SelectItem value="closed">Closed</SelectItem>
-                    <SelectItem value="scheduled">Scheduled</SelectItem>
+                    <SelectItem value="open">{t("Open")}</SelectItem>
+                    <SelectItem value="closed">{t("Closed")}</SelectItem>
+                    <SelectItem value="scheduled">{t("Scheduled")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="applicationStart">Application Start Date</Label>
+                  <Label htmlFor="applicationStart">{t("Application Start Date")}</Label>
                   <Input
                     id="applicationStart"
                     type="datetime-local"
@@ -1090,7 +1092,7 @@ export default function AdminAdmissionsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="applicationEnd">Application End Date</Label>
+                  <Label htmlFor="applicationEnd">{t("Application End Date")}</Label>
                   <Input
                     id="applicationEnd"
                     type="datetime-local"
@@ -1109,7 +1111,7 @@ export default function AdminAdmissionsPage() {
 
             {/* Requirements */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Requirements</h3>
+              <h3 className="text-lg font-semibold">{t("Requirements")}</h3>
               {formData.requirements.map((req, index) => (
                 <div key={index} className="flex gap-2">
                   <Input
@@ -1119,7 +1121,7 @@ export default function AdminAdmissionsPage() {
                       newReqs[index] = e.target.value
                       setFormData({ ...formData, requirements: newReqs })
                     }}
-                    placeholder="Enter requirement..."
+                    placeholder={t("Enter requirement...")}
                   />
                   {formData.requirements.length > 1 && (
                     <Button
@@ -1147,7 +1149,7 @@ export default function AdminAdmissionsPage() {
                 }
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Requirement
+                {t("Add Requirement")}
               </Button>
             </div>
 
@@ -1161,10 +1163,10 @@ export default function AdminAdmissionsPage() {
                   resetForm()
                 }}
               >
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button onClick={isCreateDialogOpen ? handleCreateProgram : handleUpdateProgram}>
-                {isCreateDialogOpen ? "Create Program" : "Update Program"}
+                {isCreateDialogOpen ? t("Create Program") : t("Update Program")}
               </Button>
             </div>
           </div>
@@ -1175,13 +1177,13 @@ export default function AdminAdmissionsPage() {
       <Dialog open={isSettingsDialogOpen} onOpenChange={setIsSettingsDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Admission Settings</DialogTitle>
+            <DialogTitle>{t("Admission Settings")}</DialogTitle>
           </DialogHeader>
 
           {settings && (
             <div className="space-y-6">
               <div>
-                <Label htmlFor="globalStatus">Global Admission Status</Label>
+                <Label htmlFor="globalStatus">{t("Global Admission Status")}</Label>
                 <Select
                   value={settings.globalStatus}
                   onValueChange={(value: "open" | "closed" | "scheduled") =>
@@ -1192,15 +1194,15 @@ export default function AdminAdmissionsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="open">Open</SelectItem>
-                    <SelectItem value="closed">Closed</SelectItem>
-                    <SelectItem value="scheduled">Scheduled</SelectItem>
+                    <SelectItem value="open">{t("Open")}</SelectItem>
+                    <SelectItem value="closed">{t("Closed")}</SelectItem>
+                    <SelectItem value="scheduled">{t("Scheduled")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="welcomeMessage">Welcome Message</Label>
+                <Label htmlFor="welcomeMessage">{(t("Welcome Message"))}</Label>
                 <Textarea
                   id="welcomeMessage"
                   value={settings.welcomeMessage}
@@ -1210,7 +1212,7 @@ export default function AdminAdmissionsPage() {
               </div>
 
               <div>
-                <Label htmlFor="closedMessage">Closed Message</Label>
+                <Label htmlFor="closedMessage">{t("Closed Message")}</Label>
                 <Textarea
                   id="closedMessage"
                   value={settings.closedMessage}
@@ -1221,9 +1223,9 @@ export default function AdminAdmissionsPage() {
 
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsSettingsDialogOpen(false)}>
-                  Cancel
+                  {t("Cancel")}
                 </Button>
-                <Button onClick={() => handleUpdateSettings(settings)}>Save Settings</Button>
+                <Button onClick={() => handleUpdateSettings(settings)}>{t("Save Settings")}</Button>
               </div>
             </div>
           )}

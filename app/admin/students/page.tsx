@@ -507,7 +507,7 @@ export default function StudentsPage() {
                             id="studentId"
                             value={addFormData.studentId || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, studentId: e.target.value }))}
-                            placeholder="Leave empty for auto-generation"
+                            placeholder={t("Leave empty for auto-generation")}
                           />
                         </div>
                         <div className="space-y-2">
@@ -516,7 +516,7 @@ export default function StudentsPage() {
                             id="firstName"
                             value={addFormData.firstName || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, firstName: e.target.value }))}
-                            placeholder="Enter first name"
+                            placeholder={t("Enter first name")}
                             required
                           />
                         </div>
@@ -526,7 +526,7 @@ export default function StudentsPage() {
                             id="lastName"
                             value={addFormData.lastName || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, lastName: e.target.value }))}
-                            placeholder="Enter last name"
+                            placeholder={t("Enter last name")}
                             required
                           />
                         </div>
@@ -597,7 +597,7 @@ export default function StudentsPage() {
                                 childAge: Number.parseInt(e.target.value) || 0,
                               }))
                             }
-                            placeholder="Enter age"
+                            placeholder={t("Enter age")}
                             required
                           />
                         </div>
@@ -609,45 +609,45 @@ export default function StudentsPage() {
                       <CardHeader>
                         <CardTitle className="flex items-center">
                           <User className="mr-2 h-5 w-5 text-green-600" />
-                          Father Information
+                          {t("Father Information")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="fatherName">Father Name</Label>
+                          <Label htmlFor="fatherName">{t("Father Name")}</Label>
                           <Input
                             id="fatherName"
                             value={addFormData.fatherName || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, fatherName: e.target.value }))}
-                            placeholder="Enter father name"
+                            placeholder={t("Enter father name")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="fatherId">Father ID</Label>
+                          <Label htmlFor="fatherId">{t("Father ID")}</Label>
                           <Input
                             id="fatherId"
                             value={addFormData.fatherId || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, fatherId: e.target.value }))}
-                            placeholder="Enter father ID"
+                            placeholder={t("Enter father ID")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="fatherPhone">Father Phone</Label>
+                          <Label htmlFor="fatherPhone">{t("Father Phone")}</Label>
                           <Input
                             id="fatherPhone"
                             value={addFormData.fatherPhone || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, fatherPhone: e.target.value }))}
-                            placeholder="Enter father phone"
+                            placeholder={t("Enter father phone")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="fatherEmail">Father Email</Label>
+                          <Label htmlFor="fatherEmail">{t("Father Email")}</Label>
                           <Input
                             id="fatherEmail"
                             type="email"
                             value={addFormData.fatherEmail || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, fatherEmail: e.target.value }))}
-                            placeholder="Enter father email"
+                            placeholder={t("Enter father email")}
                           />
                         </div>
                       </CardContent>
@@ -658,45 +658,45 @@ export default function StudentsPage() {
                       <CardHeader>
                         <CardTitle className="flex items-center">
                           <User className="mr-2 h-5 w-5 text-pink-600" />
-                          Mother Information
+                          {t("Mother Information")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="motherName">Mother Name</Label>
+                          <Label htmlFor="motherName">{t("Mother Name")}</Label>
                           <Input
                             id="motherName"
                             value={addFormData.motherName || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, motherName: e.target.value }))}
-                            placeholder="Enter mother name"
+                            placeholder={t("Enter mother name")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="motherId">Mother ID</Label>
+                          <Label htmlFor="motherId">{t("Mother ID")}</Label>
                           <Input
                             id="motherId"
                             value={addFormData.motherId || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, motherId: e.target.value }))}
-                            placeholder="Enter mother ID"
+                            placeholder={t("Enter mother ID")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="motherPhone">Mother Phone</Label>
+                          <Label htmlFor="motherPhone">{t("Mother Phone")}</Label>
                           <Input
                             id="motherPhone"
                             value={addFormData.motherPhone || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, motherPhone: e.target.value }))}
-                            placeholder="Enter mother phone"
+                            placeholder={t("Enter mother phone")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="motherEmail">Mother Email</Label>
+                          <Label htmlFor="motherEmail">{t("Mother Email")}</Label>
                           <Input
                             id="motherEmail"
                             type="email"
                             value={addFormData.motherEmail || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, motherEmail: e.target.value }))}
-                            placeholder="Enter mother email"
+                            placeholder={t("Enter mother email")}
                           />
                         </div>
                       </CardContent>
@@ -707,62 +707,62 @@ export default function StudentsPage() {
                       <CardHeader>
                         <CardTitle className="flex items-center">
                           <MapPin className="mr-2 h-5 w-5 text-blue-600" />
-                          Location Information
+                          {t("Location Information")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="province">Province</Label>
+                          <Label htmlFor="province">{t("Province")}</Label>
                           <Input
                             id="province"
                             value={addFormData.province || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, province: e.target.value }))}
-                            placeholder="Enter province"
+                            placeholder={t("Enter province")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="district">District</Label>
+                          <Label htmlFor="district">{t("District")}</Label>
                           <Input
                             id="district"
                             value={addFormData.district || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, district: e.target.value }))}
-                            placeholder="Enter district"
+                            placeholder={t("Enter district")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="sector">Sector</Label>
+                          <Label htmlFor="sector">{t("Sector")}</Label>
                           <Input
                             id="sector"
                             value={addFormData.sector || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, sector: e.target.value }))}
-                            placeholder="Enter sector"
+                            placeholder={t("Enter sector")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="cell">Cell</Label>
+                          <Label htmlFor="cell">{t("Cell")}</Label>
                           <Input
                             id="cell"
                             value={addFormData.cell || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, cell: e.target.value }))}
-                            placeholder="Enter cell"
+                            placeholder={t("Enter cell")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="village">Village</Label>
+                          <Label htmlFor="village">{t("Village")}</Label>
                           <Input
                             id="village"
                             value={addFormData.village || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, village: e.target.value }))}
-                            placeholder="Enter village"
+                            placeholder={t("Enter village")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="address">Additional Address Info</Label>
+                          <Label htmlFor="address">{t("Additional Address Info")}</Label>
                           <Textarea
                             id="address"
                             value={addFormData.address || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, address: e.target.value }))}
-                            placeholder="Enter additional address information"
+                            placeholder={t("Enter additional address information")}
                           />
                         </div>
                       </CardContent>
@@ -775,18 +775,18 @@ export default function StudentsPage() {
                       <CardHeader>
                         <CardTitle className="flex items-center">
                           <GraduationCap className="mr-2 h-5 w-5 text-indigo-600" />
-                          Academic Information
+                          {t("Academic Information")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="level">Level *</Label>
+                          <Label htmlFor="level">{t("Level")} *</Label>
                           <Select
                             value={addFormData.class || ""}
                             onValueChange={(value) => setAddFormData((prev) => ({ ...prev, class: value }))}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select level" />
+                              <SelectValue placeholder={t("Select level")} />
                             </SelectTrigger>
                             <SelectContent>
                               {classes.map((cls) => (
@@ -798,9 +798,9 @@ export default function StudentsPage() {
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="academicYear">Academic Year *</Label>
+                          <Label htmlFor="academicYear">{t("Academic Year")} *</Label>
                           <Select
-                            value={addFormData.academicYear || "2025-2026"}
+                            value={addFormData.academicYear || ""}
                             onValueChange={(value) => setAddFormData((prev) => ({ ...prev, academicYear: value }))}
                           >
                             <SelectTrigger>
@@ -816,7 +816,7 @@ export default function StudentsPage() {
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="admissionDate">Admission Date *</Label>
+                          <Label htmlFor="admissionDate">{t("Admission Date")} *</Label>
                           <Input
                             id="admissionDate"
                             type="date"
@@ -835,7 +835,7 @@ export default function StudentsPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="status">Status *</Label>
+                          <Label htmlFor="status">{t("Status")} *</Label>
                           <Select
                             value={addFormData.status || "active"}
                             onValueChange={(value) => setAddFormData((prev) => ({ ...prev, status: value as any }))}
@@ -853,12 +853,12 @@ export default function StudentsPage() {
                           </Select>
                         </div>
                         <div className="space-y-2 md:col-span-2">
-                          <Label htmlFor="previousSchool">Previous School</Label>
+                          <Label htmlFor="previousSchool">{t("Previous School")}</Label>
                           <Input
                             id="previousSchool"
                             value={addFormData.previousSchool || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, previousSchool: e.target.value }))}
-                            placeholder="Enter previous school (if any)"
+                            placeholder={t("Enter previous school (if any)")}
                           />
                         </div>
                       </CardContent>
@@ -869,17 +869,17 @@ export default function StudentsPage() {
                       <CardHeader>
                         <CardTitle className="flex items-center">
                           <StickyNote className="mr-2 h-5 w-5 text-yellow-600" />
-                          Additional Notes
+                          {t("Additional Notes")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-2">
-                          <Label htmlFor="notes">Notes</Label>
+                          <Label htmlFor="notes">{t("Notes")}</Label>
                           <Textarea
                             id="notes"
                             value={addFormData.notes || ""}
                             onChange={(e) => setAddFormData((prev) => ({ ...prev, notes: e.target.value }))}
-                            placeholder="Enter any additional notes about the student"
+                            placeholder={t("Enter any additional notes about the student")}
                             rows={4}
                           />
                         </div>
@@ -893,12 +893,12 @@ export default function StudentsPage() {
                       <CardHeader>
                         <CardTitle className="flex items-center">
                           <DollarSign className="mr-2 h-5 w-5 text-green-600" />
-                          Financial Information
+                          {t("Financial Information")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="totalFees">Total Fees (Frw) *</Label>
+                          <Label htmlFor="totalFees">{t("Total Fees")} ({t("Rwf")}) *</Label>
                           <Input
                             id="totalFees"
                             type="number"
@@ -910,12 +910,12 @@ export default function StudentsPage() {
                                 amountDue: Number.parseFloat(e.target.value) || 0,
                               }))
                             }
-                            placeholder="Enter total fees"
+                            placeholder={t("Enter total fees")}
                             required
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="amountPaid">Amount Paid (Frw)</Label>
+                          <Label htmlFor="amountPaid">{t("Amount Paid")} ({t("Rwf")})</Label>
                           <Input
                             id="amountPaid"
                             type="number"
@@ -930,11 +930,11 @@ export default function StudentsPage() {
                                 paymentStatus: paid === 0 ? "not_paid" : paid === total ? "paid" : "half_paid",
                               }))
                             }}
-                            placeholder="Enter amount paid"
+                            placeholder={t("Enter amount paid")}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="paymentStatus">Payment Status</Label>
+                          <Label htmlFor="paymentStatus">{t("Payment Status")}</Label>
                           <Select
                             value={addFormData.paymentStatus || "not_paid"}
                             onValueChange={(value) =>
@@ -954,7 +954,7 @@ export default function StudentsPage() {
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label>Amount Due (Frw)</Label>
+                          <Label>{t("Amount Due")} ({t("Rwf")})</Label>
                           <Input value={addFormData.amountDue || 0} disabled className="bg-muted" />
                         </div>
                       </CardContent>
@@ -965,7 +965,7 @@ export default function StudentsPage() {
                 {/* Form Actions */}
                 <div className="flex justify-end space-x-2 pt-4 border-t">
                   <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                   <Button
                     onClick={handleAddStudent}
@@ -1002,7 +1002,7 @@ export default function StudentsPage() {
               <DollarSign className="h-4 w-4 text-green-200" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">Frw {stats.totalRevenue.toLocaleString()}</div>
+              <div className="text-2xl font-bold">{t("Rwf")} {stats.totalRevenue.toLocaleString()}</div>
               <p className="text-xs text-green-100">{t("This Academic Year")}</p>
             </CardContent>
           </Card>
@@ -1013,7 +1013,7 @@ export default function StudentsPage() {
               <AlertTriangle className="h-4 w-4 text-red-200" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">Frw {stats.outstandingFees.toLocaleString()}</div>
+              <div className="text-2xl font-bold">{t("Rwf")} {stats.outstandingFees.toLocaleString()}</div>
               <p className="text-xs text-red-100">{t("Pending Payments")}</p>
             </CardContent>
           </Card>
@@ -1036,14 +1036,14 @@ export default function StudentsPage() {
       {/* Search and Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Search & Filters</CardTitle>
+          <CardTitle className="text-lg">{t("Search & Filters")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search students..."
+                placeholder={t("Search students...")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -1052,10 +1052,10 @@ export default function StudentsPage() {
 
             <Select value={filters.class} onValueChange={(value) => setFilters((prev) => ({ ...prev, class: value }))}>
               <SelectTrigger>
-                <SelectValue placeholder="Select Class" />
+                <SelectValue placeholder={t("Select Class")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Classes</SelectItem>
+                <SelectItem value="all">{t("All Classes")}</SelectItem>
                 {classes.map((cls) => (
                   <SelectItem key={cls} value={cls}>
                     {cls}
@@ -1069,10 +1069,10 @@ export default function StudentsPage() {
               onValueChange={(value) => setFilters((prev) => ({ ...prev, status: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select Status" />
+                <SelectValue placeholder={t("Select Status")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="all">{t("All Statuses")}</SelectItem>
                 {statuses.map((status) => (
                   <SelectItem key={status} value={status}>
                     {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -1086,10 +1086,10 @@ export default function StudentsPage() {
               onValueChange={(value) => setFilters((prev) => ({ ...prev, academicYear: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Academic Year" />
+                <SelectValue placeholder={t("Academic Year")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Years</SelectItem>
+                <SelectItem value="all">{t("All Years")}</SelectItem>
                 {academicYears.map((year) => (
                   <SelectItem key={year} value={year}>
                     {year}
@@ -1103,10 +1103,10 @@ export default function StudentsPage() {
               onValueChange={(value) => setFilters((prev) => ({ ...prev, paymentStatus: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Payment Status" />
+                <SelectValue placeholder={t("Payment Status")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Payment Status</SelectItem>
+                <SelectItem value="all">{t("All Payment Status")}</SelectItem>
                 {paymentStatuses.map((status) => (
                   <SelectItem key={status} value={status}>
                     {status.replace("_", " ").charAt(0).toUpperCase() + status.replace("_", " ").slice(1)}
@@ -1116,7 +1116,7 @@ export default function StudentsPage() {
             </Select>
 
             <Button variant="outline" onClick={clearFilters}>
-              Clear Filters
+              {t("Clear Filters")}
             </Button>
           </div>
         </CardContent>
@@ -1125,21 +1125,21 @@ export default function StudentsPage() {
       {/* Students Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Students List</CardTitle>
+          <CardTitle>{t("Students List")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Level</TableHead>
-                  <TableHead>Gender</TableHead>
+                  <TableHead>{t("Student")}</TableHead>
+                  <TableHead>{t("Level")}</TableHead>
+                  <TableHead>{t("Gender")}</TableHead>
                   {/* <TableHead>Parent</TableHead> */}
-                  <TableHead>Status</TableHead>
-                  <TableHead>Payment</TableHead>
+                  <TableHead>{t("Status")}</TableHead>
+                  <TableHead>{t("Payment")}</TableHead>
                   {/* <TableHead>Admission Date</TableHead> */}
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t("Actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1155,7 +1155,7 @@ export default function StudentsPage() {
                 ) : students.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8">
-                      No students found
+                      {t("No students found")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -1214,7 +1214,7 @@ export default function StudentsPage() {
                             {student.paymentStatus?.replace("_", " ")}
                           </Badge>
                           <div className="text-sm text-muted-foreground mt-1">
-                            Due: Frw {student.amountDue?.toLocaleString()} | Paid: Frw{" "}
+                            {t("Due")}: {t("Rwf")} {student.amountDue?.toLocaleString()} | {t("Paid")}: {t("Rwf")}{" "}
                             {student.amountPaid?.toLocaleString()}
                           </div>
                         </div>
@@ -1244,7 +1244,7 @@ export default function StudentsPage() {
                               }}
                             >
                               <Eye className="h-4 w-4 mr-2" />
-                              View Profile
+                              {t("View Profile")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => {
@@ -1254,7 +1254,7 @@ export default function StudentsPage() {
                               }}
                             >
                               <Edit className="h-4 w-4 mr-2" />
-                              Edit Student
+                              {t("Edit Student")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => {
@@ -1263,7 +1263,7 @@ export default function StudentsPage() {
                               }}
                             >
                               <DollarSign className="h-4 w-4 mr-2" />
-                              Add Payment
+                              {t("Add Payment")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -1278,8 +1278,8 @@ export default function StudentsPage() {
           {/* Pagination */}
           <div className="flex items-center justify-between space-x-2 py-4">
             <div className="text-sm text-muted-foreground">
-              Showing {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)} to{" "}
-              {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} students
+              {t("Showing")} {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)} {t("to")}{" "}
+              {Math.min(pagination.page * pagination.limit, pagination.total)} {t("of")} {pagination.total} {t("students")}
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -1288,7 +1288,7 @@ export default function StudentsPage() {
                 onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
                 disabled={pagination.page <= 1}
               >
-                Previous
+                {t("Previous")}
               </Button>
               <Button
                 variant="outline"
@@ -1296,7 +1296,7 @@ export default function StudentsPage() {
                 onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
                 disabled={pagination.page >= pagination.pages}
               >
-                Next
+                {t("Next")}
               </Button>
             </div>
           </div>
@@ -1307,15 +1307,15 @@ export default function StudentsPage() {
       <Dialog open={isViewDialogOpen} onOpenChange={handleDialogClose(setIsViewDialogOpen)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Student Profile</DialogTitle>
+            <DialogTitle>{t("Student Profile")}</DialogTitle>
           </DialogHeader>
           {selectedStudent && (
             <Tabs defaultValue="basic" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                <TabsTrigger value="academic">Academic</TabsTrigger>
-                <TabsTrigger value="financial">Financial</TabsTrigger>
-                <TabsTrigger value="records">Records</TabsTrigger>
+                <TabsTrigger value="basic">{t("Basic Info")}</TabsTrigger>
+                <TabsTrigger value="academic">{t("Academic")}</TabsTrigger>
+                <TabsTrigger value="financial">{t("Financial")}</TabsTrigger>
+                <TabsTrigger value="records">{t("Records")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="basic" className="space-y-6">
@@ -1324,32 +1324,32 @@ export default function StudentsPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <User className="mr-2 h-5 w-5 text-blue-600" />
-                      Student Information
+                      {t("Student Information")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Student ID</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Student ID")}</Label>
                       <p className="text-gray-900 font-medium">{selectedStudent.studentId}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Full Name</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Full Name")}</Label>
                       <p className="text-gray-900 font-medium">
                         {selectedStudent.firstName} {selectedStudent.lastName}
                       </p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Date of Birth</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Date of Birth")}</Label>
                       <p className="text-gray-900">
                         {selectedStudent.dateOfBirth ? new Date(selectedStudent.dateOfBirth).toLocaleDateString() : "—"}
                       </p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Gender</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Gender")}</Label>
                       <p className="text-gray-900">{selectedStudent.gender || selectedStudent.childGender || "—"}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Age</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Age")}</Label>
                       <p className="text-gray-900">
                         {typeof selectedStudent.childAge !== "undefined" && selectedStudent.childAge !== null
                           ? selectedStudent.childAge
@@ -1369,12 +1369,12 @@ export default function StudentsPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <User className="mr-2 h-5 w-5 text-green-600" />
-                      Father Information
+                      {t("Father Information")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Name</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Name")}</Label>
                       <p className="text-gray-900">{selectedStudent.fatherName || "—"}</p>
                     </div>
                     <div>
@@ -1382,7 +1382,7 @@ export default function StudentsPage() {
                       <p className="text-gray-900">{selectedStudent.fatherId || "—"}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Phone</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Phone")}</Label>
                       <p className="text-gray-900">{selectedStudent.fatherPhone || "—"}</p>
                     </div>
                     <div>
@@ -1397,12 +1397,12 @@ export default function StudentsPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <User className="mr-2 h-5 w-5 text-pink-600" />
-                      Mother Information
+                      {t("Mother Information")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Name</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Name")}</Label>
                       <p className="text-gray-900">{selectedStudent.motherName || "—"}</p>
                     </div>
                     <div>
@@ -1410,7 +1410,7 @@ export default function StudentsPage() {
                       <p className="text-gray-900">{selectedStudent.motherId || "—"}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Phone</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Phone")}</Label>
                       <p className="text-gray-900">{selectedStudent.motherPhone || "—"}</p>
                     </div>
                     <div>
@@ -1425,43 +1425,43 @@ export default function StudentsPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <MapPin className="mr-2 h-5 w-5 text-blue-600" />
-                      Location Information
+                      {t("Location Information")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {selectedStudent.province && (
                       <div>
-                        <Label className="text-sm font-medium text-gray-600">Province</Label>
+                        <Label className="text-sm font-medium text-gray-600">{t("Province")}</Label>
                         <p className="text-gray-900 font-medium">{selectedStudent.province}</p>
                       </div>
                     )}
                     {selectedStudent.district && (
                       <div>
-                        <Label className="text-sm font-medium text-gray-600">District</Label>
+                        <Label className="text-sm font-medium text-gray-600">{t("District")}</Label>
                         <p className="text-gray-900 font-medium">{selectedStudent.district}</p>
                       </div>
                     )}
                     {selectedStudent.sector && (
                       <div>
-                        <Label className="text-sm font-medium text-gray-600">Sector</Label>
+                        <Label className="text-sm font-medium text-gray-600">{t("Sector")}</Label>
                         <p className="text-gray-900 font-medium">{selectedStudent.sector}</p>
                       </div>
                     )}
                     {selectedStudent.cell && (
                       <div>
-                        <Label className="text-sm font-medium text-gray-600">Cell</Label>
+                        <Label className="text-sm font-medium text-gray-600">{t("Cell")}</Label>
                         <p className="text-gray-900 font-medium">{selectedStudent.cell}</p>
                       </div>
                     )}
                     {selectedStudent.village && (
                       <div>
-                        <Label className="text-sm font-medium text-gray-600">Village</Label>
+                        <Label className="text-sm font-medium text-gray-600">{t("Village")}</Label>
                         <p className="text-gray-900 font-medium">{selectedStudent.village}</p>
                       </div>
                     )}
                     {selectedStudent.address && (
                       <div className="md:col-span-2">
-                        <Label className="text-sm font-medium text-gray-600">Additional Info</Label>
+                        <Label className="text-sm font-medium text-gray-600">{t("Additional Info")}</Label>
                         <p className="text-gray-900">{selectedStudent.address}</p>
                       </div>
                     )}
@@ -1475,29 +1475,29 @@ export default function StudentsPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <GraduationCap className="mr-2 h-5 w-5 text-indigo-600" />
-                      Academic Information
+                      {t("Academic Information")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Level</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Level")}</Label>
                       <p className="text-gray-900 font-medium">{selectedStudent.class}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Academic Year</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Academic Year")}</Label>
                       <p className="text-gray-900 font-medium">{selectedStudent.academicYear}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Admission Date</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Admission Date")}</Label>
                       <p className="text-gray-900">{new Date(selectedStudent.admissionDate).toLocaleDateString()}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Status</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Status")}</Label>
                       <Badge variant={getStatusBadgeVariant(selectedStudent.status)}>{selectedStudent.status}</Badge>
                     </div>
                     {selectedStudent.previousSchool && (
                       <div className="md:col-span-2">
-                        <Label className="text-sm font-medium text-gray-600">Previous School</Label>
+                        <Label className="text-sm font-medium text-gray-600">{t("Previous School")}</Label>
                         <p className="text-gray-900">{selectedStudent.previousSchool}</p>
                       </div>
                     )}
@@ -1510,7 +1510,7 @@ export default function StudentsPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <StickyNote className="mr-2 h-5 w-5 text-yellow-600" />
-                        Notes
+                        {t("Notes")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -1527,12 +1527,12 @@ export default function StudentsPage() {
                     <CardHeader className="pb-2">
                       <CardTitle className="flex items-center text-base text-gray-700">
                         <Wallet className="mr-2 h-4 w-4 text-blue-600" />
-                        Total Fees
+                        {t("Total Fees")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-gray-900">
-                        Frw {selectedStudent.totalFees?.toLocaleString() || "0"}
+                        {t("Rwf")} {selectedStudent.totalFees?.toLocaleString() || "0"}
                       </div>
                     </CardContent>
                   </Card>
@@ -1541,12 +1541,12 @@ export default function StudentsPage() {
                     <CardHeader className="pb-2">
                       <CardTitle className="flex items-center text-base text-gray-700">
                         <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
-                        Amount Paid
+                        {t("Amount Paid")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-green-600">
-                        Frw {selectedStudent.amountPaid?.toLocaleString() || "0"}
+                        {t("Rwf")} {selectedStudent.amountPaid?.toLocaleString() || "0"}
                       </div>
                     </CardContent>
                   </Card>
@@ -1555,12 +1555,12 @@ export default function StudentsPage() {
                     <CardHeader className="pb-2">
                       <CardTitle className="flex items-center text-base text-gray-700">
                         <AlertTriangle className="mr-2 h-4 w-4 text-red-600" />
-                        Amount Due
+                        {t("Amount Due")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-red-600">
-                        Frw {selectedStudent.amountDue?.toLocaleString() || "0"}
+                        {t("Rwf")} {selectedStudent.amountDue?.toLocaleString() || "0"}
                       </div>
                     </CardContent>
                   </Card>
@@ -1571,7 +1571,7 @@ export default function StudentsPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <CreditCard className="mr-2 h-5 w-5 text-purple-600" />
-                      Payment Status
+                      {t("Payment Status")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -1587,7 +1587,7 @@ export default function StudentsPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <History className="mr-2 h-5 w-5 text-orange-600" />
-                        Payment History
+                        {t("Payment History")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -1595,10 +1595,10 @@ export default function StudentsPage() {
                         <Table>
                           <TableHeader>
                             <TableRow className="bg-gray-50">
-                              <TableHead>Date</TableHead>
-                              <TableHead>Amount</TableHead>
-                              <TableHead>Method</TableHead>
-                              <TableHead>Description</TableHead>
+                              <TableHead>{t("Date")}</TableHead>
+                              <TableHead>{t("Amount")}</TableHead>
+                              <TableHead>{t("Method")}</TableHead>
+                              <TableHead>{t("Description")}</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -1606,7 +1606,7 @@ export default function StudentsPage() {
                               <TableRow key={index}>
                                 <TableCell>{new Date(payment.paymentDate).toLocaleDateString()}</TableCell>
                                 <TableCell className="font-medium text-gray-900">
-                                  Frw {payment.amount.toLocaleString()}
+                                  {t("Rwf")} {payment.amount.toLocaleString()}
                                 </TableCell>
                                 <TableCell>{payment.paymentMethod}</TableCell>
                                 <TableCell>{payment.description}</TableCell>
@@ -1623,7 +1623,7 @@ export default function StudentsPage() {
               <TabsContent value="records" className="space-y-4">
                 {selectedStudent.achievements && selectedStudent.achievements.length > 0 && (
                   <div className="space-y-2">
-                    <Label>Achievements</Label>
+                    <Label>{t("Achievements")}</Label>
                     <div className="space-y-2">
                       {selectedStudent.achievements.map((achievement, index) => (
                         <div key={index} className="p-3 bg-green-50 border border-green-200 rounded-md">
@@ -1636,7 +1636,7 @@ export default function StudentsPage() {
 
                 {selectedStudent.disciplinaryActions && selectedStudent.disciplinaryActions.length > 0 && (
                   <div className="space-y-2">
-                    <Label>Disciplinary Records</Label>
+                    <Label>{t("Disciplinary Records")}</Label>
                     <div className="space-y-2">
                       {selectedStudent.disciplinaryActions.map((action, index) => (
                         <div key={index} className="p-3 bg-red-50 border border-red-200 rounded-md">
@@ -1647,7 +1647,7 @@ export default function StudentsPage() {
                             </div>
                           </div>
                           <div className="text-sm">{action.description}</div>
-                          <div className="text-sm font-medium mt-1">Action: {action.action}</div>
+                          <div className="text-sm font-medium mt-1">{t("Action")}: {action.action}</div>
                         </div>
                       ))}
                     </div>
@@ -1656,7 +1656,7 @@ export default function StudentsPage() {
 
                 {selectedStudent.medicalConditions && selectedStudent.medicalConditions.length > 0 && (
                   <div className="space-y-2">
-                    <Label>Medical Conditions</Label>
+                    <Label>{t("Medical Conditions")}</Label>
                     <div className="flex flex-wrap gap-2">
                       {selectedStudent.medicalConditions.map((condition, index) => (
                         <Badge key={index} variant="secondary">
@@ -1669,7 +1669,7 @@ export default function StudentsPage() {
 
                 {selectedStudent.allergies && selectedStudent.allergies.length > 0 && (
                   <div className="space-y-2">
-                    <Label>Allergies</Label>
+                    <Label>{t("Allergies")}</Label>
                     <div className="flex flex-wrap gap-2">
                       {selectedStudent.allergies.map((allergy, index) => (
                         <Badge key={index} variant="destructive">
@@ -1689,7 +1689,7 @@ export default function StudentsPage() {
       <Dialog open={isPaymentDialogOpen} onOpenChange={handleDialogClose(setIsPaymentDialogOpen)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Payment</DialogTitle>
+            <DialogTitle>{t("Add Payment")}</DialogTitle>
           </DialogHeader>
           {selectedStudent && (
             <div className="space-y-4">
@@ -1698,13 +1698,13 @@ export default function StudentsPage() {
                   {selectedStudent.firstName} {selectedStudent.lastName}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Outstanding: Frw {selectedStudent.amountDue?.toLocaleString()}
+                  {t("Outstanding")}: {t("Rwf")} {selectedStudent.amountDue?.toLocaleString()}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Amount</Label>
+                  <Label htmlFor="amount">{t("Amount")}</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -1719,7 +1719,7 @@ export default function StudentsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="paymentMethod">Payment Method</Label>
+                  <Label htmlFor="paymentMethod">{t("Payment Method")}</Label>
                   <Select
                     value={paymentFormData.paymentMethod}
                     onValueChange={(value) =>
@@ -1733,18 +1733,18 @@ export default function StudentsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                      <SelectItem value="card">Card</SelectItem>
-                      <SelectItem value="check">Check</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="cash">{t("Cash")}</SelectItem>
+                      <SelectItem value="bank_transfer">{t("Bank Transfer")}</SelectItem>
+                      <SelectItem value="card">{t("Card")}</SelectItem>
+                      <SelectItem value="check">{t("Check")}</SelectItem>
+                      <SelectItem value="other">{t("Other")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="reference">Reference</Label>
+                <Label htmlFor="reference">{t("Reference")}</Label>
                 <Input
                   id="reference"
                   value={paymentFormData.reference}
@@ -1754,12 +1754,12 @@ export default function StudentsPage() {
                       reference: e.target.value,
                     }))
                   }
-                  placeholder="Transaction reference"
+                  placeholder={t("Transaction reference")}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="academicTerm">Academic Term</Label>
+                <Label htmlFor="academicTerm">{t("Academic Term")}</Label>
                 <Input
                   id="academicTerm"
                   value={paymentFormData.academicTerm}
@@ -1769,12 +1769,12 @@ export default function StudentsPage() {
                       academicTerm: e.target.value,
                     }))
                   }
-                  placeholder="e.g., First Term 2024"
+                  placeholder={t("e.g., First Term 2024")}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t("Description")}</Label>
                 <Textarea
                   id="description"
                   value={paymentFormData.description}
@@ -1784,13 +1784,13 @@ export default function StudentsPage() {
                       description: e.target.value,
                     }))
                   }
-                  placeholder="Payment description"
+                  placeholder={t("Payment description")}
                 />
               </div>
 
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>
-                  Cancel
+                  {t("Cancel")}
                 </Button>
                 <Button
                   onClick={handleAddPayment}
@@ -1808,15 +1808,15 @@ export default function StudentsPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={handleDialogClose(setIsEditDialogOpen)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Student</DialogTitle>
+            <DialogTitle>{t("Edit Student")}</DialogTitle>
           </DialogHeader>
           {selectedStudent && (
             <div className="space-y-6">
               <Tabs defaultValue="basic" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                  <TabsTrigger value="academic">Academic</TabsTrigger>
-                  <TabsTrigger value="financial">Financial</TabsTrigger>
+                  <TabsTrigger value="basic">{t("Basic Info")}</TabsTrigger>
+                  <TabsTrigger value="academic">{t("Academic")}</TabsTrigger>
+                  <TabsTrigger value="financial">{t("Financial")}</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="basic" className="space-y-6">
@@ -1825,12 +1825,12 @@ export default function StudentsPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <User className="mr-2 h-5 w-5 text-blue-600" />
-                        Student Information
+                        {t("Student Information")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="edit-studentId">Student ID</Label>
+                        <Label htmlFor="edit-studentId">{t("Student ID")}</Label>
                         <Input
                           id="edit-studentId"
                           value={editFormData.studentId || ""}
@@ -1839,27 +1839,27 @@ export default function StudentsPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-firstName">First Name *</Label>
+                        <Label htmlFor="edit-firstName">{t("First Name")} *</Label>
                         <Input
                           id="edit-firstName"
                           value={editFormData.firstName || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, firstName: e.target.value }))}
-                          placeholder="Enter first name"
+                          placeholder={t("Enter first name")}
                           required
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-lastName">Last Name *</Label>
+                        <Label htmlFor="edit-lastName">{t("Last Name")} *</Label>
                         <Input
                           id="edit-lastName"
                           value={editFormData.lastName || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, lastName: e.target.value }))}
-                          placeholder="Enter last name"
+                          placeholder={t("Enter last name")}
                           required
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-dateOfBirth">Date of Birth *</Label>
+                        <Label htmlFor="edit-dateOfBirth">{t("Date of Birth")} *</Label>
                         <Input
                           id="edit-dateOfBirth"
                           type="date"
@@ -1889,7 +1889,7 @@ export default function StudentsPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="edit-gender">Gender *</Label>
+                        <Label htmlFor="edit-gender">{t("Gender")} *</Label>
                         <Select
                           value={editFormData.gender || "Male"}
                           onValueChange={(value) =>
@@ -1903,14 +1903,14 @@ export default function StudentsPage() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Male">Male</SelectItem>
-                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Male">{t("Male")}</SelectItem>
+                            <SelectItem value="Female">{t("Female")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="edit-childAge">Age *</Label>
+                        <Label htmlFor="edit-childAge">{t("Age")} *</Label>
                         <Input
                           id="edit-childAge"
                           type="number"
@@ -1926,45 +1926,45 @@ export default function StudentsPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <User className="mr-2 h-5 w-5 text-green-600" />
-                        Father Information
+                        {t("Father Information")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="edit-fatherName">Father Name</Label>
+                        <Label htmlFor="edit-fatherName">{t("Father Name")}</Label>
                         <Input
                           id="edit-fatherName"
                           value={editFormData.fatherName || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, fatherName: e.target.value }))}
-                          placeholder="Enter father name"
+                          placeholder={t("Enter father name")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-fatherId">Father ID</Label>
+                        <Label htmlFor="edit-fatherId">{t("Father ID")}</Label>
                         <Input
                           id="edit-fatherId"
                           value={editFormData.fatherId || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, fatherId: e.target.value }))}
-                          placeholder="Enter father ID"
+                          placeholder={t("Enter father ID")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-fatherPhone">Father Phone</Label>
+                        <Label htmlFor="edit-fatherPhone">{t("Father Phone")}</Label>
                         <Input
                           id="edit-fatherPhone"
                           value={editFormData.fatherPhone || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, fatherPhone: e.target.value }))}
-                          placeholder="Enter father phone"
+                          placeholder={t("Enter father phone")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-fatherEmail">Father Email</Label>
+                        <Label htmlFor="edit-fatherEmail">{t("Father Email")}</Label>
                         <Input
                           id="edit-fatherEmail"
                           type="email"
                           value={editFormData.fatherEmail || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, fatherEmail: e.target.value }))}
-                          placeholder="Enter father email"
+                          placeholder={t("Enter father email")}
                         />
                       </div>
                     </CardContent>
@@ -1975,45 +1975,45 @@ export default function StudentsPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <User className="mr-2 h-5 w-5 text-pink-600" />
-                        Mother Information
+                        {t("Mother Information")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="edit-motherName">Mother Name</Label>
+                        <Label htmlFor="edit-motherName">{t("Mother Name")}</Label>
                         <Input
                           id="edit-motherName"
                           value={editFormData.motherName || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, motherName: e.target.value }))}
-                          placeholder="Enter mother name"
+                          placeholder={t("Enter mother name")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-motherId">Mother ID</Label>
+                        <Label htmlFor="edit-motherId">{t("Mother ID")}</Label>
                         <Input
                           id="edit-motherId"
                           value={editFormData.motherId || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, motherId: e.target.value }))}
-                          placeholder="Enter mother ID"
+                          placeholder={t("Enter mother ID")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-motherPhone">Mother Phone</Label>
+                        <Label htmlFor="edit-motherPhone">{t("Mother Phone")}</Label>
                         <Input
                           id="edit-motherPhone"
                           value={editFormData.motherPhone || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, motherPhone: e.target.value }))}
-                          placeholder="Enter mother phone"
+                          placeholder={t("Enter mother phone")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-motherEmail">Mother Email</Label>
+                        <Label htmlFor="edit-motherEmail">{t("Mother Email")}</Label>
                         <Input
                           id="edit-motherEmail"
                           type="email"
                           value={editFormData.motherEmail || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, motherEmail: e.target.value }))}
-                          placeholder="Enter mother email"
+                          placeholder={t("Enter mother email")}
                         />
                       </div>
                     </CardContent>
@@ -2024,62 +2024,62 @@ export default function StudentsPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <MapPin className="mr-2 h-5 w-5 text-blue-600" />
-                        Location Information
+                        {t("Location Information")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="edit-province">Province</Label>
+                        <Label htmlFor="edit-province">{t("Province")}</Label>
                         <Input
                           id="edit-province"
                           value={editFormData.province || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, province: e.target.value }))}
-                          placeholder="Enter province"
+                          placeholder={t("Enter province")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-district">District</Label>
+                        <Label htmlFor="edit-district">{t("District")}</Label>
                         <Input
                           id="edit-district"
                           value={editFormData.district || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, district: e.target.value }))}
-                          placeholder="Enter district"
+                          placeholder={t("Enter district")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-sector">Sector</Label>
+                        <Label htmlFor="edit-sector">{t("Sector")}</Label>
                         <Input
                           id="edit-sector"
                           value={editFormData.sector || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, sector: e.target.value }))}
-                          placeholder="Enter sector"
+                          placeholder={t("Enter sector")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-cell">Cell</Label>
+                        <Label htmlFor="edit-cell">{t("Cell")}</Label>
                         <Input
                           id="edit-cell"
                           value={editFormData.cell || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, cell: e.target.value }))}
-                          placeholder="Enter cell"
+                          placeholder={("Enter cell")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-village">Village</Label>
+                        <Label htmlFor="edit-village">{t("Village")}</Label>
                         <Input
                           id="edit-village"
                           value={editFormData.village || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, village: e.target.value }))}
-                          placeholder="Enter village"
+                          placeholder={t("Enter village")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-address">Additional Address Info</Label>
+                        <Label htmlFor="edit-address">{t("Additional Address Info")}</Label>
                         <Textarea
                           id="edit-address"
                           value={editFormData.address || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, address: e.target.value }))}
-                          placeholder="Enter additional address information"
+                          placeholder={t("Enter additional address information")}
                         />
                       </div>
                     </CardContent>
@@ -2092,18 +2092,18 @@ export default function StudentsPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <GraduationCap className="mr-2 h-5 w-5 text-indigo-600" />
-                        Academic Information
+                        {t("Academic Information")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="edit-level">Level *</Label>
+                        <Label htmlFor="edit-level">{t("Level")} *</Label>
                         <Select
                           value={editFormData.class || ""}
                           onValueChange={(value) => setEditFormData((prev) => ({ ...prev, class: value }))}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select level" />
+                            <SelectValue placeholder={t("Select level")} />
                           </SelectTrigger>
                           <SelectContent>
                             {classes.map((cls) => (
@@ -2115,7 +2115,7 @@ export default function StudentsPage() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-academicYear">Academic Year *</Label>
+                        <Label htmlFor="edit-academicYear">{t("Academic Year")} *</Label>
                         <Select
                           value={editFormData.academicYear || "2025-2026"}
                           onValueChange={(value) => setEditFormData((prev) => ({ ...prev, academicYear: value }))}
@@ -2133,7 +2133,7 @@ export default function StudentsPage() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-admissionDate">Admission Date *</Label>
+                        <Label htmlFor="edit-admissionDate">{t("Admission Date")} *</Label>
                         <Input
                           id="edit-admissionDate"
                           type="date"
@@ -2152,7 +2152,7 @@ export default function StudentsPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-status">Status *</Label>
+                        <Label htmlFor="edit-status">{t("Status")} *</Label>
                         <Select
                           value={editFormData.status || "active"}
                           onValueChange={(value) => setEditFormData((prev) => ({ ...prev, status: value as any }))}
@@ -2170,12 +2170,12 @@ export default function StudentsPage() {
                         </Select>
                       </div>
                       <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="edit-previousSchool">Previous School</Label>
+                        <Label htmlFor="edit-previousSchool">{t("Previous School")}</Label>
                         <Input
                           id="edit-previousSchool"
                           value={editFormData.previousSchool || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, previousSchool: e.target.value }))}
-                          placeholder="Enter previous school (if any)"
+                          placeholder={t("Enter previous school (if any)")}
                         />
                       </div>
                     </CardContent>
@@ -2186,17 +2186,17 @@ export default function StudentsPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <StickyNote className="mr-2 h-5 w-5 text-yellow-600" />
-                        Additional Notes
+                        {t("Additional Notes")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-notes">Notes</Label>
+                        <Label htmlFor="edit-notes">{("Notes")}</Label>
                         <Textarea
                           id="edit-notes"
                           value={editFormData.notes || ""}
                           onChange={(e) => setEditFormData((prev) => ({ ...prev, notes: e.target.value }))}
-                          placeholder="Enter any additional notes about the student"
+                          placeholder={("Enter any additional notes about the student")}
                           rows={4}
                         />
                       </div>
@@ -2210,12 +2210,12 @@ export default function StudentsPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <DollarSign className="mr-2 h-5 w-5 text-green-600" />
-                        Financial Information
+                        {t("Financial Information")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="edit-totalFees">Total Fees (Frw) *</Label>
+                        <Label htmlFor="edit-totalFees">{t("Total Fees")} ({t("Rwf")}) *</Label>
                         <Input
                           id="edit-totalFees"
                           type="number"
@@ -2227,12 +2227,12 @@ export default function StudentsPage() {
                               amountDue: Number.parseFloat(e.target.value) || 0,
                             }))
                           }
-                          placeholder="Enter total fees"
+                          placeholder={t("Enter total fees")}
                           required
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-amountPaid">Amount Paid (Frw)</Label>
+                        <Label htmlFor="edit-amountPaid">{t("Amount Paid")} ({t("Rwf")})</Label>
                         <Input
                           id="edit-amountPaid"
                           type="number"
@@ -2270,11 +2270,11 @@ export default function StudentsPage() {
                               paymentStatus,
                             }))
                           }}
-                          placeholder="Enter amount paid"
+                          placeholder={t("Enter amount paid")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-paymentStatus">Payment Status</Label>
+                        <Label htmlFor="edit-paymentStatus">{t("Payment Status")}</Label>
                         <Select
                           value={editFormData.paymentStatus || "not_paid"}
                           onValueChange={(value) =>
@@ -2294,7 +2294,7 @@ export default function StudentsPage() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label>Amount Due (Frw)</Label>
+                        <Label>{t("Amount Due")} ({t("Rwf")})</Label>
                         <Input value={editFormData.amountDue || 0} disabled className="bg-muted" />
                       </div>
                     </CardContent>
@@ -2305,7 +2305,7 @@ export default function StudentsPage() {
               {/* Form Actions */}
               <div className="flex justify-end space-x-2 pt-4 border-t">
                 <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  Cancel
+                  {t("Cancel")}
                 </Button>
                 <Button
                   onClick={handleEditStudent}

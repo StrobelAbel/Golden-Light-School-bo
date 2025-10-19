@@ -142,7 +142,7 @@ export default function AdminOrdersPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{t("Manage Orders")}</h1>
-        <p className="text-gray-600">Manage product orders and track sales</p>
+        <p className="text-gray-600">{t("Manage product orders and track sales")}</p>
       </div>
 
       {/* Stats Cards */}
@@ -201,7 +201,7 @@ export default function AdminOrdersPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search by parent name, email, or product..."
+                  placeholder={t("Search by parent or child name, contact, location...")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -210,13 +210,13 @@ export default function AdminOrdersPage() {
             </div>
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="All Status" />
+                <SelectValue placeholder={t("All Status")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="ready_for_pickup">Ready for Pickup</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="all">{t("All Status")}</SelectItem>
+                <SelectItem value="pending">{t("Pending")}</SelectItem>
+                <SelectItem value="ready_for_pickup">{t("Ready for Pickup")}</SelectItem>
+                <SelectItem value="completed">{t("Completed")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -233,13 +233,13 @@ export default function AdminOrdersPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-4 font-medium text-gray-600">Order Details</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Customer</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Product</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Amount</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Status</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Order Date</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Actions</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Order Details")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Customer")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Product")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Amount")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Status")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Order Date")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -247,8 +247,8 @@ export default function AdminOrdersPage() {
                   <tr key={order._id} className="border-b hover:bg-gray-50">
                     <td className="p-4">
                       <div>
-                        <p className="font-medium text-gray-900">Order #{order._id.slice(-6)}</p>
-                        <p className="text-sm text-gray-600">Qty: {order.quantity}</p>
+                        <p className="font-medium text-gray-900">{t("Order")} #{order._id.slice(-6)}</p>
+                        <p className="text-sm text-gray-600">{t("Qty")}: {order.quantity}</p>
                       </div>
                     </td>
                     <td className="p-4">
@@ -267,11 +267,11 @@ export default function AdminOrdersPage() {
                     <td className="p-4">
                       <div>
                         <p className="font-medium text-gray-900">{order.productName}</p>
-                        <p className="text-sm text-gray-600">{order.productPrice} Frw each</p>
+                        <p className="text-sm text-gray-600">{order.productPrice} {t("Rwf")} {t("each")}</p>
                       </div>
                     </td>
                     <td className="p-4">
-                      <p className="font-bold text-green-600">{order.totalAmount} Frw</p>
+                      <p className="font-bold text-green-600">{order.totalAmount} {t("Rwf")}</p>
                     </td>
                     <td className="p-4">
                       <Badge className={getStatusColor(order.status)}>
@@ -333,15 +333,15 @@ export default function AdminOrdersPage() {
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Order ID</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Order ID")}</Label>
                     <p className="text-gray-900">#{selectedOrder._id.slice(-8)}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Order Date</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Order Date")}</Label>
                     <p className="text-gray-900">{new Date(selectedOrder.orderDate).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Status</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Status")}</Label>
                     <div className="mt-1">
                       <Badge className={getStatusColor(selectedOrder.status)}>
                         {getStatusIcon(selectedOrder.status)} {selectedOrder.status.replace("_", " ").toUpperCase()}
@@ -349,7 +349,7 @@ export default function AdminOrdersPage() {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Total Amount</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Total Amount")}</Label>
                     <p className="text-gray-900 font-bold text-lg">{selectedOrder.totalAmount} Frw</p>
                   </div>
                 </CardContent>
@@ -365,7 +365,7 @@ export default function AdminOrdersPage() {
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Parent/Guardian Name</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Parent/Guardian Name")}</Label>
                     <p className="text-gray-900">{selectedOrder.parentName}</p>
                   </div>
                   <div>
@@ -373,7 +373,7 @@ export default function AdminOrdersPage() {
                     <p className="text-gray-900">{selectedOrder.email}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Phone</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Phone")}</Label>
                     <p className="text-gray-900">{selectedOrder.phone}</p>
                   </div>
                 </CardContent>
@@ -392,13 +392,13 @@ export default function AdminOrdersPage() {
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="font-medium text-lg">{selectedOrder.productName}</h4>
                       <span className="text-lg font-bold text-green-600">
-                        {selectedOrder.productPrice} Frw each
+                        {selectedOrder.productPrice}  {t("each")}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Quantity: {selectedOrder.quantity}</span>
+                      <span className="text-gray-600">{t("Quantity")}: {selectedOrder.quantity}</span>
                       <span className="text-xl font-bold text-gray-900">
-                        Total: {selectedOrder.totalAmount}Frw
+                        {t("Total")}: {selectedOrder.totalAmount} {t("Rwf")}
                       </span>
                     </div>
                   </div>
@@ -413,17 +413,17 @@ export default function AdminOrdersPage() {
                 <CardContent className="space-y-4">
                   {selectedOrder.adminNotes && (
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Current Notes</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Current Notes")}</Label>
                       <p className="text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedOrder.adminNotes}</p>
                     </div>
                   )}
                   <div>
-                    <Label htmlFor="notes">Update Notes</Label>
+                    <Label htmlFor="notes">{t("Update Notes")}</Label>
                     <Textarea
                       id="notes"
                       value={adminNotes}
                       onChange={(e) => setAdminNotes(e.target.value)}
-                      placeholder="Add notes about this order..."
+                      placeholder={t("Add notes about this order...")}
                       rows={3}
                     />
                   </div>

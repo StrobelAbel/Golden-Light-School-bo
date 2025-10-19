@@ -242,7 +242,7 @@ export default function AdminApplicationsPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{t("Application Management")}</h1>
-        <p className="text-gray-600">Manage admission applications and student enrollment</p>
+        <p className="text-gray-600">{t("Manage admission applications and student enrollment")}</p>
       </div>
 
       {/* Stats Cards */}
@@ -312,7 +312,7 @@ export default function AdminApplicationsPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search by parent name, child name, or phone number..."
+                  placeholder={t("Search by parent or child name, contact, location...")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -324,11 +324,11 @@ export default function AdminApplicationsPage() {
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="under_review">Under Review</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="all">{t("All Status")}</SelectItem>
+                <SelectItem value="pending">{t("Pending")}</SelectItem>
+                <SelectItem value="under_review">{t("Under Review")}</SelectItem>
+                <SelectItem value="approved">{t("Approved")}</SelectItem>
+                <SelectItem value="rejected">{t("Rejected")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -341,7 +341,7 @@ export default function AdminApplicationsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <span className="text-sm text-gray-600">
-                {selectedApplications.length} application{selectedApplications.length !== 1 ? 's' : ''} selected
+                {selectedApplications.length} {t("application")}{selectedApplications.length !== 1 ? 's' : ''} selected
               </span>
               <div className="flex gap-2 flex-wrap">
                 <Button
@@ -353,7 +353,7 @@ export default function AdminApplicationsPage() {
                   }}
                   className="bg-yellow-50 border-yellow-200 text-yellow-800 hover:bg-yellow-100"
                 >
-                  Mark Under Review
+                  {t("Mark as Under Review")}
                 </Button>
                 <Button
                   size="sm"
@@ -380,7 +380,7 @@ export default function AdminApplicationsPage() {
                   variant="outline"
                   onClick={() => setSelectedApplications([])}
                 >
-                  Clear Selection
+                  {t("Clear Selection")}
                 </Button>
               </div>
             </div>
@@ -406,12 +406,12 @@ export default function AdminApplicationsPage() {
                       className="rounded border-gray-300"
                     />
                   </th>
-                  <th className="text-left p-4 font-medium text-gray-600">Parents</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Contacts</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Child Details</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Status</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Applied Date</th>
-                  <th className="text-left p-4 font-medium text-gray-600">Actions</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Parents")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Contacts")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Child Details")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Status")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Applied Date")}</th>
+                  <th className="text-left p-4 font-medium text-gray-600">{t("Actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -427,9 +427,9 @@ export default function AdminApplicationsPage() {
                     </td>
                     <td className="p-4">
                       <div>
-                        <p className="text-sm text-gray-600">Father: {application.fatherName}</p>
+                        <p className="text-sm text-gray-600">{t("Father")}: {application.fatherName}</p>
                         <br />
-                        <p className="text-sm text-gray-600">Mother: {application.motherName}</p>
+                        <p className="text-sm text-gray-600">{t("Mother")}: {application.motherName}</p>
                       </div>
                     </td>
                     <td className="p-4">
@@ -446,10 +446,10 @@ export default function AdminApplicationsPage() {
                     </td>
                     <td className="p-4">
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-600">Name: {application.childName}</p>
-                        <p className="text-sm text-gray-600">Age: {application.childAge}</p>
-                        <p className="text-sm text-gray-600">Gender: {application.childGender}</p>
-                        <p className="text-sm text-gray-600">Level: {application.childYear}</p>
+                        <p className="text-sm text-gray-600">{t("Name")}: {application.childName}</p>
+                        <p className="text-sm text-gray-600">{t("Age")}: {application.childAge}</p>
+                        <p className="text-sm text-gray-600">{t("Gender")}: {application.childGender}</p>
+                        <p className="text-sm text-gray-600">{t("Level")}: {application.childYear}</p>
                       </div>
                     </td>
                     <td className="p-4">
@@ -497,7 +497,7 @@ export default function AdminApplicationsPage() {
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{t("Applications")} Details</DialogTitle>
+            <DialogTitle>{t("Application Details")}</DialogTitle>
           </DialogHeader>
           {selectedApplication && (
             <div className="space-y-6">
@@ -506,20 +506,20 @@ export default function AdminApplicationsPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <User className="mr-2 h-5 w-5" />
-                    Father Information
+                    {t("Father Information")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Father's Name</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Father's Name")}</Label>
                     <p className="text-gray-900">{selectedApplication.fatherName}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Phone</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Phone")}</Label>
                     <p className="text-gray-900">{selectedApplication.fatherPhone}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">ID Number</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("ID Number")}</Label>
                     <p className="text-gray-900">{selectedApplication.fatherId}</p>
                   </div>
                   <div>
@@ -535,23 +535,23 @@ export default function AdminApplicationsPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <User className="mr-2 h-5 w-5" />
-                      Mother Information
+                      {t("Mother Information")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Mother's Name</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Mother's Name")}</Label>
                       <p className="text-gray-900">{selectedApplication.motherName}</p>
                     </div>
                     {selectedApplication.motherPhone && (
                       <div>
-                        <Label className="text-sm font-medium text-gray-600">Phone</Label>
+                        <Label className="text-sm font-medium text-gray-600">{t("Phone")}</Label>
                         <p className="text-gray-900">{selectedApplication.motherPhone}</p>
                       </div>
                     )}
                     {selectedApplication.motherId && (
                       <div>
-                        <Label className="text-sm font-medium text-gray-600">ID Number</Label>
+                        <Label className="text-sm font-medium text-gray-600">{t("ID Number")}</Label>
                         <p className="text-gray-900">{selectedApplication.motherId}</p>
                       </div>
                     )}
@@ -570,28 +570,28 @@ export default function AdminApplicationsPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <User className="mr-2 h-5 w-5" />
-                    Child Information
+                    {t("Child Information")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Child Name</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Child's Name")}</Label>
                     <p className="text-gray-900">{selectedApplication.childName}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Age</Label>
-                    <p className="text-gray-900">{selectedApplication.childAge} years old</p>
+                    <Label className="text-sm font-medium text-gray-600">{t("Age")}</Label>
+                    <p className="text-gray-900">{selectedApplication.childAge} {t("years old")}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Gender</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Gender")}</Label>
                     <p className="text-gray-900">{selectedApplication.childGender}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Date of Birth</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Date of Birth")}</Label>
                     <p className="text-gray-900">{new Date(selectedApplication.dateOfBirth).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Level</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Level")}</Label>
                     <p className="text-gray-900">
                       {selectedApplication.childYear}
                     </p>
@@ -604,37 +604,37 @@ export default function AdminApplicationsPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <User className="mr-2 h-5 w-5" />
-                    Location Information
+                    {t("Location Information")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {selectedApplication.province && (
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Province</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Province")}</Label>
                       <p className="text-gray-900">{selectedApplication.province}</p>
                     </div>
                   )}
                   {selectedApplication.district && (
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">District</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("District")}</Label>
                       <p className="text-gray-900">{selectedApplication.district}</p>
                     </div>
                   )}
                   {selectedApplication.sector && (
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Sector</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Sector")}</Label>
                       <p className="text-gray-900">{selectedApplication.sector}</p>
                     </div>
                   )}
                   {selectedApplication.cell && (
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Cell</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Cell")}</Label>
                       <p className="text-gray-900">{selectedApplication.cell}</p>
                     </div>
                   )}
                   {selectedApplication.village && (
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Village</Label>
+                      <Label className="text-sm font-medium text-gray-600">{t("Village")}</Label>
                       <p className="text-gray-900">{selectedApplication.village}</p>
                     </div>
                   )}
@@ -645,7 +645,7 @@ export default function AdminApplicationsPage() {
               {selectedApplication.additionalInfo && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Additional Information</CardTitle>
+                    <CardTitle>{t("Additional Information")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-900">{selectedApplication.additionalInfo}</p>
@@ -656,11 +656,11 @@ export default function AdminApplicationsPage() {
               {/* Status Management */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Status Management</CardTitle>
+                  <CardTitle>{t("Status Management")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Current Status</Label>
+                    <Label className="text-sm font-medium text-gray-600">{t("Current Status")}</Label>
                     <div className="mt-1">
                       <Badge className={getStatusColor(selectedApplication.status)}>
                         {getStatusIcon(selectedApplication.status)}{" "}
@@ -669,12 +669,12 @@ export default function AdminApplicationsPage() {
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="notes">Notes (optional)</Label>
+                    <Label htmlFor="notes">{t("Notes")} ({t("optional")})</Label>
                     <Textarea
                       id="notes"
                       value={statusNotes}
                       onChange={(e) => setStatusNotes(e.target.value)}
-                      placeholder="Add any notes about this application..."
+                      placeholder={t("Add any notes about this application...")}
                       rows={3}
                     />
                   </div>
@@ -683,7 +683,7 @@ export default function AdminApplicationsPage() {
                       onClick={() => updateApplicationStatus(selectedApplication._id, "under_review", statusNotes)}
                       className="bg-yellow-600 hover:bg-yellow-700"
                     >
-                      Mark Under Review
+                      {t("Mark Under Review")}
                     </Button>
                     <Button
                       onClick={() => updateApplicationStatus(selectedApplication._id, "approved", statusNotes)}

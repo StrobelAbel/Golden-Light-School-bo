@@ -230,9 +230,9 @@ export default function AdminReportsPage() {
                     <tr className="border-b">
                       <th className="text-left p-4 font-medium text-gray-600">{t('Product Name')}</th>
                       <th className="text-left p-4 font-medium text-gray-600">{t('Quantity Sold')}</th>
-                      <th className="text-left p-4 font-medium text-gray-600">{t('Total Revenue')}ue</th>
-                      <th className="text-left p-4 font-medium text-gray-600">Number of Orders</th>
-                      <th className="text-left p-4 font-medium text-gray-600">Avg. Order Value</th>
+                      <th className="text-left p-4 font-medium text-gray-600">{t('Total Revenue')}</th>
+                      <th className="text-left p-4 font-medium text-gray-600">{t("Number of Orders")}</th>
+                      <th className="text-left p-4 font-medium text-gray-600">{t("Avg. Order Value")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -240,9 +240,9 @@ export default function AdminReportsPage() {
                       <tr key={item.productId} className="border-b hover:bg-gray-50">
                         <td className="p-4 font-medium text-gray-900">{item.productName}</td>
                         <td className="p-4 text-gray-600">{item.totalQuantitySold}</td>
-                        <td className="p-4 font-bold text-green-600">{item.totalRevenue} Frw</td>
+                        <td className="p-4 font-bold text-green-600">{item.totalRevenue} {t("Rwf")}</td>
                         <td className="p-4 text-gray-600">{item.orderCount}</td>
-                        <td className="p-4 text-gray-600">{(item.totalRevenue / item.orderCount).toFixed(2)} Frw</td>
+                        <td className="p-4 text-gray-600">{(item.totalRevenue / item.orderCount).toFixed(2)} {t("Rwf")}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -255,13 +255,13 @@ export default function AdminReportsPage() {
         <Card>
           <CardContent className="p-12 text-center">
             <TrendingUp className="h-16 w-16 text-gray-400 mx-auto mb-6" />
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">No Sales Data</h3>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">{t("No Sales Data")}</h3>
             <p className="text-gray-600 mb-6">
               {loading ? "Loading sales data..." : "No completed orders found for the selected period"}
             </p>
             {!loading && (
               <Button onClick={fetchSalesReport} className="bg-blue-600 hover:bg-blue-700">
-                Generate Report
+                {t("Generate Report")}
               </Button>
             )}
           </CardContent>
