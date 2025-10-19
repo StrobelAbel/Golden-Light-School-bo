@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from "next/server"
 import clientPromise from "@/lib/mongodb"
 import type { AdmissionSettings } from "@/lib/models/AdmissionSettings"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const client = await clientPromise
