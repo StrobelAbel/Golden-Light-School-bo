@@ -710,6 +710,17 @@ export const translations = {
     "Under Review": "En cours de révision",
     Approved: "Approuvé",
     Rejected: "Rejeté",
+    "Preview Public Page": "Aperçu de la page publique",
+    "Add FAQ": "Ajouter une FAQ",
+    "FAQ Section": "Section FAQ",
+    "School Address": "Adresse de l'école",
+    "Email Address": "Adresse e-mail",
+    "Phone Number": "Numéro de téléphone",
+    "Contact Information": "Informations de contact",
+    "Scheduled Message": "Message programmé",
+    "When Open": "Quand ouvert",
+    "Public Page Messages": "Messages de la page publique",
+    "Global Admission Control": "Contrôle global des admissions",
 
     //Academic Years
     "Promote Students": "Promouvoir les étudiants",
@@ -1198,6 +1209,20 @@ export const translations = {
     "Current enrollments": "Abiyandikishije Ubu",
     "Confirm Bulk Action": "Emeza Igikorwa Kinini",
     "Are you sure you want to": "Urabizi neza ko ushaka gu",
+    "Public Page Messages": "Ubutumwa bw'urubuga rusange",
+    // "Welcome Message": "Ubutumwa Bw'ikaze",
+    "When Open": "Igihe Ifunguye",
+    // "Closed Message": "Ubutumwa bwo Gufunga",
+    "Scheduled Message": "Ubutumwa Buteganijwe",
+    "Contact Information": "Amakuru yo Gutumanaho",
+    "School Address": "Aderesi y'Ishuri",
+    "FAQ Section": "Igice cy'ibibazo bikunze kubazwa",
+    "Preview Public Page": "Reba Urubuga Rusange",
+    "Phone Number": "Nimero ya Telefoni",
+    "Email Address": "Aderesi ya Email",
+    "Add FAQ": "Ongeraho IBibazo Bikunze Kubazwa",
+    "Global Admission Control": "Igenzura Rusange ryo kwinjira",
+    
 
     //Products
     "Manage your learning aids and educational products":" Genzura ibikoresho byawe byo kwiga n'ibicuruzwa by'uburezi",

@@ -1282,7 +1282,7 @@ export default function AdminAdmissionsPage() {
               {/* Global Status */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Global Admission Control</CardTitle>
+                  <CardTitle className="text-lg">{t("Global Admission Control")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
@@ -1309,11 +1309,11 @@ export default function AdminAdmissionsPage() {
               {/* Messages */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Public Page Messages</CardTitle>
+                  <CardTitle className="text-lg">{t("Public Page Messages")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="welcomeMessage">Welcome Message (When Open)</Label>
+                    <Label htmlFor="welcomeMessage">{t("Welcome Message")} ({t("When Open")})</Label>
                     <Textarea
                       id="welcomeMessage"
                       value={settings.welcomeMessage}
@@ -1324,7 +1324,7 @@ export default function AdminAdmissionsPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="closedMessage">Closed Message</Label>
+                    <Label htmlFor="closedMessage">{t("Closed Message")}</Label>
                     <Textarea
                       id="closedMessage"
                       value={settings.closedMessage}
@@ -1335,7 +1335,7 @@ export default function AdminAdmissionsPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="scheduledMessage">Scheduled Message</Label>
+                    <Label htmlFor="scheduledMessage">{t("Scheduled Message")}</Label>
                     <Textarea
                       id="scheduledMessage"
                       value={settings.scheduledMessage}
@@ -1350,12 +1350,12 @@ export default function AdminAdmissionsPage() {
               {/* Contact Information */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Contact Information</CardTitle>
+                  <CardTitle className="text-lg">{t("Contact Information")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="phone">Phone Number</Label>
+                      <Label htmlFor="phone">{t("Phone Number")}</Label>
                       <Input
                         id="phone"
                         value={settings.contactInfo?.phone || ""}
@@ -1367,7 +1367,7 @@ export default function AdminAdmissionsPage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="email">Email Address</Label>
+                      <Label htmlFor="email">{t("Email Address")}</Label>
                       <Input
                         id="email"
                         type="email"
@@ -1381,7 +1381,7 @@ export default function AdminAdmissionsPage() {
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="address">School Address</Label>
+                    <Label htmlFor="address">{t("School Address")}</Label>
                     <Input
                       id="address"
                       value={settings.contactInfo?.address || ""}
@@ -1398,7 +1398,7 @@ export default function AdminAdmissionsPage() {
               {/* FAQ Management */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">FAQ Section</CardTitle>
+                  <CardTitle className="text-lg">{t("FAQ Section")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {settings.faqItems?.map((faq, index) => (
@@ -1449,7 +1449,7 @@ export default function AdminAdmissionsPage() {
                     }}
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add FAQ
+                    {t("Add FAQ")}
                   </Button>
                 </CardContent>
               </Card>
@@ -1460,7 +1460,7 @@ export default function AdminAdmissionsPage() {
                   onClick={() => window.open('/admission', '_blank')}
                 >
                   <Eye className="h-4 w-4 mr-2" />
-                  Preview Public Page
+                  {t("Preview Public Page")}
                 </Button>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => setIsSettingsDialogOpen(false)}>
