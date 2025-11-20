@@ -104,9 +104,9 @@ export default function AboutPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 text-lg leading-relaxed">
-                  To provide affordable, high-quality early childhood education that combines traditional nurturing with
-                  innovative technology. We aim to develop well-rounded individuals with strong attitudes, comprehensive
-                  knowledge, practical skills, and inner strength.
+                  To enhance early childhood education by providing affordable, interactive, 
+                  and technology-enhanced learning tools that improve teaching effectiveness 
+                  and student engagement.
                 </p>
               </CardContent>
             </Card>
