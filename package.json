@@ -57,6 +57,7 @@
     "mongodb-client-encryption": "latest",
     "mongoose": "latest",
     "next": "14.2.16",
+    "next-cloudinary": "^6.17.0",
     "next-themes": "latest",
     "nodemailer": "latest",
     "react": "^18",

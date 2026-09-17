@@ -8,8 +8,6 @@ import { useSessionTimeout } from "@/hooks/useSessionTimeout"
 import { useTranslation } from "@/hooks/useTranslation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +16,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   LayoutDashboard,
   Package,
   FileText,
@@ -25,14 +29,14 @@ import {
   BarChart3,
   GraduationCap,
   Users,
-  Bell,
   LogOut,
-  Menu,
-  X,
   User,
   Settings,
   Shield,
   Calendar,
+  Search,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { EnhancedNotifications } from "@/components/admin/enhanced-notifications"
@@ -46,22 +50,18 @@ interface AdminUser {
 }
 
 export const dynamic = "force-dynamic"
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null)
-  const [sessionTimeout, setSessionTimeout] = useState(30) // Default 30 minutes
+  const [sessionTimeout, setSessionTimeout] = useState(30)
+  const [search, setSearch] = useState("")
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
-
   const { t } = useTranslation()
 
   const handleLogout = useCallback(() => {
@@ -74,14 +74,12 @@ export default function AdminLayout({
     router.push("/admin/login")
   }, [router])
 
-  // Session timeout hook
   const { resetTimer } = useSessionTimeout({
     timeout: sessionTimeout,
     onLogout: handleLogout,
     enabled: isAuthenticated && pathname !== "/admin/login",
   })
 
-  // Listen for storage changes to update session timeout
   useEffect(() => {
     const handleStorageChange = () => {
       const userStr = localStorage.getItem("adminUser")
@@ -96,17 +94,14 @@ export default function AdminLayout({
         }
       }
     }
-
     window.addEventListener("storage", handleStorageChange)
     return () => window.removeEventListener("storage", handleStorageChange)
   }, [sessionTimeout])
 
-  // Memoize the fetchNotifications function to prevent recreation on every render
   const fetchNotifications = useCallback(async (includeCleanup = false) => {
     try {
       const token = localStorage.getItem("adminToken")
-      if (!token) return // Don't fetch if no token
-
+      if (!token) return
       const url = includeCleanup ? "/api/notifications?cleanup=true" : "/api/notifications"
       const response = await fetch(url, {
         headers: {
@@ -117,335 +112,273 @@ export default function AdminLayout({
         },
         cache: "no-store",
       })
-
-      if (!response.ok) {
-        console.error("Failed to fetch notifications:", response.status)
-        return
-      }
-
+      if (!response.ok) return
       const data = await response.json()
       setNotifications(data)
       setUnreadCount(data.filter((n: Notification) => !n.isRead).length)
     } catch (error) {
       console.error("Error fetching notifications:", error)
     }
-  }, []) // Empty dependency array since we're getting token inside the function
+  }, [])
 
-  // Separate authentication check from notification fetching
   useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem("adminToken")
       const userStr = localStorage.getItem("adminUser")
-
-      // If on login page, just stop loading
-      if (pathname === "/admin/login") {
-        setIsLoading(false)
-        return
-      }
-
-      // Check authentication
-      if (!token) {
-        setIsAuthenticated(false)
-        setIsLoading(false)
-        router.push("/admin/login")
-        return
-      }
-
-      // Set authenticated state
+      if (pathname === "/admin/login") { setIsLoading(false); return }
+      if (!token) { setIsAuthenticated(false); setIsLoading(false); router.push("/admin/login"); return }
       setIsAuthenticated(true)
       if (userStr) {
         try {
           const user = JSON.parse(userStr)
           setAdminUser(user)
-          // Load session timeout from user settings if available
-          if (user.settings?.sessionTimeout) {
-            setSessionTimeout(user.settings.sessionTimeout)
-          }
-        } catch (error) {
-          console.error("Error parsing admin user:", error)
-          // Clear corrupted data
-          localStorage.removeItem("adminUser")
-        }
+          if (user.settings?.sessionTimeout) setSessionTimeout(user.settings.sessionTimeout)
+        } catch { localStorage.removeItem("adminUser") }
       }
       setIsLoading(false)
     }
-
     checkAuth()
   }, [pathname, router])
 
-  // Separate effect for notification polling - only runs when authenticated
   useEffect(() => {
     if (!isAuthenticated || pathname === "/admin/login") return
-
-    // Initial fetch with cleanup
     fetchNotifications(true)
-
-    // Set up polling interval (every 30 seconds)
     const interval = setInterval(() => fetchNotifications(), 30000)
-
-    // Set up cleanup interval (every hour)
     const cleanupInterval = setInterval(() => fetchNotifications(true), 3600000)
-
-    return () => {
-      clearInterval(interval)
-      clearInterval(cleanupInterval)
-    }
+    return () => { clearInterval(interval); clearInterval(cleanupInterval) }
   }, [isAuthenticated, pathname, fetchNotifications])
 
   const markNotificationAsRead = async (id: string) => {
     try {
       const token = localStorage.getItem("adminToken")
       if (!token) return
-
       const response = await fetch("/api/notifications", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "Cache-Control": "no-cache",
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, "Cache-Control": "no-cache" },
         body: JSON.stringify({ id, isRead: true }),
         cache: "no-store",
       })
-
-      if (response.ok) {
-        fetchNotifications()
-      }
-    } catch (error) {
-      console.error("Error marking notification as read:", error)
-    }
+      if (response.ok) fetchNotifications()
+    } catch (error) { console.error("Error marking notification as read:", error) }
   }
 
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem("adminToken")
       if (!token) return
-
       const response = await fetch("/api/notifications", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "Cache-Control": "no-cache",
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, "Cache-Control": "no-cache" },
         body: JSON.stringify({ markAllAsRead: true }),
         cache: "no-store",
       })
-
-      if (response.ok) {
-        fetchNotifications()
-      }
-    } catch (error) {
-      console.error("Error marking all notifications as read:", error)
-    }
+      if (response.ok) fetchNotifications()
+    } catch (error) { console.error("Error marking all notifications as read:", error) }
   }
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case "new_application":
-        return "📝"
-      case "new_order":
-        return "🛒"
-      case "new_product_request":
-        return "📦"
-      case "low_stock":
-        return "⚠️"
-      case "out_of_stock":
-        return "❌"
-      case "payment_received":
-        return "💰"
-      case "status_change":
-        return "🔄"
-      case "system":
-        return "⚙️"
-      default:
-        return "ℹ️"
-    }
-  }
+  // Persist sidebar state
+  useEffect(() => {
+    const stored = localStorage.getItem("sidebarOpen")
+    if (stored !== null) setSidebarOpen(stored === "true")
+  }, [])
 
-  const getTimeAgo = (dateString: string) => {
-    try {
-      const date = new Date(dateString)
-      const now = new Date()
-      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen((prev) => {
+      localStorage.setItem("sidebarOpen", String(!prev))
+      return !prev
+    })
+  }, [])
 
-      if (diffInMinutes < 1) return "Just now"
-      if (diffInMinutes < 60) return `${diffInMinutes}m ago`
-      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`
-      return `${Math.floor(diffInMinutes / 1440)}d ago`
-    } catch (error) {
-      return "Unknown"
-    }
-  }
-
-  // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-golden-50 to-cyan-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
       </div>
     )
   }
 
-  // Login page - render children directly
-  if (pathname === "/admin/login") {
-    return <>{children}</>
-  }
-
-  // Not authenticated - render nothing (redirect is handled in useEffect)
-  if (!isAuthenticated) {
-    return null
-  }
+  if (pathname === "/admin/login") return <>{children}</>
+  if (!isAuthenticated) return null
 
   const navItems = [
-    { href: "/admin/dashboard", label: t("Dashboard"), icon: LayoutDashboard },
-    { href: "/admin/products", label: t("Products"), icon: Package },
-    { href: "/admin/orders", label: t("Orders"), icon: ShoppingCart },
-    { href: "/admin/admissions", label: t("Admissions"), icon: GraduationCap },
-    { href: "/admin/students", label: t("Students"), icon: Users },
-    { href: "/admin/academic-years", label: t("Academic Years"), icon: Calendar },
-    { href: "/admin/applications", label: t("Applications"), icon: FileText },
-    { href: "/admin/reports", label: t("Reports"), icon: BarChart3 },
+    { href: "/admin/dashboard",     label: t("Dashboard"),      icon: LayoutDashboard },
+    { href: "/admin/products",      label: t("Products"),       icon: Package },
+    { href: "/admin/orders",        label: t("Orders"),         icon: ShoppingCart },
+    { href: "/admin/admissions",    label: t("Admissions"),     icon: GraduationCap },
+    { href: "/admin/students",      label: t("Students"),       icon: Users },
+    { href: "/admin/academic-years",label: t("Academic Years"), icon: Calendar },
+    { href: "/admin/applications",  label: t("Applications"),   icon: FileText },
+    { href: "/admin/reports",       label: t("Reports"),        icon: BarChart3 },
   ]
 
+  const utilityItems = [
+    { href: "/admin/profile",  label: t("Profile Settings"),  icon: User },
+    { href: "/admin/account",  label: t("Account Settings"),  icon: Settings },
+  ]
+
+  const filteredNav = search.trim()
+    ? navItems.filter((i) => i.label.toLowerCase().includes(search.toLowerCase()))
+    : navItems
+
+  const initials = adminUser?.username?.slice(0, 2).toUpperCase() ?? "AD"
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar overlay */}
-      {isSidebarOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />
-      )}
+    <TooltipProvider delayDuration={200}>
+      <div className="admin-shell">
 
-      {/* Sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-golden-600 to-golden-700 transform ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 transition-transform duration-200 ease-in-out`}
-      >
-        <div className="flex items-center justify-between h-16 px-6 border-b border-golden-500">
-          <div className="flex items-center space-x-3">
-            <div className="relative w-8 h-8">
-              <Image
-                src="/images/logo.jpg"
-                alt="Golden Light School Logo"
-                fill
-                className="object-contain rounded-full"
-              />
-            </div>
-            <span className="text-white font-bold text-lg">{t("Admin Panel")}</span>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="lg:hidden text-white hover:bg-golden-500"
-            onClick={() => setIsSidebarOpen(false)}
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+        {/* ── Single Sidebar ─────────────────────────── */}
+        <aside className={`sidebar${sidebarOpen ? " sidebar--expanded" : " sidebar--collapsed"}`}>
 
-        <nav className="mt-8 px-4">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-colors ${
-                  isActive ? "bg-white/20 text-white" : "text-golden-100 hover:bg-white/10 hover:text-white"
-                }`}
-                onClick={() => setIsSidebarOpen(false)}
-              >
-                <Icon className="h-5 w-5" />
-                <span>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
-
-        <div className="absolute bottom-4 left-4 right-4 space-y-2">
-          
-          <Button
-            onClick={handleLogout}
-            variant="ghost"
-            className="w-full justify-start text-golden-100 hover:bg-white/10 hover:text-white"
-          >
-            <LogOut className="mr-3 h-5 w-5" />
-            {t("Logout")}
-          </Button>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="lg:ml-64">
-        {/* Top bar */}
-        <header className="fixed top-0 left-0 right-0 lg:left-64 z-30 bg-white shadow-sm border-b h-16 flex items-center justify-between px-6">
-          <div className="flex items-center">
-            <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setIsSidebarOpen(true)}>
-              <Menu className="h-5 w-5" />
-            </Button>
-            <div className="hidden lg:block">
-              <h1 className="text-xl font-semibold text-gray-900">{t("Admin Dashboard")}</h1>
-            </div>
+          {/* Header */}
+          <div className="sidebar-header">
+            {sidebarOpen && (
+              <div className="sidebar-logo">
+                <Image src="/images/logo.jpg" alt="Logo" width={32} height={32} className="object-cover rounded-lg" />
+              </div>
+            )}
+            {sidebarOpen && (
+              <div className="sidebar-brand">
+                <div className="sidebar-brand-name">Golden Light</div>
+                <div className="sidebar-brand-sub">{t("Admin Panel")}</div>
+              </div>
+            )}
+            <button className="sidebar-toggle" onClick={toggleSidebar} aria-label="Toggle sidebar">
+              {sidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+            </button>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <LanguageSwitcher variant="admin" size="sm" />
-            {/* Enhanced Notifications */}
-            <EnhancedNotifications
-              notifications={notifications}
-              unreadCount={unreadCount}
-              onMarkAsRead={markNotificationAsRead}
-              onMarkAllAsRead={markAllAsRead}
-              onRefresh={() => fetchNotifications(true)}
-            />
+          {/* Search — only when expanded */}
+          {sidebarOpen && (
+            <div className="sidebar-search-wrap">
+              <div className="sidebar-search">
+                <Search className="sidebar-search-icon" />
+                <input
+                  type="text"
+                  placeholder={t("Search…")}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <div className="sidebar-tabs">
+                <button className="sidebar-tab active">{t("Menu")}</button>
+                <button className="sidebar-tab">{t("Pinned")}</button>
+              </div>
+            </div>
+          )}
 
-            {/* Admin Profile */}
+          {/* Nav */}
+          <nav className="sidebar-nav">
+            {filteredNav.map((item) => {
+              const Icon = item.icon
+              const isActive = pathname === item.href
+              return (
+                <Tooltip key={item.href} disableHoverableContent>
+                  <TooltipTrigger asChild>
+                    <Link href={item.href} className={`sidebar-nav-item${isActive ? " active" : ""}`}>
+                      <Icon className="sidebar-nav-icon" />
+                      {sidebarOpen && <span className="sidebar-nav-label">{item.label}</span>}
+                    </Link>
+                  </TooltipTrigger>
+                  {!sidebarOpen && <TooltipContent side="right">{item.label}</TooltipContent>}
+                </Tooltip>
+              )
+            })}
+
+            <div className="sidebar-divider" />
+
+            {utilityItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <Tooltip key={item.href} disableHoverableContent>
+                  <TooltipTrigger asChild>
+                    <Link href={item.href} className="sidebar-nav-item">
+                      <Icon className="sidebar-nav-icon" />
+                      {sidebarOpen && <span className="sidebar-nav-label">{item.label}</span>}
+                    </Link>
+                  </TooltipTrigger>
+                  {!sidebarOpen && <TooltipContent side="right">{item.label}</TooltipContent>}
+                </Tooltip>
+              )
+            })}
+          </nav>
+
+          {/* Footer */}
+          <div className="sidebar-footer">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-golden-500 to-golden-600 rounded-full flex items-center justify-center">
-                    <User className="h-4 w-4 text-white" />
+                <div className="sidebar-footer-user">
+                  <div className="sidebar-footer-avatar">
+                    <div className="sidebar-footer-avatar-img">{initials}</div>
+                    <span className="sidebar-footer-online" />
                   </div>
-                  <span className="hidden md:block text-sm font-medium">{adminUser?.username || "Admin"}</span>
-                </Button>
+                  {sidebarOpen && (
+                    <>
+                      <div className="sidebar-footer-info">
+                        <div className="sidebar-footer-name">{adminUser?.username ?? "Admin"}</div>
+                        <div className="sidebar-footer-role">
+                          {adminUser?.role?.replace("_", " ") ?? "Super Admin"}
+                        </div>
+                      </div>
+                      <LogOut size={14} style={{ color: "hsl(var(--sidebar-muted))", flexShrink: 0 }} />
+                    </>
+                  )}
+                </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent side="top" align="start" className="w-52">
                 <div className="px-3 py-2 border-b">
-                  <p className="text-sm font-medium">{adminUser?.username || "Admin"}</p>
-                  <p className="text-xs text-gray-500">{adminUser?.email || "admin@goldenlightschool.com"}</p>
-                  <div className="flex items-center mt-1">
-                    <Shield className="h-3 w-3 mr-1 text-golden-600" />
-                    <span className="text-xs text-golden-600 font-medium">
-                      {adminUser?.role?.replace("_", " ").toUpperCase() || "SUPER ADMIN"}
+                  <p className="text-sm font-medium">{adminUser?.username ?? "Admin"}</p>
+                  <p className="text-xs text-muted-foreground">{adminUser?.email ?? ""}</p>
+                  <div className="flex items-center mt-1 gap-1">
+                    <Shield className="h-3 w-3 text-orange-500" />
+                    <span className="text-xs text-orange-500 font-medium">
+                      {adminUser?.role?.replace("_", " ").toUpperCase() ?? "SUPER ADMIN"}
                     </span>
                   </div>
                 </div>
                 <DropdownMenuItem asChild>
-                  <Link href="/admin/profile">
-                    <User className="mr-2 h-4 w-4" />
-                    {t("Profile Settings")}
-                  </Link>
+                  <Link href="/admin/profile"><User className="mr-2 h-4 w-4" />{t("Profile Settings")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/admin/account">
-                    <Settings className="mr-2 h-4 w-4" />
-                    {t("Account Settings")}
-                  </Link>
+                  <Link href="/admin/account"><Settings className="mr-2 h-4 w-4" />{t("Account Settings")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  {t("Sign Out")}
+                  <LogOut className="mr-2 h-4 w-4" />{t("Sign Out")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </header>
+        </aside>
 
-        {/* Page content */}
-        <main className="p-6 pt-20">{children}</main>
+        {/* ── Main Content ───────────────────────────── */}
+        <div className="admin-main">
+          <header className="admin-topbar">
+            <h1 className="text-base font-semibold text-foreground">
+              {[...navItems, ...utilityItems].find((i) => i.href === pathname)?.label ?? t("Admin Dashboard")}
+            </h1>
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher variant="admin" size="sm" />
+              <EnhancedNotifications
+                notifications={notifications}
+                unreadCount={unreadCount}
+                onMarkAsRead={markNotificationAsRead}
+                onMarkAllAsRead={markAllAsRead}
+                onRefresh={() => fetchNotifications(true)}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          </header>
+          <main className="admin-content">{children}</main>
+        </div>
+
       </div>
-    </div>
+    </TooltipProvider>
   )
 }

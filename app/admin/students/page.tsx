@@ -36,6 +36,7 @@ import {
 import { toast } from "@/hooks/use-toast"
 import type { Student, StudentStats } from "@/lib/models/Student"
 import { useTranslation } from "@/hooks/useTranslation"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface StudentsResponse {
   students: Student[]
@@ -1135,14 +1136,16 @@ export default function StudentsPage() {
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-600"></div>
-                        {/* <span>Loading students...</span> */}
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><div className="flex items-center gap-3"><Skeleton className="h-8 w-8 rounded-full" /><div className="space-y-1"><Skeleton className="h-3 w-28" /><Skeleton className="h-3 w-16" /></div></div></TableCell>
+                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+                    </TableRow>
+                  ))
                 ) : students.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8">

@@ -1,5 +1,6 @@
 "use client"
 
+import {CldUploadWidget} from "next-cloudinary"
 import { useEffect, useState, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -95,15 +96,12 @@ export default function ProfileSettingsPage() {
   })
   
   // Avatar state
-  const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState<string>("")
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
   
   // UI state
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [changingPassword, setChangingPassword] = useState(false)
-  const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [success, setSuccess] = useState("")
   const [error, setError] = useState("")
   
@@ -188,60 +186,50 @@ export default function ProfileSettingsPage() {
     }
   }, [error])
 
-  // Handle avatar file selection
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setError("Avatar file size must be less than 5MB")
-        return
-      }
-      
-      if (!file.type.startsWith('image/')) {
-        setError("Please select an image file")
-        return
-      }
-      
-      setAvatarFile(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setAvatarPreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
 
-  // Upload avatar
-  const uploadAvatar = async () => {
-    if (!avatarFile) return
 
+  // Update avatar URL from Cloudinary
+  const updateAvatarUrl = async (avatarUrl: string) => {
+    console.log("Updating avatar URL:", avatarUrl)
     setUploadingAvatar(true)
     try {
+      // Immediately update UI
+      setProfile(prev => {
+        const updated = prev ? { ...prev, avatar: avatarUrl } : null
+        console.log("Updated profile state:", updated)
+        return updated
+      })
+      
       const token = localStorage.getItem("adminToken")
-      const formData = new FormData()
-      formData.append('avatar', avatarFile)
-
-      const response = await fetch("/api/admin/avatar", {
-        method: "POST",
+      const updateData = { ...formData, avatar: avatarUrl }
+      console.log("Sending update data:", updateData)
+      
+      const response = await fetch("/api/admin/profile", {
+        method: "PUT",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: formData,
+        body: JSON.stringify(updateData),
       })
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to upload avatar")
+        console.error("API Error:", errorData)
+        throw new Error(errorData.error || "Failed to update avatar")
       }
 
-      const data = await response.json()
-      setProfile(prev => prev ? { ...prev, avatar: data.avatarUrl } : null)
-      setAvatarFile(null)
-      setAvatarPreview("")
+      const updatedProfile = await response.json()
+      console.log("API Response:", updatedProfile)
+      setProfile(updatedProfile)
+      localStorage.setItem("adminUser", JSON.stringify(updatedProfile))
       setSuccess("Avatar updated successfully!")
       
     } catch (err: any) {
-      setError(err.message || "Error uploading avatar")
+      console.error("Avatar update error:", err)
+      setError(err.message || "Error updating avatar")
+      // Revert UI on error
+      await fetchProfile()
     } finally {
       setUploadingAvatar(false)
     }
@@ -442,66 +430,57 @@ export default function ProfileSettingsPage() {
             <CardContent className="text-center space-y-4">
               <div className="relative mx-auto w-32 h-32">
                 <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-r from-golden-500 to-golden-600 flex items-center justify-center">
-                  {avatarPreview || profile?.avatar ? (
+                  {profile?.avatar ? (
                     <Image
-                      src={avatarPreview || profile?.avatar || ''}
+                      src={`${profile.avatar}?${Date.now()}`}
                       alt="Profile"
                       fill
                       className="object-cover"
+                      key={profile.avatar}
                     />
                   ) : (
                     <User className="h-16 w-16 text-white" />
                   )}
                 </div>
-                <Button
-                  size="sm"
-                  className="absolute bottom-0 right-0 rounded-full p-2 h-8 w-8"
-                  onClick={() => fileInputRef.current?.click()}
+                <CldUploadWidget
+                  uploadPreset="golden-light-avatars"
+                  options={{
+                    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+                    maxFiles: 1,
+                    resourceType: "image",
+                    clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
+                    maxFileSize: 5000000,
+                    cropping: true,
+                    croppingAspectRatio: 1,
+                    folder: "golden-light-avatars"
+                  }}
+                  onSuccess={(result: any) => {
+                    if (result.event === "success") {
+                      updateAvatarUrl(result.info.secure_url)
+                    }
+                  }}
                 >
-                  <Edit className="h-3 w-3" />
-                </Button>
-              </div>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="hidden"
-              />
-
-              {avatarPreview && (
-                <div className="space-y-2">
-                  <div className="flex space-x-2">
+                  {({ open }) => (
                     <Button
                       size="sm"
-                      onClick={uploadAvatar}
+                      className="absolute bottom-0 right-0 rounded-full p-2 h-8 w-8"
+                      onClick={() => open()}
                       disabled={uploadingAvatar}
-                      className="flex-1"
                     >
                       {uploadingAvatar ? (
                         <Loader2 className="h-3 w-3 animate-spin" />
                       ) : (
-                        t('Save')
+                        <Edit className="h-3 w-3" />
                       )}
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setAvatarFile(null)
-                        setAvatarPreview("")
-                      }}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              )}
+                  )}
+                </CldUploadWidget>
+              </div>
 
               <div className="text-xs text-gray-500">
-                <p>{t('JPG, PNG up to 5MB')}</p>
-                <p>{t('Recommended: 400x400px')}</p>
+                <p>{t('JPG, PNG, WebP up to 5MB')}</p>
+                <p>{t('Auto-cropped to 400x400px')}</p>
+                <p>{t('Click edit button to upload')}</p>
               </div>
             </CardContent>
           </Card>
